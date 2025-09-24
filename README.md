@@ -1,0 +1,1 @@
+# gestock-sistema-gerenciador-estoque
