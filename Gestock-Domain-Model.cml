@@ -1,0 +1,297 @@
+# CONTEXT MAP (Visão geral dos Bounded Contexts e relações)
+ContextMap {
+  contains GestockCore
+  contains Compras
+  contains Qualidade
+  contains Relatorios
+  contains Custos
+  contains Inventario
+  
+  GestockCore -> Compras
+  GestockCore -> Qualidade
+  GestockCore -> Relatorios
+  GestockCore -> Custos
+  GestockCore -> Inventario
+}
+
+# 1. BOUNDED CONTEXT PRINCIPAL (CORE)
+BoundedContext GestockCore {
+  Aggregate Cliente {
+    Entity Cliente {
+      - ClienteId id
+      String nome
+      Set<EstoqueId> estoques
+    }
+  }
+  
+  Aggregate Produto {
+    Entity Produto {
+      - ProdutoId id
+      String codigo
+      String nome
+      String categoria
+      boolean perecivel
+      ClassificacaoABC classificacao
+      Rop pontoRessuprimento
+      EstoqueSeguranca estoqueSeguranca
+      BigDecimal consumoMedio
+    }
+    
+    ValueObject Rop {
+      BigDecimal valor
+      Date calculadoEm
+    }
+    
+    ValueObject ClassificacaoABC {
+      String categoria
+      BigDecimal percentualValor
+    }
+    
+    ValueObject EstoqueSeguranca {
+      int quantidade
+    }
+  }
+  
+  Aggregate Estoque {
+    Entity Estoque {
+      - EstoqueId id
+      String localizacao
+      ClienteId cliente
+      Map<ProdutoId, SaldoProduto> saldos
+    }
+    
+    Entity SaldoProduto {
+      - ProdutoId produto
+      int saldoFisico
+      int saldoReservado
+      int saldoDisponivel
+      List<Lote> lotes
+    }
+    
+    Entity Lote {
+      String numeroLote
+      Date dataValidade
+      int quantidade
+    }
+  }
+  
+  Aggregate Movimentacao {
+    Entity Movimentacao {
+      - MovimentacaoId id
+      TipoMovimentacao tipo
+      ProdutoId produto
+      EstoqueId estoqueOrigem
+      EstoqueId estoqueDestino
+      int quantidade
+      String lote
+      Date dataValidade
+      String motivo
+      String responsavel
+      Date dataOcorrencia
+    }
+  }
+  
+  Aggregate Transferencia {
+    Entity Transferencia {
+      - TransferenciaId id
+      ArmazemId origem
+      ArmazemId destino
+      Date criadoEm
+      String status
+      List<LinhaTransferencia> linhas
+    }
+    
+    Entity LinhaTransferencia {
+      ProdutoId produto
+      int quantidade
+      String lote
+    }
+  }
+  
+  Aggregate Alerta {
+    Entity AlertaEstoque {
+      - AlertaId id
+      ProdutoId produto
+      EstoqueId estoque
+      TipoAlerta tipo
+      String mensagem
+      Date dataCriacao
+      boolean resolvido
+    }
+  }
+}
+
+# 2. BOUNDED CONTEXT DE COMPRAS
+BoundedContext Compras {
+  Aggregate Fornecedor {
+    Entity Fornecedor {
+      - FornecedorId id
+      String nome
+      Map<ProdutoId, LeadTime> leadTimes
+      Performance performance
+    }
+    
+    ValueObject LeadTime {
+      int dias
+      Date atualizadoEm
+      int entregasRealizadas
+    }
+    
+    ValueObject Performance {
+      BigDecimal taxaSucesso
+      BigDecimal tempoMedioEntrega
+    }
+  }
+  
+  Aggregate Cotacao {
+    Entity Cotacao {
+      - CotacaoId id
+      FornecedorId fornecedor
+      ProdutoId produto
+      BigDecimal preco
+      int quantidadeMinima
+      int prazoEntregaDias
+      boolean valida
+      boolean selecionada
+      Date dataValidade
+    }
+  }
+  
+  Aggregate PedidoCompra {
+    Entity PedidoCompra {
+      - PedidoCompraId id
+      FornecedorId fornecedor
+      StatusPedido status
+      List<ItemPedido> itens
+      Date dataCriacao
+      boolean agrupado
+      PedidoCompraId pedidoPai
+    }
+    
+    Entity ItemPedido {
+      - ProdutoId produto
+      int quantidade
+      int quantidadeRecebida
+      BigDecimal precoUnitario
+      String status
+    }
+  }
+}
+
+# 3. BOUNDED CONTEXT DE QUALIDADE
+BoundedContext Qualidade {
+  Aggregate NaoConformidade {
+    Entity NaoConformidade {
+      - NaoConformidadeId id
+      PedidoCompraId pedido
+      ProdutoId produto
+      int quantidadeEsperada
+      int quantidadeRecebida
+      String motivo
+      String responsavel
+      Date data
+      String acaoCorretiva
+    }
+  }
+}
+
+# 4. BOUNDED CONTEXT DE RELATÓRIOS
+BoundedContext Relatorios {
+  Aggregate Relatorio {
+    Entity Relatorio {
+      - RelatorioId id
+      String tipo
+      Date periodoInicio
+      Date periodoFim
+      Date geradoEm
+      String formato
+      String urlArquivo
+    }
+  }
+  
+  Aggregate Dashboard {
+    Entity MetricasEstoque {
+      - MetricaId id
+      BigDecimal valorTotalEstoque
+      int totalProdutos
+      int alertasAtivos
+      Map<String, BigDecimal> movimentacaoMensal
+    }
+  }
+}
+
+# 5. BOUNDED CONTEXT DE CUSTOS
+BoundedContext Custos {
+  Aggregate CustoProduto {
+    Entity CustoProduto {
+      - ProdutoId produto
+      BigDecimal custoMedio
+      BigDecimal freteRateado
+      BigDecimal custoAquisicao
+      Date dataAtualizacao
+    }
+  }
+  
+  Aggregate Frete {
+    Entity CustoFrete {
+      - FreteId id
+      FornecedorId fornecedor
+      BigDecimal valor
+      int prazoDias
+      String regiao
+      Date dataVigencia
+    }
+  }
+}
+
+# 6. BOUNDED CONTEXT DE INVENTÁRIO
+BoundedContext Inventario {
+  Aggregate AjusteInventario {
+    Entity Ajuste {
+      - AjusteId id
+      ProdutoId produto
+      EstoqueId estoque
+      int quantidadeAnterior
+      int quantidadeNova
+      String motivo
+      String responsavel
+      Date dataAjuste
+      String tipoAjuste
+    }
+  }
+}
+
+# 7. DOMAIN SERVICES (no final, após todos os aggregates)
+DomainService CalculoROP {
+  BigDecimal calcularROP(Produto produto, Fornecedor fornecedor)
+}
+
+DomainService ClassificacaoABC {
+  void classificarProdutos(List<Produto> produtos)
+}
+
+DomainService SelecaoCotacao {
+  Cotacao selecionarMelhorCotacao(Produto produto, int quantidade)
+}
+
+DomainService AgrupamentoPedidos {
+  PedidoCompra agruparPedidos(Fornecedor fornecedor, List<AlertaEstoque> alertas)
+}
+
+DomainService AtualizacaoLeadTime {
+  void atualizarLeadTime(Fornecedor fornecedor, Produto produto, int diasReal)
+}
+
+# 8. DOMAIN EVENTS (opcional, se quiser incluir eventos)
+DomainEvent AlertaEstoqueBaixoGerado {
+  ProdutoId produto
+  EstoqueId estoque
+  BigDecimal saldoAtual
+  BigDecimal rop
+}
+
+DomainEvent PedidoCompraCriado {
+  PedidoCompraId pedido
+  FornecedorId fornecedor
+  List<ItemPedido> itens
+}
