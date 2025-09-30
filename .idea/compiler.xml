@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="sgb-aplicacao" />
+        <module name="sgb-infraestrutura" />
+        <module name="sgb-dominio-compartilhado" />
+        <module name="sgb-apresentacao-frontend" />
+        <module name="sgb-dominio-acervo" />
+        <module name="sgb-dominio-administracao" />
+        <module name="sgb-apresentacao-vaadin" />
+        <module name="sgb-dominio-analise" />
+        <module name="sgb-apresentacao-backend" />
+      </profile>
+    </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="sgb-aplicacao" options="-parameters" />
+      <module name="sgb-apresentacao-backend" options="-parameters" />
+      <module name="sgb-apresentacao-frontend" options="-parameters" />
+      <module name="sgb-apresentacao-vaadin" options="-parameters" />
+      <module name="sgb-dominio-acervo" options="-parameters" />
+      <module name="sgb-dominio-administracao" options="-parameters" />
+      <module name="sgb-dominio-analise" options="-parameters" />
+      <module name="sgb-dominio-compartilhado" options="-parameters" />
+      <module name="sgb-infraestrutura" options="-parameters" />
+    </option>
+  </component>
+</project>

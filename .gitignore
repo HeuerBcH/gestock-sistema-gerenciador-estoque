@@ -1,0 +1,12 @@
+.classpath
+.project
+.settings
+
+target
+
+schema.sql
+src-gen
+
+*.db
+
+**/src/main/frontend
