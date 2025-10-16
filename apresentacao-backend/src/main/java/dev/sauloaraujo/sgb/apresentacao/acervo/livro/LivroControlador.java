@@ -16,17 +16,17 @@ import dev.sauloaraujo.sgb.aplicacao.acervo.autor.AutorServicoAplicacao;
 import dev.sauloaraujo.sgb.aplicacao.acervo.livro.LivroServicoAplicacao;
 import dev.sauloaraujo.sgb.apresentacao.BackendMapeador;
 import dev.sauloaraujo.sgb.apresentacao.acervo.livro.LivroFormulario.LivroDto;
-import dev.sauloaraujo.sgb.dominio.acervo.exemplar.EmprestimoServico;
-import dev.sauloaraujo.sgb.dominio.acervo.livro.Isbn;
-import dev.sauloaraujo.sgb.dominio.acervo.livro.Livro;
-import dev.sauloaraujo.sgb.dominio.acervo.livro.LivroServico;
+import dev.gestock.sge.dominio.principal.estoque.EstoqueId;
+import dev.gestock.sge.dominio.principal.livro.Isbn;
+import dev.gestock.sge.dominio.principal.livro.Livro;
+import dev.gestock.sge.dominio.principal.livro.LivroServico;
 import dev.sauloaraujo.sgb.dominio.administracao.socio.SocioId;
 
 @RestController
 @RequestMapping("backend/livro")
 class LivroControlador {
 	private @Autowired AutorServicoAplicacao autorServicoConsulta;
-	private @Autowired EmprestimoServico emprestimoServico;
+	private @Autowired EstoqueId emprestimoServico;
 	private @Autowired LivroServico livroServico;
 	private @Autowired LivroServicoAplicacao livroServicoConsulta;
 

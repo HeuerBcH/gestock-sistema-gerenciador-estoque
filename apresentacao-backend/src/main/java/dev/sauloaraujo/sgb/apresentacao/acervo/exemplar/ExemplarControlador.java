@@ -14,13 +14,13 @@ import dev.sauloaraujo.sgb.aplicacao.acervo.exemplar.ExemplarResumo;
 import dev.sauloaraujo.sgb.aplicacao.acervo.exemplar.ExemplarResumoExpandido;
 import dev.sauloaraujo.sgb.aplicacao.acervo.exemplar.ExemplarServicoAplicacao;
 import dev.sauloaraujo.sgb.apresentacao.BackendMapeador;
-import dev.sauloaraujo.sgb.dominio.acervo.exemplar.EmprestimoServico;
-import dev.sauloaraujo.sgb.dominio.acervo.exemplar.ExemplarId;
+import dev.gestock.sge.dominio.principal.estoque.EstoqueId;
+import dev.gestock.sge.dominio.principal.estoque.ExemplarId;
 
 @RestController
 @RequestMapping("backend/exemplar")
 class ExemplarControlador {
-	private @Autowired EmprestimoServico emprestimoServico;
+	private @Autowired EstoqueId emprestimoServico;
 	private @Autowired ExemplarServicoAplicacao exemplarServicoConsulta;
 
 	private @Autowired BackendMapeador mapeador;

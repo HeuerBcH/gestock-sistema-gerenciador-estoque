@@ -12,10 +12,10 @@ import org.springframework.stereotype.Repository;
 import dev.sauloaraujo.sgb.aplicacao.acervo.exemplar.ExemplarRepositorioAplicacao;
 import dev.sauloaraujo.sgb.aplicacao.acervo.exemplar.ExemplarResumo;
 import dev.sauloaraujo.sgb.aplicacao.acervo.exemplar.ExemplarResumoExpandido;
-import dev.sauloaraujo.sgb.dominio.acervo.exemplar.Exemplar;
-import dev.sauloaraujo.sgb.dominio.acervo.exemplar.ExemplarId;
-import dev.sauloaraujo.sgb.dominio.acervo.exemplar.ExemplarRepositorio;
-import dev.sauloaraujo.sgb.dominio.acervo.livro.Isbn;
+import dev.gestock.sge.dominio.principal.estoque.Estoque;
+import dev.gestock.sge.dominio.principal.estoque.ExemplarId;
+import dev.gestock.sge.dominio.principal.estoque.EstoqueRepositorio;
+import dev.gestock.sge.dominio.principal.livro.Isbn;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.AttributeOverrides;
 import jakarta.persistence.Column;
@@ -79,7 +79,7 @@ interface ExemplarJpaRepository extends JpaRepository<ExemplarJpa, Integer> {
 }
 
 @Repository
-class ExemplarRepositorioImpl implements ExemplarRepositorio, ExemplarRepositorioAplicacao {
+class ExemplarRepositorioImpl implements EstoqueRepositorio, ExemplarRepositorioAplicacao {
 	@Autowired
 	ExemplarJpaRepository repositorio;
 
@@ -87,21 +87,21 @@ class ExemplarRepositorioImpl implements ExemplarRepositorio, ExemplarRepositori
 	JpaMapeador mapeador;
 
 	@Override
-	public void salvar(Exemplar exemplar) {
+	public void salvar(Estoque exemplar) {
 		var exemplarJpa = mapeador.map(exemplar, ExemplarJpa.class);
 		repositorio.save(exemplarJpa);
 	}
 
 	@Override
-	public Exemplar obter(ExemplarId id) {
+	public Estoque obter(ExemplarId id) {
 		var exemplarJpa = repositorio.findById(id.getId()).get();
-		return mapeador.map(exemplarJpa, Exemplar.class);
+		return mapeador.map(exemplarJpa, Estoque.class);
 	}
 
 	@Override
-	public List<Exemplar> pesquisarDisponiveis(Isbn livro) {
+	public List<Estoque> pesquisarDisponiveis(Isbn livro) {
 		var exemplares = repositorio.findByLivroIdAndEmprestimoIsNull(livro.toString());
-		return mapeador.map(exemplares, new TypeToken<List<Exemplar>>() {
+		return mapeador.map(exemplares, new TypeToken<List<Estoque>>() {
 		}.getType());
 	}
 

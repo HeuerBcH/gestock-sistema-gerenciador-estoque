@@ -11,15 +11,15 @@ import org.springframework.stereotype.Component;
 
 import dev.sauloaraujo.dominio.analise.emprestimo.EmprestimoRegistro;
 import dev.sauloaraujo.dominio.analise.emprestimo.EmprestimoRegistroId;
-import dev.sauloaraujo.sgb.dominio.acervo.autor.Autor;
-import dev.sauloaraujo.sgb.dominio.acervo.autor.AutorId;
-import dev.sauloaraujo.sgb.dominio.acervo.exemplar.Emprestimo;
-import dev.sauloaraujo.sgb.dominio.acervo.exemplar.Exemplar;
-import dev.sauloaraujo.sgb.dominio.acervo.exemplar.ExemplarId;
-import dev.sauloaraujo.sgb.dominio.acervo.exemplar.Periodo;
-import dev.sauloaraujo.sgb.dominio.acervo.livro.Isbn;
-import dev.sauloaraujo.sgb.dominio.acervo.livro.IsbnFabrica;
-import dev.sauloaraujo.sgb.dominio.acervo.livro.Livro;
+import dev.gestock.sge.dominio.principal.cliente.Cliente;
+import dev.gestock.sge.dominio.principal.cliente.ClienteId;
+import dev.gestock.sge.dominio.principal.estoque.Emprestimo;
+import dev.gestock.sge.dominio.principal.estoque.Estoque;
+import dev.gestock.sge.dominio.principal.estoque.ExemplarId;
+import dev.gestock.sge.dominio.principal.estoque.Periodo;
+import dev.gestock.sge.dominio.principal.livro.Isbn;
+import dev.gestock.sge.dominio.principal.livro.IsbnFabrica;
+import dev.gestock.sge.dominio.principal.livro.Livro;
 import dev.sauloaraujo.sgb.dominio.administracao.socio.Email;
 import dev.sauloaraujo.sgb.dominio.administracao.socio.Socio;
 import dev.sauloaraujo.sgb.dominio.administracao.socio.SocioId;
@@ -38,25 +38,25 @@ class JpaMapeador extends ModelMapper {
 		configuracao.setFieldMatchingEnabled(true);
 		configuracao.setFieldAccessLevel(AccessLevel.PRIVATE);
 
-		addConverter(new AbstractConverter<AutorJpa, Autor>() {
+		addConverter(new AbstractConverter<AutorJpa, Cliente>() {
 			@Override
-			protected Autor convert(AutorJpa source) {
-				var id = map(source.id, AutorId.class);
-				return new Autor(id, source.nome);
+			protected Cliente convert(AutorJpa source) {
+				var id = map(source.id, ClienteId.class);
+				return new Cliente(id, source.nome);
 			}
 		});
 
-		addConverter(new AbstractConverter<Integer, AutorId>() {
+		addConverter(new AbstractConverter<Integer, ClienteId>() {
 			@Override
-			protected AutorId convert(Integer source) {
-				return new AutorId(source);
+			protected ClienteId convert(Integer source) {
+				return new ClienteId(source);
 			}
 		});
 
-		addConverter(new AbstractConverter<AutorJpa, AutorId>() {
+		addConverter(new AbstractConverter<AutorJpa, ClienteId>() {
 			@Override
-			protected AutorId convert(AutorJpa source) {
-				return map(source.id, AutorId.class);
+			protected ClienteId convert(AutorJpa source) {
+				return map(source.id, ClienteId.class);
 			}
 		});
 
@@ -64,7 +64,7 @@ class JpaMapeador extends ModelMapper {
 			@Override
 			protected Livro convert(LivroJpa source) {
 				var id = map(source.id, Isbn.class);
-				List<AutorId> autores = map(source.autores, new TypeToken<List<AutorId>>() {
+				List<ClienteId> autores = map(source.autores, new TypeToken<List<ClienteId>>() {
 				}.getType());
 				return new Livro(id, source.titulo, source.subtitulo, autores);
 			}
@@ -107,13 +107,13 @@ class JpaMapeador extends ModelMapper {
 			}
 		});
 
-		addConverter(new AbstractConverter<ExemplarJpa, Exemplar>() {
+		addConverter(new AbstractConverter<ExemplarJpa, Estoque>() {
 			@Override
-			protected Exemplar convert(ExemplarJpa source) {
+			protected Estoque convert(ExemplarJpa source) {
 				var id = map(source.id, ExemplarId.class);
 				var livro = map(source.livro, Isbn.class);
 				var emprestimo = map(source.emprestimo, Emprestimo.class);
-				return new Exemplar(id, livro, emprestimo);
+				return new Estoque(id, livro, emprestimo);
 			}
 		});
 

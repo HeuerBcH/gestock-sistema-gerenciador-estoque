@@ -11,12 +11,12 @@ import org.springframework.web.bind.annotation.RestController;
 import dev.sauloaraujo.sgb.aplicacao.acervo.autor.AutorResumo;
 import dev.sauloaraujo.sgb.aplicacao.acervo.autor.AutorServicoAplicacao;
 import dev.sauloaraujo.sgb.apresentacao.BackendMapeador;
-import dev.sauloaraujo.sgb.dominio.acervo.autor.AutorServico;
+import dev.gestock.sge.dominio.principal.cliente.ClienteServico;
 
 @RestController
 @RequestMapping("backend/autor")
 class AutorControlador {
-	private @Autowired AutorServico autorServico;
+	private @Autowired ClienteServico autorServico;
 	private @Autowired AutorServicoAplicacao autorServicoConsulta;
 
 	private @Autowired BackendMapeador mapeador;

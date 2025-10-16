@@ -9,9 +9,9 @@ import org.springframework.stereotype.Repository;
 
 import dev.sauloaraujo.sgb.aplicacao.acervo.autor.AutorRepositorioAplicacao;
 import dev.sauloaraujo.sgb.aplicacao.acervo.autor.AutorResumo;
-import dev.sauloaraujo.sgb.dominio.acervo.autor.Autor;
-import dev.sauloaraujo.sgb.dominio.acervo.autor.AutorId;
-import dev.sauloaraujo.sgb.dominio.acervo.autor.AutorRepositorio;
+import dev.gestock.sge.dominio.principal.cliente.Cliente;
+import dev.gestock.sge.dominio.principal.cliente.ClienteId;
+import dev.gestock.sge.dominio.principal.cliente.ClienteRepositorio;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
@@ -39,7 +39,7 @@ interface AutorJpaRepository extends JpaRepository<AutorJpa, Integer> {
 }
 
 @Repository
-class AutorRepositorioImpl implements AutorRepositorio, AutorRepositorioAplicacao {
+class AutorRepositorioImpl implements ClienteRepositorio, AutorRepositorioAplicacao {
 	@Autowired
 	AutorJpaRepository repositorio;
 
@@ -47,15 +47,15 @@ class AutorRepositorioImpl implements AutorRepositorio, AutorRepositorioAplicaca
 	JpaMapeador mapeador;
 
 	@Override
-	public void salvar(Autor autor) {
+	public void salvar(Cliente autor) {
 		var autorJpa = mapeador.map(autor, AutorJpa.class);
 		repositorio.save(autorJpa);
 	}
 
 	@Override
-	public Autor obter(AutorId id) {
+	public Cliente obter(ClienteId id) {
 		var autorJpa = repositorio.findById(id.getId()).get();
-		return mapeador.map(autorJpa, Autor.class);
+		return mapeador.map(autorJpa, Cliente.class);
 	}
 
 	@Override
