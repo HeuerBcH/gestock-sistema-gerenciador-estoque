@@ -16,13 +16,9 @@
         <module name="sge-apresentacao-frontend" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="sgb-apresentacao-vaadin" target="17" />
-    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="sgb-apresentacao-vaadin" options="-parameters" />
       <module name="sgb-dominio-administracao" options="-parameters" />
       <module name="sgb-dominio-analise" options="-parameters" />
       <module name="sgb-dominio-compartilhado" options="-parameters" />

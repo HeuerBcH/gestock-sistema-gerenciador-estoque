@@ -1,4 +1,4 @@
-package dev.sauloaraujo.sgb.infraestrutura.persistencia.jpa;
+package dev.gestock.sge.infraestrutura.persistencia.jpa;
 
 import java.util.List;
 
@@ -9,8 +9,8 @@ import org.modelmapper.config.Configuration.AccessLevel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import dev.sauloaraujo.dominio.analise.emprestimo.EmprestimoRegistro;
-import dev.sauloaraujo.dominio.analise.emprestimo.EmprestimoRegistroId;
+import dev.gestock.dominio.analise.emprestimo.EmprestimoRegistro;
+import dev.gestock.dominio.analise.emprestimo.EmprestimoRegistroId;
 import dev.gestock.sge.dominio.principal.cliente.Cliente;
 import dev.gestock.sge.dominio.principal.cliente.ClienteId;
 import dev.gestock.sge.dominio.principal.estoque.Emprestimo;
@@ -20,9 +20,9 @@ import dev.gestock.sge.dominio.principal.estoque.Periodo;
 import dev.gestock.sge.dominio.principal.livro.Isbn;
 import dev.gestock.sge.dominio.principal.livro.IsbnFabrica;
 import dev.gestock.sge.dominio.principal.livro.Livro;
-import dev.sauloaraujo.sgb.dominio.administracao.socio.Email;
-import dev.sauloaraujo.sgb.dominio.administracao.socio.Socio;
-import dev.sauloaraujo.sgb.dominio.administracao.socio.SocioId;
+import dev.gestock.sge.dominio.administracao.socio.Email;
+import dev.gestock.sge.dominio.administracao.socio.Socio;
+import dev.gestock.sge.dominio.administracao.socio.SocioId;
 
 @Component
 class JpaMapeador extends ModelMapper {

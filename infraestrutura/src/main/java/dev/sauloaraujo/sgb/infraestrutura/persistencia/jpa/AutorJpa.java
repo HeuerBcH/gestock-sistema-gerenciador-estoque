@@ -1,4 +1,4 @@
-package dev.sauloaraujo.sgb.infraestrutura.persistencia.jpa;
+package dev.gestock.sge.infraestrutura.persistencia.jpa;
 
 import java.util.List;
 import java.util.Set;
@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import dev.sauloaraujo.sgb.aplicacao.acervo.autor.AutorRepositorioAplicacao;
-import dev.sauloaraujo.sgb.aplicacao.acervo.autor.AutorResumo;
+import dev.gestock.sge.aplicacao.acervo.autor.AutorRepositorioAplicacao;
+import dev.gestock.sge.aplicacao.acervo.autor.AutorResumo;
 import dev.gestock.sge.dominio.principal.cliente.Cliente;
 import dev.gestock.sge.dominio.principal.cliente.ClienteId;
 import dev.gestock.sge.dominio.principal.cliente.ClienteRepositorio;

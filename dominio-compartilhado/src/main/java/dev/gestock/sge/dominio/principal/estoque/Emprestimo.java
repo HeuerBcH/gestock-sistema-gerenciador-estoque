@@ -2,7 +2,7 @@ package dev.gestock.sge.dominio.principal.estoque;
 
 import static org.apache.commons.lang3.Validate.notNull;
 
-import dev.sauloaraujo.sgb.dominio.administracao.socio.SocioId;
+import dev.gestock.sge.dominio.administracao.socio.SocioId;
 
 public class Emprestimo {
 	private final Periodo periodo;

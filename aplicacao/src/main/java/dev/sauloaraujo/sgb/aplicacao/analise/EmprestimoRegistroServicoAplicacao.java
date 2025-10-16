@@ -1,14 +1,14 @@
-package dev.sauloaraujo.sgb.aplicacao.analise;
+package dev.gestock.sge.aplicacao.analise;
 
 import static org.apache.commons.lang3.Validate.notNull;
 
 import java.time.LocalDate;
 
-import dev.sauloaraujo.dominio.analise.emprestimo.EmprestimoRegistro;
-import dev.sauloaraujo.dominio.analise.emprestimo.EmprestimoRegistroRepositorio;
+import dev.gestock.dominio.analise.emprestimo.EmprestimoRegistro;
+import dev.gestock.dominio.analise.emprestimo.EmprestimoRegistroRepositorio;
 import dev.gestock.sge.dominio.principal.estoque.Estoque.EmprestimoRealizadoEvento;
 import dev.gestock.sge.dominio.principal.estoque.Estoque.ExemplarDevolvidoEvento;
-import dev.sauloaraujo.sgb.dominio.evento.EventoBarramento;
+import dev.gestock.sge.dominio.evento.EventoBarramento;
 
 public class EmprestimoRegistroServicoAplicacao {
 	private EmprestimoRegistroRepositorio repositorio;

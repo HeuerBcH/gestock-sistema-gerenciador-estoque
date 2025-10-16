@@ -1,12 +1,12 @@
-package dev.sauloaraujo.sgb.infraestrutura.persistencia.jpa;
+package dev.gestock.sge.infraestrutura.persistencia.jpa;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import dev.sauloaraujo.sgb.dominio.administracao.socio.Socio;
-import dev.sauloaraujo.sgb.dominio.administracao.socio.SocioId;
-import dev.sauloaraujo.sgb.dominio.administracao.socio.SocioRepositorio;
+import dev.gestock.sge.dominio.administracao.socio.Socio;
+import dev.gestock.sge.dominio.administracao.socio.SocioId;
+import dev.gestock.sge.dominio.administracao.socio.SocioRepositorio;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;

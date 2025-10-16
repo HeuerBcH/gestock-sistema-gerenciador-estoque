@@ -10,9 +10,9 @@ import dev.gestock.sge.dominio.principal.estoque.EstoqueId;
 import dev.gestock.sge.dominio.principal.estoque.EstoqueServico;
 import dev.gestock.sge.dominio.principal.livro.IsbnFabrica;
 import dev.gestock.sge.dominio.principal.livro.LivroServico;
-import dev.sauloaraujo.sgb.dominio.evento.EventoBarramento;
-import dev.sauloaraujo.sgb.dominio.evento.EventoObservador;
-import dev.sauloaraujo.sgb.infraestrutura.persistencia.memoria.Repositorio;
+import dev.gestock.sge.dominio.evento.EventoBarramento;
+import dev.gestock.sge.dominio.evento.EventoObservador;
+import dev.gestock.sge.infraestrutura.persistencia.memoria.Repositorio;
 
 public class AcervoFuncionalidade implements EventoBarramento {
 	protected IsbnFabrica isbnFabrica;

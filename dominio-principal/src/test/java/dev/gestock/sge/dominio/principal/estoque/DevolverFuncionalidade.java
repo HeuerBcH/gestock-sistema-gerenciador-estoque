@@ -12,7 +12,7 @@ import dev.gestock.sge.dominio.principal.cliente.ClienteId;
 import dev.gestock.sge.dominio.principal.estoque.Estoque.ExemplarDevolvidoEvento;
 import dev.gestock.sge.dominio.principal.livro.Isbn;
 import dev.gestock.sge.dominio.principal.livro.Livro;
-import dev.sauloaraujo.sgb.dominio.administracao.socio.SocioId;
+import dev.gestock.sge.dominio.administracao.socio.SocioId;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;

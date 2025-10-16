@@ -1,4 +1,4 @@
-package dev.sauloaraujo.dominio.analise.emprestimo;
+package dev.gestock.dominio.analise.emprestimo;
 
 import static org.apache.commons.lang3.Validate.notNull;
 

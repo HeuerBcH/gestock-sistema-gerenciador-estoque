@@ -1,4 +1,4 @@
-package dev.sauloaraujo.sgb.infraestrutura.persistencia.jpa;
+package dev.gestock.sge.infraestrutura.persistencia.jpa;
 
 import java.util.List;
 import java.util.Set;
@@ -8,9 +8,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import dev.sauloaraujo.sgb.aplicacao.acervo.livro.LivroRepositorioAplicacao;
-import dev.sauloaraujo.sgb.aplicacao.acervo.livro.LivroResumo;
-import dev.sauloaraujo.sgb.aplicacao.acervo.livro.LivroResumoExpandido;
+import dev.gestock.sge.aplicacao.acervo.livro.LivroRepositorioAplicacao;
+import dev.gestock.sge.aplicacao.acervo.livro.LivroResumo;
+import dev.gestock.sge.aplicacao.acervo.livro.LivroResumoExpandido;
 import dev.gestock.sge.dominio.principal.livro.Isbn;
 import dev.gestock.sge.dominio.principal.livro.Livro;
 import dev.gestock.sge.dominio.principal.livro.LivroRepositorio;
