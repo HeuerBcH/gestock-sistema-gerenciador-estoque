@@ -1,1 +1,1 @@
-package dev.sauloaraujo.sgb.aplicacao.administracao.socio;
+package dev.gestock.sge.aplicacao.administracao.socio;

@@ -1,6 +1,6 @@
-package dev.sauloaraujo.sgb.aplicacao.acervo.exemplar;
+package dev.gestock.sge.aplicacao.acervo.exemplar;
 
-import dev.sauloaraujo.sgb.aplicacao.administracao.socio.SocioResumo;
+import dev.gestock.sge.aplicacao.administracao.socio.SocioResumo;
 
 public interface EmprestimoResumo {
 	PeriodoResumo getPeriodo();

@@ -1,4 +1,4 @@
-package dev.sauloaraujo.sgb.apresentacao.acervo.livro;
+package dev.gestock.sge.apresentacao.acervo.livro;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
@@ -12,15 +12,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import dev.sauloaraujo.sgb.aplicacao.acervo.autor.AutorServicoAplicacao;
-import dev.sauloaraujo.sgb.aplicacao.acervo.livro.LivroServicoAplicacao;
-import dev.sauloaraujo.sgb.apresentacao.BackendMapeador;
-import dev.sauloaraujo.sgb.apresentacao.acervo.livro.LivroFormulario.LivroDto;
+import dev.gestock.sge.aplicacao.acervo.autor.AutorServicoAplicacao;
+import dev.gestock.sge.aplicacao.acervo.livro.LivroServicoAplicacao;
+import dev.gestock.sge.apresentacao.BackendMapeador;
+import dev.gestock.sge.apresentacao.acervo.livro.LivroFormulario.LivroDto;
 import dev.gestock.sge.dominio.principal.estoque.EstoqueId;
 import dev.gestock.sge.dominio.principal.livro.Isbn;
 import dev.gestock.sge.dominio.principal.livro.Livro;
 import dev.gestock.sge.dominio.principal.livro.LivroServico;
-import dev.sauloaraujo.sgb.dominio.administracao.socio.SocioId;
+import dev.gestock.sge.dominio.administracao.socio.SocioId;
 
 @RestController
 @RequestMapping("backend/livro")

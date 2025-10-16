@@ -1,4 +1,4 @@
-package dev.sauloaraujo.sgb.apresentacao;
+package dev.gestock.sge.apresentacao;
 
 import java.util.List;
 
@@ -7,13 +7,13 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.stereotype.Component;
 
-import dev.sauloaraujo.sgb.apresentacao.acervo.livro.LivroFormulario.LivroDto;
+import dev.gestock.sge.apresentacao.acervo.livro.LivroFormulario.LivroDto;
 import dev.gestock.sge.dominio.principal.cliente.ClienteId;
 import dev.gestock.sge.dominio.principal.estoque.ExemplarId;
 import dev.gestock.sge.dominio.principal.livro.Isbn;
 import dev.gestock.sge.dominio.principal.livro.IsbnFabrica;
 import dev.gestock.sge.dominio.principal.livro.Livro;
-import dev.sauloaraujo.sgb.dominio.administracao.socio.SocioId;
+import dev.gestock.sge.dominio.administracao.socio.SocioId;
 
 @Component
 public class BackendMapeador extends ModelMapper {

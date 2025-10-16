@@ -4,114 +4,33 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3a589bdf-3f6c-4773-929b-94a63e5f8bab" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/custo/Custo.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/custo/CustoId.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/custo/CustoItem.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/custo/CustoRepositorio.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/custo/TipoCusto.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/estoque/Movimentacao.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/estoque/SaldoProduto.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/estoque/TipoMovimentacao.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/fornecedor/Cotacao.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/fornecedor/CotacaoId.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/fornecedor/Fornecedor.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/fornecedor/FornecedorId.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/fornecedor/FornecedorRepositorio.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/fornecedor/FornecedorServico.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/fornecedor/LeadTime.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/pedido/CustoPedido.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/pedido/ItemPedido.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/pedido/Pedido.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/pedido/PedidoId.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/pedido/PedidoRepositorio.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/pedido/PedidoServico.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/pedido/StatusPedido.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/produto/CategoriaProduto.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/produto/CodigoProduto.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/produto/LoteValidade.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/produto/Produto.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/produto/ProdutoId.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/produto/ProdutoRepositorio.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/produto/ProdutoServico.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/produto/ROP.java" afterDir="false" />
+    <list default="true" id="a93b379c-e0bd-48d2-a3ec-77b01de0fa34" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Gestock-Domain-Model.cml" beforeDir="false" afterPath="$PROJECT_DIR$/Gestock-Domain-Model.cml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aplicacao/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/aplicacao/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aplicacao/src/main/java/dev/sauloaraujo/sgb/aplicacao/analise/EmprestimoRegistroRepositorioAplicacao.java" beforeDir="false" afterPath="$PROJECT_DIR$/aplicacao/src/main/java/dev/sauloaraujo/sgb/aplicacao/analise/EmprestimoRegistroRepositorioAplicacao.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/aplicacao/src/main/java/dev/sauloaraujo/sgb/aplicacao/analise/EmprestimoRegistroServicoAplicacao.java" beforeDir="false" afterPath="$PROJECT_DIR$/aplicacao/src/main/java/dev/sauloaraujo/sgb/aplicacao/analise/EmprestimoRegistroServicoAplicacao.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apresentacao-backend/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/apresentacao-backend/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apresentacao-backend/src/main/java/dev/sauloaraujo/sgb/AplicacaoBackend.java" beforeDir="false" afterPath="$PROJECT_DIR$/apresentacao-backend/src/main/java/dev/sauloaraujo/sgb/AplicacaoBackend.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apresentacao-backend/src/main/java/dev/sauloaraujo/sgb/apresentacao/BackendMapeador.java" beforeDir="false" afterPath="$PROJECT_DIR$/apresentacao-backend/src/main/java/dev/sauloaraujo/sgb/apresentacao/BackendMapeador.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apresentacao-backend/src/main/java/dev/sauloaraujo/sgb/apresentacao/acervo/autor/AutorControlador.java" beforeDir="false" afterPath="$PROJECT_DIR$/apresentacao-backend/src/main/java/dev/sauloaraujo/sgb/apresentacao/acervo/autor/AutorControlador.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apresentacao-backend/src/main/java/dev/sauloaraujo/sgb/apresentacao/acervo/exemplar/ExemplarControlador.java" beforeDir="false" afterPath="$PROJECT_DIR$/apresentacao-backend/src/main/java/dev/sauloaraujo/sgb/apresentacao/acervo/exemplar/ExemplarControlador.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apresentacao-backend/src/main/java/dev/sauloaraujo/sgb/apresentacao/acervo/livro/LivroControlador.java" beforeDir="false" afterPath="$PROJECT_DIR$/apresentacao-backend/src/main/java/dev/sauloaraujo/sgb/apresentacao/acervo/livro/LivroControlador.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apresentacao-frontend/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/apresentacao-frontend/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/apresentacao-vaadin/pom.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apresentacao-vaadin/src/main/java/dev/sauloaraujo/sgb/AplicacaoVaadin.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apresentacao-vaadin/src/main/java/dev/sauloaraujo/sgb/LivroEditarRota.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apresentacao-vaadin/src/main/java/dev/sauloaraujo/sgb/LivroFormulario.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apresentacao-vaadin/src/main/java/dev/sauloaraujo/sgb/LivroPesquisarRota.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apresentacao-vaadin/src/main/java/dev/sauloaraujo/sgb/apresentacao/acervo/livro/LivroEditarRota.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apresentacao-vaadin/src/main/java/dev/sauloaraujo/sgb/apresentacao/acervo/livro/LivroFormulario.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apresentacao-vaadin/src/main/java/dev/sauloaraujo/sgb/apresentacao/acervo/livro/LivroPesquisarRota.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/apresentacao-vaadin/src/main/resources/application.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dominio-acervo/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/dominio-principal/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dominio-acervo/src/main/java/dev/sauloaraujo/sgb/dominio/acervo/autor/Autor.java" beforeDir="false" afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/cliente/Cliente.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dominio-acervo/src/main/java/dev/sauloaraujo/sgb/dominio/acervo/autor/AutorId.java" beforeDir="false" afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/cliente/ClienteId.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dominio-acervo/src/main/java/dev/sauloaraujo/sgb/dominio/acervo/autor/AutorRepositorio.java" beforeDir="false" afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/cliente/ClienteRepositorio.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dominio-acervo/src/main/java/dev/sauloaraujo/sgb/dominio/acervo/autor/AutorServico.java" beforeDir="false" afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/cliente/ClienteServico.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dominio-acervo/src/main/java/dev/sauloaraujo/sgb/dominio/acervo/exemplar/EmprestimoServico.java" beforeDir="false" afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/estoque/EstoqueId.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dominio-acervo/src/main/java/dev/sauloaraujo/sgb/dominio/acervo/exemplar/Exemplar.java" beforeDir="false" afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/estoque/Estoque.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dominio-acervo/src/main/java/dev/sauloaraujo/sgb/dominio/acervo/exemplar/ExemplarRepositorio.java" beforeDir="false" afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/estoque/EstoqueRepositorio.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dominio-acervo/src/main/java/dev/sauloaraujo/sgb/dominio/acervo/exemplar/ExemplarServico.java" beforeDir="false" afterPath="$PROJECT_DIR$/dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/estoque/EstoqueServico.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dominio-acervo/src/main/java/dev/sauloaraujo/sgb/dominio/acervo/livro/Isbn.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dominio-acervo/src/main/java/dev/sauloaraujo/sgb/dominio/acervo/livro/Isbn10.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dominio-acervo/src/main/java/dev/sauloaraujo/sgb/dominio/acervo/livro/Isbn13.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dominio-acervo/src/main/java/dev/sauloaraujo/sgb/dominio/acervo/livro/IsbnFabrica.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dominio-acervo/src/main/java/dev/sauloaraujo/sgb/dominio/acervo/livro/Livro.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dominio-acervo/src/main/java/dev/sauloaraujo/sgb/dominio/acervo/livro/LivroRepositorio.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dominio-acervo/src/main/java/dev/sauloaraujo/sgb/dominio/acervo/livro/LivroServico.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dominio-acervo/src/test/java/dev/sauloaraujo/sgb/dominio/acervo/AcervoFuncionalidade.java" beforeDir="false" afterPath="$PROJECT_DIR$/dominio-principal/src/test/java/dev/gestock/sge/dominio/principal/AcervoFuncionalidade.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dominio-acervo/src/test/java/dev/sauloaraujo/sgb/dominio/acervo/RunCucumberTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/dominio-principal/src/test/java/dev/gestock/sge/dominio/principal/RunCucumberTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dominio-acervo/src/test/java/dev/sauloaraujo/sgb/dominio/acervo/exemplar/DevolverFuncionalidade.java" beforeDir="false" afterPath="$PROJECT_DIR$/dominio-principal/src/test/java/dev/gestock/sge/dominio/principal/estoque/DevolverFuncionalidade.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dominio-acervo/src/test/java/dev/sauloaraujo/sgb/dominio/acervo/exemplar/RealizarEmprestimoFuncionalidade.java" beforeDir="false" afterPath="$PROJECT_DIR$/dominio-principal/src/test/java/dev/gestock/sge/dominio/principal/estoque/RealizarEmprestimoFuncionalidade.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dominio-acervo/src/test/java/dev/sauloaraujo/sgb/infraestrutura/persistencia/memoria/Repositorio.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dominio-acervo/src/test/resources/dev/sauloaraujo/sgb/dominio/acervo/exemplar/devolver.feature" beforeDir="false" afterPath="$PROJECT_DIR$/dominio-principal/src/test/resources/dev/gestock/sge/dominio/principal/estoque/devolver.feature" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dominio-acervo/src/test/resources/dev/sauloaraujo/sgb/dominio/acervo/exemplar/realizar_emprestimo.feature" beforeDir="false" afterPath="$PROJECT_DIR$/dominio-principal/src/test/resources/dev/gestock/sge/dominio/principal/estoque/realizar_emprestimo.feature" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dominio-acervo/src/test/resources/junit-platform.properties" beforeDir="false" afterPath="$PROJECT_DIR$/dominio-principal/src/test/resources/junit-platform.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dominio-administracao/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/dominio-administracao/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dominio-analise/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/dominio-analise/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dominio-analise/src/main/java/dev/sauloaraujo/dominio/analise/emprestimo/EmprestimoRegistro.java" beforeDir="false" afterPath="$PROJECT_DIR$/dominio-analise/src/main/java/dev/sauloaraujo/dominio/analise/emprestimo/EmprestimoRegistro.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dominio-compartilhado/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/dominio-compartilhado/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dominio-compartilhado/src/main/java/dev/sauloaraujo/sgb/dominio/acervo/exemplar/Emprestimo.java" beforeDir="false" afterPath="$PROJECT_DIR$/dominio-compartilhado/src/main/java/dev/gestock/sge/dominio/principal/estoque/Emprestimo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dominio-compartilhado/src/main/java/dev/sauloaraujo/sgb/dominio/acervo/exemplar/ExemplarId.java" beforeDir="false" afterPath="$PROJECT_DIR$/dominio-compartilhado/src/main/java/dev/gestock/sge/dominio/principal/estoque/ExemplarId.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dominio-compartilhado/src/main/java/dev/sauloaraujo/sgb/dominio/acervo/exemplar/Periodo.java" beforeDir="false" afterPath="$PROJECT_DIR$/dominio-compartilhado/src/main/java/dev/gestock/sge/dominio/principal/estoque/Periodo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dominio-principal/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/dominio-principal/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dominio-principal/src/test/java/dev/gestock/sge/dominio/principal/AcervoFuncionalidade.java" beforeDir="false" afterPath="$PROJECT_DIR$/dominio-principal/src/test/java/dev/gestock/sge/dominio/principal/AcervoFuncionalidade.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dominio-principal/src/test/java/dev/gestock/sge/dominio/principal/RunCucumberTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/dominio-principal/src/test/java/dev/gestock/sge/dominio/principal/RunCucumberTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dominio-principal/src/test/java/dev/gestock/sge/dominio/principal/estoque/DevolverFuncionalidade.java" beforeDir="false" afterPath="$PROJECT_DIR$/dominio-principal/src/test/java/dev/gestock/sge/dominio/principal/estoque/DevolverFuncionalidade.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dominio-principal/src/test/java/dev/gestock/sge/dominio/principal/estoque/RealizarEmprestimoFuncionalidade.java" beforeDir="false" afterPath="$PROJECT_DIR$/dominio-principal/src/test/java/dev/gestock/sge/dominio/principal/estoque/RealizarEmprestimoFuncionalidade.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dominio-principal/src/test/resources/junit-platform.properties" beforeDir="false" afterPath="$PROJECT_DIR$/dominio-principal/src/test/resources/junit-platform.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/infraestrutura/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/infraestrutura/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/infraestrutura/src/main/java/dev/sauloaraujo/sgb/infraestrutura/evento/EventoBarramentoImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/infraestrutura/src/main/java/dev/sauloaraujo/sgb/infraestrutura/evento/EventoBarramentoImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/infraestrutura/src/main/java/dev/sauloaraujo/sgb/infraestrutura/persistencia/jpa/AutorJpa.java" beforeDir="false" afterPath="$PROJECT_DIR$/infraestrutura/src/main/java/dev/sauloaraujo/sgb/infraestrutura/persistencia/jpa/AutorJpa.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/infraestrutura/src/main/java/dev/sauloaraujo/sgb/infraestrutura/persistencia/jpa/EmprestimoRegistroJpa.java" beforeDir="false" afterPath="$PROJECT_DIR$/infraestrutura/src/main/java/dev/sauloaraujo/sgb/infraestrutura/persistencia/jpa/EmprestimoRegistroJpa.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/infraestrutura/src/main/java/dev/sauloaraujo/sgb/infraestrutura/persistencia/jpa/ExemplarJpa.java" beforeDir="false" afterPath="$PROJECT_DIR$/infraestrutura/src/main/java/dev/sauloaraujo/sgb/infraestrutura/persistencia/jpa/ExemplarJpa.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/infraestrutura/src/main/java/dev/sauloaraujo/sgb/infraestrutura/persistencia/jpa/JpaMapeador.java" beforeDir="false" afterPath="$PROJECT_DIR$/infraestrutura/src/main/java/dev/sauloaraujo/sgb/infraestrutura/persistencia/jpa/JpaMapeador.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/infraestrutura/src/main/java/dev/sauloaraujo/sgb/infraestrutura/persistencia/jpa/LivroJpa.java" beforeDir="false" afterPath="$PROJECT_DIR$/infraestrutura/src/main/java/dev/sauloaraujo/sgb/infraestrutura/persistencia/jpa/LivroJpa.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/infraestrutura/src/main/java/dev/sauloaraujo/sgb/infraestrutura/persistencia/jpa/SocioJpa.java" beforeDir="false" afterPath="$PROJECT_DIR$/infraestrutura/src/main/java/dev/sauloaraujo/sgb/infraestrutura/persistencia/jpa/SocioJpa.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/infraestrutura/src/main/java/dev/sauloaraujo/sgb/infraestrutura/persistencia/jpa/package-info.java" beforeDir="false" afterPath="$PROJECT_DIR$/infraestrutura/src/main/java/dev/sauloaraujo/sgb/infraestrutura/persistencia/jpa/package-info.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pai/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pai/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
-  </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="Class" />
-      </list>
-    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
@@ -124,140 +43,47 @@
   <component name="GitHubPullRequestSearchHistory"><![CDATA[{
   "lastFilter": {
     "state": "OPEN",
-    "assignee": "SilvioFittipald1"
+    "assignee": "HeuerBcH"
   }
 }]]></component>
   <component name="GithubPullRequestsUISettings"><![CDATA[{
   "selectedUrlAndAccountId": {
     "url": "https://github.com/HeuerBcH/gestock-sistema-gerenciador-estoque.git",
-    "accountId": "58f65351-d580-4461-ba25-1a077dfe330e"
+    "accountId": "565896cb-4200-482b-a9a9-103598de9575"
   }
 }]]></component>
-  <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 1
-}</component>
-  <component name="ProjectId" id="33QohoVoYeJkOYENTEYxmR94iOH" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 8
+}]]></component>
+  <component name="ProjectId" id="347vhyuG0nqvoRiwz21AxALBEet" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "git-widget-placeholder": "development",
-    "kotlin-language-version-configured": "true",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0",
-    "vue.rearranger.settings.migration": "true"
+    "kotlin-language-version-configured": "true"
   }
 }]]></component>
-  <component name="RunManager">
-    <configuration default="true" type="JetRunConfigurationType">
-      <module name="gestock-sistema-gerenciador-estoque" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
-      <module name="gestock-sistema-gerenciador-estoque" />
-      <option name="filePath" />
-      <method v="2" />
-    </configuration>
-    <configuration default="true" type="PyBehaveRunConfigurationType" factoryName="Behave">
-      <module name="sgb-apresentacao-vaadin" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="ADDITIONAL_ARGS" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
-      <module name="gestock-sistema-gerenciador-estoque" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration default="true" type="Python.FlaskServer">
-      <module name="gestock-sistema-gerenciador-estoque" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="launchJavascriptDebuger" value="false" />
-      <method v="2" />
-    </configuration>
-    <configuration default="true" type="Tox" factoryName="Tox">
-      <module name="gestock-sistema-gerenciador-estoque" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <method v="2" />
-    </configuration>
-  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-a94e463ab2e7-intellij.indexing.shared.core-IU-243.26053.27" />
-        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-IU-243.26053.27" />
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.23892.409" />
       </set>
     </attachedChunks>
   </component>
-  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="3a589bdf-3f6c-4773-929b-94a63e5f8bab" name="Changes" comment="" />
-      <created>1759258778651</created>
+      <changelist id="a93b379c-e0bd-48d2-a3ec-77b01de0fa34" name="Changes" comment="" />
+      <created>1760577547361</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1759258778651</updated>
-      <workItem from="1759258779911" duration="948000" />
+      <updated>1760577547361</updated>
     </task>
     <servers />
-  </component>
-  <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="3" />
   </component>
 </project>

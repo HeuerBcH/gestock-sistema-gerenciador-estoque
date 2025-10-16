@@ -1,6 +1,6 @@
-package dev.sauloaraujo.sgb.aplicacao.acervo.livro;
+package dev.gestock.sge.aplicacao.acervo.livro;
 
-import dev.sauloaraujo.sgb.aplicacao.acervo.autor.AutorResumo;
+import dev.gestock.sge.aplicacao.acervo.autor.AutorResumo;
 
 public interface LivroResumoExpandido {
 	LivroResumo getLivro();

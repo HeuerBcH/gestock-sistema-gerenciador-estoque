@@ -1,8 +1,8 @@
-package dev.sauloaraujo.sgb.apresentacao.acervo.livro;
+package dev.gestock.sge.apresentacao.acervo.livro;
 
 import java.util.List;
 
-import dev.sauloaraujo.sgb.aplicacao.acervo.autor.AutorResumo;
+import dev.gestock.sge.aplicacao.acervo.autor.AutorResumo;
 
 public class LivroFormulario {
 	public LivroDto livro;

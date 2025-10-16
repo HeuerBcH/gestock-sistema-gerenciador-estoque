@@ -10,3 +10,11 @@ src-gen
 *.db
 
 **/src/main/frontend
+
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
+*.log
+logs/

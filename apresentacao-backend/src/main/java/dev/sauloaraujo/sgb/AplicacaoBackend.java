@@ -1,4 +1,4 @@
-package dev.sauloaraujo.sgb;
+package dev.gestock.sge;
 
 import static org.springframework.boot.SpringApplication.run;
 
@@ -7,15 +7,15 @@ import java.io.IOException;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
-import dev.sauloaraujo.dominio.analise.emprestimo.EmprestimoRegistroRepositorio;
-import dev.sauloaraujo.sgb.aplicacao.acervo.autor.AutorRepositorioAplicacao;
-import dev.sauloaraujo.sgb.aplicacao.acervo.autor.AutorServicoAplicacao;
-import dev.sauloaraujo.sgb.aplicacao.acervo.exemplar.ExemplarRepositorioAplicacao;
-import dev.sauloaraujo.sgb.aplicacao.acervo.exemplar.ExemplarServicoAplicacao;
-import dev.sauloaraujo.sgb.aplicacao.acervo.livro.LivroRepositorioAplicacao;
-import dev.sauloaraujo.sgb.aplicacao.acervo.livro.LivroServicoAplicacao;
-import dev.sauloaraujo.sgb.aplicacao.analise.EmprestimoRegistroRepositorioAplicacao;
-import dev.sauloaraujo.sgb.aplicacao.analise.EmprestimoRegistroServicoAplicacao;
+import dev.gestock.dominio.analise.emprestimo.EmprestimoRegistroRepositorio;
+import dev.gestock.sge.aplicacao.acervo.autor.AutorRepositorioAplicacao;
+import dev.gestock.sge.aplicacao.acervo.autor.AutorServicoAplicacao;
+import dev.gestock.sge.aplicacao.acervo.exemplar.ExemplarRepositorioAplicacao;
+import dev.gestock.sge.aplicacao.acervo.exemplar.ExemplarServicoAplicacao;
+import dev.gestock.sge.aplicacao.acervo.livro.LivroRepositorioAplicacao;
+import dev.gestock.sge.aplicacao.acervo.livro.LivroServicoAplicacao;
+import dev.gestock.sge.aplicacao.analise.EmprestimoRegistroRepositorioAplicacao;
+import dev.gestock.sge.aplicacao.analise.EmprestimoRegistroServicoAplicacao;
 import dev.gestock.sge.dominio.principal.cliente.ClienteRepositorio;
 import dev.gestock.sge.dominio.principal.cliente.ClienteServico;
 import dev.gestock.sge.dominio.principal.estoque.EstoqueId;
@@ -23,7 +23,7 @@ import dev.gestock.sge.dominio.principal.estoque.EstoqueRepositorio;
 import dev.gestock.sge.dominio.principal.estoque.EstoqueServico;
 import dev.gestock.sge.dominio.principal.livro.LivroRepositorio;
 import dev.gestock.sge.dominio.principal.livro.LivroServico;
-import dev.sauloaraujo.sgb.dominio.evento.EventoBarramento;
+import dev.gestock.sge.dominio.evento.EventoBarramento;
 
 @SpringBootApplication
 public class AplicacaoBackend {

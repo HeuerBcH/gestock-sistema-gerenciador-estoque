@@ -1,4 +1,4 @@
-package dev.sauloaraujo.sgb.apresentacao.acervo.autor;
+package dev.gestock.sge.apresentacao.acervo.autor;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
@@ -8,9 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import dev.sauloaraujo.sgb.aplicacao.acervo.autor.AutorResumo;
-import dev.sauloaraujo.sgb.aplicacao.acervo.autor.AutorServicoAplicacao;
-import dev.sauloaraujo.sgb.apresentacao.BackendMapeador;
+import dev.gestock.sge.aplicacao.acervo.autor.AutorResumo;
+import dev.gestock.sge.aplicacao.acervo.autor.AutorServicoAplicacao;
+import dev.gestock.sge.apresentacao.BackendMapeador;
 import dev.gestock.sge.dominio.principal.cliente.ClienteServico;
 
 @RestController

@@ -11,7 +11,7 @@
 	    <relativePath/>
 	</parent>
 
-	<groupId>dev.sauloaraujo.sgb</groupId>
+	<groupId>dev.gestock.sge</groupId>
 	<artifactId>sge-pai</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	
@@ -44,7 +44,7 @@
 					<graphFormat>puml</graphFormat>
 					<showDuplicates>true</showDuplicates>
 					<includes>
-						<include>dev.sauloaraujo.sgb*</include>
+						<include>dev.gestock.sge*</include>
 					</includes>					
 				</configuration>
 			</plugin>

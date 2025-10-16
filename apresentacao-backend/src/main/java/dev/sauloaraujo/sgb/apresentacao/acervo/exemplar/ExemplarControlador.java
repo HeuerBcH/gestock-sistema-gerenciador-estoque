@@ -1,4 +1,4 @@
-package dev.sauloaraujo.sgb.apresentacao.acervo.exemplar;
+package dev.gestock.sge.apresentacao.acervo.exemplar;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import dev.sauloaraujo.sgb.aplicacao.acervo.exemplar.ExemplarResumo;
-import dev.sauloaraujo.sgb.aplicacao.acervo.exemplar.ExemplarResumoExpandido;
-import dev.sauloaraujo.sgb.aplicacao.acervo.exemplar.ExemplarServicoAplicacao;
-import dev.sauloaraujo.sgb.apresentacao.BackendMapeador;
+import dev.gestock.sge.aplicacao.acervo.exemplar.ExemplarResumo;
+import dev.gestock.sge.aplicacao.acervo.exemplar.ExemplarResumoExpandido;
+import dev.gestock.sge.aplicacao.acervo.exemplar.ExemplarServicoAplicacao;
+import dev.gestock.sge.apresentacao.BackendMapeador;
 import dev.gestock.sge.dominio.principal.estoque.EstoqueId;
 import dev.gestock.sge.dominio.principal.estoque.ExemplarId;
 

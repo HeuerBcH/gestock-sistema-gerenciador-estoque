@@ -1,4 +1,4 @@
-package dev.sauloaraujo.sgb.infraestrutura.persistencia.jpa;
+package dev.gestock.sge.infraestrutura.persistencia.jpa;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 
@@ -9,9 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import dev.sauloaraujo.dominio.analise.emprestimo.EmprestimoRegistro;
-import dev.sauloaraujo.dominio.analise.emprestimo.EmprestimoRegistroRepositorio;
-import dev.sauloaraujo.sgb.aplicacao.analise.EmprestimoRegistroRepositorioAplicacao;
+import dev.gestock.dominio.analise.emprestimo.EmprestimoRegistro;
+import dev.gestock.dominio.analise.emprestimo.EmprestimoRegistroRepositorio;
+import dev.gestock.sge.aplicacao.analise.EmprestimoRegistroRepositorioAplicacao;
 import dev.gestock.sge.dominio.principal.estoque.Emprestimo;
 import dev.gestock.sge.dominio.principal.estoque.ExemplarId;
 import jakarta.persistence.AttributeOverride;

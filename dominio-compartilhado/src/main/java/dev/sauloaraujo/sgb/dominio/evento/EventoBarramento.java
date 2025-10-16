@@ -1,4 +1,4 @@
-package dev.sauloaraujo.sgb.dominio.evento;
+package dev.gestock.sge.dominio.evento;
 
 public interface EventoBarramento {
 	<E> void adicionar(EventoObservador<E> observador);

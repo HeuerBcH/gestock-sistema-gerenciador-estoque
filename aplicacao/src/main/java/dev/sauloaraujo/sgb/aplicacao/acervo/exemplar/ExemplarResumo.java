@@ -1,6 +1,6 @@
-package dev.sauloaraujo.sgb.aplicacao.acervo.exemplar;
+package dev.gestock.sge.aplicacao.acervo.exemplar;
 
-import dev.sauloaraujo.sgb.aplicacao.acervo.livro.LivroResumo;
+import dev.gestock.sge.aplicacao.acervo.livro.LivroResumo;
 
 public interface ExemplarResumo {
 	String getId();

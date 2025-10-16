@@ -1,4 +1,4 @@
-package dev.sauloaraujo.sgb.dominio.administracao.socio;
+package dev.gestock.sge.dominio.administracao.socio;
 
 import org.apache.commons.validator.routines.EmailValidator;
 

@@ -1,6 +1,6 @@
-package dev.sauloaraujo.sgb.aplicacao.analise;
+package dev.gestock.sge.aplicacao.analise;
 
-import dev.sauloaraujo.dominio.analise.emprestimo.EmprestimoRegistro;
+import dev.gestock.dominio.analise.emprestimo.EmprestimoRegistro;
 import dev.gestock.sge.dominio.principal.estoque.Emprestimo;
 import dev.gestock.sge.dominio.principal.estoque.ExemplarId;
 

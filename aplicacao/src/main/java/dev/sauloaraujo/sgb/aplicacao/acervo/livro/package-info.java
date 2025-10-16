@@ -1,1 +1,1 @@
-package dev.sauloaraujo.sgb.aplicacao.acervo.livro;
+package dev.gestock.sge.aplicacao.acervo.livro;

@@ -1,4 +1,4 @@
-package dev.sauloaraujo.sgb.infraestrutura.persistencia.jpa;
+package dev.gestock.sge.infraestrutura.persistencia.jpa;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -9,9 +9,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import dev.sauloaraujo.sgb.aplicacao.acervo.exemplar.ExemplarRepositorioAplicacao;
-import dev.sauloaraujo.sgb.aplicacao.acervo.exemplar.ExemplarResumo;
-import dev.sauloaraujo.sgb.aplicacao.acervo.exemplar.ExemplarResumoExpandido;
+import dev.gestock.sge.aplicacao.acervo.exemplar.ExemplarRepositorioAplicacao;
+import dev.gestock.sge.aplicacao.acervo.exemplar.ExemplarResumo;
+import dev.gestock.sge.aplicacao.acervo.exemplar.ExemplarResumoExpandido;
 import dev.gestock.sge.dominio.principal.estoque.Estoque;
 import dev.gestock.sge.dominio.principal.estoque.ExemplarId;
 import dev.gestock.sge.dominio.principal.estoque.EstoqueRepositorio;
