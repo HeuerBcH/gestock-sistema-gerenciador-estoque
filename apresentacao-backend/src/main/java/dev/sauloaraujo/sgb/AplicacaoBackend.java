@@ -16,20 +16,20 @@ import dev.sauloaraujo.sgb.aplicacao.acervo.livro.LivroRepositorioAplicacao;
 import dev.sauloaraujo.sgb.aplicacao.acervo.livro.LivroServicoAplicacao;
 import dev.sauloaraujo.sgb.aplicacao.analise.EmprestimoRegistroRepositorioAplicacao;
 import dev.sauloaraujo.sgb.aplicacao.analise.EmprestimoRegistroServicoAplicacao;
-import dev.sauloaraujo.sgb.dominio.acervo.autor.AutorRepositorio;
-import dev.sauloaraujo.sgb.dominio.acervo.autor.AutorServico;
-import dev.sauloaraujo.sgb.dominio.acervo.exemplar.EmprestimoServico;
-import dev.sauloaraujo.sgb.dominio.acervo.exemplar.ExemplarRepositorio;
-import dev.sauloaraujo.sgb.dominio.acervo.exemplar.ExemplarServico;
-import dev.sauloaraujo.sgb.dominio.acervo.livro.LivroRepositorio;
-import dev.sauloaraujo.sgb.dominio.acervo.livro.LivroServico;
+import dev.gestock.sge.dominio.principal.cliente.ClienteRepositorio;
+import dev.gestock.sge.dominio.principal.cliente.ClienteServico;
+import dev.gestock.sge.dominio.principal.estoque.EstoqueId;
+import dev.gestock.sge.dominio.principal.estoque.EstoqueRepositorio;
+import dev.gestock.sge.dominio.principal.estoque.EstoqueServico;
+import dev.gestock.sge.dominio.principal.livro.LivroRepositorio;
+import dev.gestock.sge.dominio.principal.livro.LivroServico;
 import dev.sauloaraujo.sgb.dominio.evento.EventoBarramento;
 
 @SpringBootApplication
 public class AplicacaoBackend {
 	@Bean
-	public AutorServico autorServico(AutorRepositorio repositorio) {
-		return new AutorServico(repositorio);
+	public ClienteServico autorServico(ClienteRepositorio repositorio) {
+		return new ClienteServico(repositorio);
 	}
 
 	@Bean
@@ -38,8 +38,8 @@ public class AplicacaoBackend {
 	}
 
 	@Bean
-	public ExemplarServico exemplarServico(ExemplarRepositorio repositorio) {
-		return new ExemplarServico(repositorio);
+	public EstoqueServico exemplarServico(EstoqueRepositorio repositorio) {
+		return new EstoqueServico(repositorio);
 	}
 
 	@Bean
@@ -48,8 +48,8 @@ public class AplicacaoBackend {
 	}
 
 	@Bean
-	public EmprestimoServico emprestimoServico(ExemplarRepositorio exemplarRepositorio, EventoBarramento barramento) {
-		return new EmprestimoServico(exemplarRepositorio, barramento);
+	public EstoqueId emprestimoServico(EstoqueRepositorio exemplarRepositorio, EventoBarramento barramento) {
+		return new EstoqueId(exemplarRepositorio, barramento);
 	}
 
 	@Bean

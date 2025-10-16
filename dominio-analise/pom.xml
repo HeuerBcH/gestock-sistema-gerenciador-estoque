@@ -6,7 +6,7 @@
 
 	<parent>
 		<groupId>dev.sauloaraujo.sgb</groupId>
-		<artifactId>sgb-pai</artifactId>
+		<artifactId>sge-pai</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	    <relativePath>../pai</relativePath>
 	</parent>

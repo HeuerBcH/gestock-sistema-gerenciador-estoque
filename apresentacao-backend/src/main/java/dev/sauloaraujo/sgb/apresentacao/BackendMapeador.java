@@ -8,11 +8,11 @@ import org.modelmapper.TypeToken;
 import org.springframework.stereotype.Component;
 
 import dev.sauloaraujo.sgb.apresentacao.acervo.livro.LivroFormulario.LivroDto;
-import dev.sauloaraujo.sgb.dominio.acervo.autor.AutorId;
-import dev.sauloaraujo.sgb.dominio.acervo.exemplar.ExemplarId;
-import dev.sauloaraujo.sgb.dominio.acervo.livro.Isbn;
-import dev.sauloaraujo.sgb.dominio.acervo.livro.IsbnFabrica;
-import dev.sauloaraujo.sgb.dominio.acervo.livro.Livro;
+import dev.gestock.sge.dominio.principal.cliente.ClienteId;
+import dev.gestock.sge.dominio.principal.estoque.ExemplarId;
+import dev.gestock.sge.dominio.principal.livro.Isbn;
+import dev.gestock.sge.dominio.principal.livro.IsbnFabrica;
+import dev.gestock.sge.dominio.principal.livro.Livro;
 import dev.sauloaraujo.sgb.dominio.administracao.socio.SocioId;
 
 @Component
@@ -26,7 +26,7 @@ public class BackendMapeador extends ModelMapper {
 			@Override
 			protected Livro convert(LivroDto source) {
 				var id = map(source.id, Isbn.class);
-				List<AutorId> autores = map(source.autores, new TypeToken<List<AutorId>>() {
+				List<ClienteId> autores = map(source.autores, new TypeToken<List<ClienteId>>() {
 				}.getType());
 
 				return new Livro(id, source.titulo, source.subTitulo, autores);

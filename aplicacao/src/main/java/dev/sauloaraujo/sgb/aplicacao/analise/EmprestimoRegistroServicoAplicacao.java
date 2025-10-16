@@ -6,8 +6,8 @@ import java.time.LocalDate;
 
 import dev.sauloaraujo.dominio.analise.emprestimo.EmprestimoRegistro;
 import dev.sauloaraujo.dominio.analise.emprestimo.EmprestimoRegistroRepositorio;
-import dev.sauloaraujo.sgb.dominio.acervo.exemplar.Exemplar.EmprestimoRealizadoEvento;
-import dev.sauloaraujo.sgb.dominio.acervo.exemplar.Exemplar.ExemplarDevolvidoEvento;
+import dev.gestock.sge.dominio.principal.estoque.Estoque.EmprestimoRealizadoEvento;
+import dev.gestock.sge.dominio.principal.estoque.Estoque.ExemplarDevolvidoEvento;
 import dev.sauloaraujo.sgb.dominio.evento.EventoBarramento;
 
 public class EmprestimoRegistroServicoAplicacao {

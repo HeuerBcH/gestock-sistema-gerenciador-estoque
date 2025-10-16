@@ -4,8 +4,8 @@ import static org.apache.commons.lang3.Validate.notNull;
 
 import java.time.LocalDate;
 
-import dev.sauloaraujo.sgb.dominio.acervo.exemplar.Emprestimo;
-import dev.sauloaraujo.sgb.dominio.acervo.exemplar.ExemplarId;
+import dev.gestock.sge.dominio.principal.estoque.Emprestimo;
+import dev.gestock.sge.dominio.principal.estoque.ExemplarId;
 
 public class EmprestimoRegistro {
 	private final EmprestimoRegistroId id;

@@ -1,297 +1,256 @@
-# CONTEXT MAP (Visão geral dos Bounded Contexts e relações)
+Domain Gestock {
+	Subdomain Principal
+}
+
 ContextMap {
-  contains GestockCore
-  contains Compras
-  contains Qualidade
-  contains Relatorios
-  contains Custos
-  contains Inventario
-  
-  GestockCore -> Compras
-  GestockCore -> Qualidade
-  GestockCore -> Relatorios
-  GestockCore -> Custos
-  GestockCore -> Inventario
+	contains Principal
 }
 
-# 1. BOUNDED CONTEXT PRINCIPAL (CORE)
-BoundedContext GestockCore {
-  Aggregate Cliente {
-    Entity Cliente {
-      - ClienteId id
-      String nome
-      Set<EstoqueId> estoques
-    }
-  }
-  
-  Aggregate Produto {
-    Entity Produto {
-      - ProdutoId id
-      String codigo
-      String nome
-      String categoria
-      boolean perecivel
-      ClassificacaoABC classificacao
-      Rop pontoRessuprimento
-      EstoqueSeguranca estoqueSeguranca
-      BigDecimal consumoMedio
-    }
-    
-    ValueObject Rop {
-      BigDecimal valor
-      Date calculadoEm
-    }
-    
-    ValueObject ClassificacaoABC {
-      String categoria
-      BigDecimal percentualValor
-    }
-    
-    ValueObject EstoqueSeguranca {
-      int quantidade
-    }
-  }
-  
-  Aggregate Estoque {
-    Entity Estoque {
-      - EstoqueId id
-      String localizacao
-      ClienteId cliente
-      Map<ProdutoId, SaldoProduto> saldos
-    }
-    
-    Entity SaldoProduto {
-      - ProdutoId produto
-      int saldoFisico
-      int saldoReservado
-      int saldoDisponivel
-      List<Lote> lotes
-    }
-    
-    Entity Lote {
-      String numeroLote
-      Date dataValidade
-      int quantidade
-    }
-  }
-  
-  Aggregate Movimentacao {
-    Entity Movimentacao {
-      - MovimentacaoId id
-      TipoMovimentacao tipo
-      ProdutoId produto
-      EstoqueId estoqueOrigem
-      EstoqueId estoqueDestino
-      int quantidade
-      String lote
-      Date dataValidade
-      String motivo
-      String responsavel
-      Date dataOcorrencia
-    }
-  }
-  
-  Aggregate Transferencia {
-    Entity Transferencia {
-      - TransferenciaId id
-      ArmazemId origem
-      ArmazemId destino
-      Date criadoEm
-      String status
-      List<LinhaTransferencia> linhas
-    }
-    
-    Entity LinhaTransferencia {
-      ProdutoId produto
-      int quantidade
-      String lote
-    }
-  }
-  
-  Aggregate Alerta {
-    Entity AlertaEstoque {
-      - AlertaId id
-      ProdutoId produto
-      EstoqueId estoque
-      TipoAlerta tipo
-      String mensagem
-      Date dataCriacao
-      boolean resolvido
-    }
-  }
-}
+BoundedContext Principal implements Principal {
 
-# 2. BOUNDED CONTEXT DE COMPRAS
-BoundedContext Compras {
-  Aggregate Fornecedor {
-    Entity Fornecedor {
-      - FornecedorId id
-      String nome
-      Map<ProdutoId, LeadTime> leadTimes
-      Performance performance
-    }
-    
-    ValueObject LeadTime {
-      int dias
-      Date atualizadoEm
-      int entregasRealizadas
-    }
-    
-    ValueObject Performance {
-      BigDecimal taxaSucesso
-      BigDecimal tempoMedioEntrega
-    }
-  }
-  
-  Aggregate Cotacao {
-    Entity Cotacao {
-      - CotacaoId id
-      FornecedorId fornecedor
-      ProdutoId produto
-      BigDecimal preco
-      int quantidadeMinima
-      int prazoEntregaDias
-      boolean valida
-      boolean selecionada
-      Date dataValidade
-    }
-  }
-  
-  Aggregate PedidoCompra {
-    Entity PedidoCompra {
-      - PedidoCompraId id
-      FornecedorId fornecedor
-      StatusPedido status
-      List<ItemPedido> itens
-      Date dataCriacao
-      boolean agrupado
-      PedidoCompraId pedidoPai
-    }
-    
-    Entity ItemPedido {
-      - ProdutoId produto
-      int quantidade
-      int quantidadeRecebida
-      BigDecimal precoUnitario
-      String status
-    }
-  }
-}
+	Aggregate Cliente {
+		Entity Cliente {
+			aggregateRoot
 
-# 3. BOUNDED CONTEXT DE QUALIDADE
-BoundedContext Qualidade {
-  Aggregate NaoConformidade {
-    Entity NaoConformidade {
-      - NaoConformidadeId id
-      PedidoCompraId pedido
-      ProdutoId produto
-      int quantidadeEsperada
-      int quantidadeRecebida
-      String motivo
-      String responsavel
-      Date data
-      String acaoCorretiva
-    }
-  }
-}
+			-ClienteId id
+			String nome
+			String email
 
-# 4. BOUNDED CONTEXT DE RELATÓRIOS
-BoundedContext Relatorios {
-  Aggregate Relatorio {
-    Entity Relatorio {
-      - RelatorioId id
-      String tipo
-      Date periodoInicio
-      Date periodoFim
-      Date geradoEm
-      String formato
-      String urlArquivo
-    }
-  }
-  
-  Aggregate Dashboard {
-    Entity MetricasEstoque {
-      - MetricaId id
-      BigDecimal valorTotalEstoque
-      int totalProdutos
-      int alertasAtivos
-      Map<String, BigDecimal> movimentacaoMensal
-    }
-  }
-}
+			Repository ClienteRepositorio {
+				@Cliente obter(@ClienteId id);
+				List<@Cliente> listarTodos();
+			}
+		}
 
-# 5. BOUNDED CONTEXT DE CUSTOS
-BoundedContext Custos {
-  Aggregate CustoProduto {
-    Entity CustoProduto {
-      - ProdutoId produto
-      BigDecimal custoMedio
-      BigDecimal freteRateado
-      BigDecimal custoAquisicao
-      Date dataAtualizacao
-    }
-  }
-  
-  Aggregate Frete {
-    Entity CustoFrete {
-      - FreteId id
-      FornecedorId fornecedor
-      BigDecimal valor
-      int prazoDias
-      String regiao
-      Date dataVigencia
-    }
-  }
-}
+		ValueObject ClienteId {
+			UUID id
+		}
 
-# 6. BOUNDED CONTEXT DE INVENTÁRIO
-BoundedContext Inventario {
-  Aggregate AjusteInventario {
-    Entity Ajuste {
-      - AjusteId id
-      ProdutoId produto
-      EstoqueId estoque
-      int quantidadeAnterior
-      int quantidadeNova
-      String motivo
-      String responsavel
-      Date dataAjuste
-      String tipoAjuste
-    }
-  }
-}
+		Service ClienteServico {
+			@Cliente registrar(String nome, String email);
+			void atualizar(@ClienteId id, String nome, String email);
+		}
+	}
 
-# 7. DOMAIN SERVICES (no final, após todos os aggregates)
-DomainService CalculoROP {
-  BigDecimal calcularROP(Produto produto, Fornecedor fornecedor)
-}
+	Aggregate Estoque {
+		Entity Estoque {
+			aggregateRoot
 
-DomainService ClassificacaoABC {
-  void classificarProdutos(List<Produto> produtos)
-}
+			-EstoqueId id
+			String nome
+			-ClienteId clienteId
+			List<SaldoProduto> saldos
 
-DomainService SelecaoCotacao {
-  Cotacao selecionarMelhorCotacao(Produto produto, int quantidade)
-}
+			Repository EstoqueRepositorio {
+				@Estoque obter(@EstoqueId id);
+				List<@Estoque> listarTodos();
+				List<@Estoque> listarPorCliente(@ClienteId clienteId);
+			}
+		}
 
-DomainService AgrupamentoPedidos {
-  PedidoCompra agruparPedidos(Fornecedor fornecedor, List<AlertaEstoque> alertas)
-}
+		Entity Movimentacao {
+			-MovimentacaoId id
+			-EstoqueId estoqueId
+			-ProdutoId produtoId
+			int quantidade
+			TipoMovimentacao tipo
+			Date data
+		}
 
-DomainService AtualizacaoLeadTime {
-  void atualizarLeadTime(Fornecedor fornecedor, Produto produto, int diasReal)
-}
+		Entity SaldoProduto {
+			-ProdutoId produtoId
+			int saldoAtual
+		}
 
-# 8. DOMAIN EVENTS (opcional, se quiser incluir eventos)
-DomainEvent AlertaEstoqueBaixoGerado {
-  ProdutoId produto
-  EstoqueId estoque
-  BigDecimal saldoAtual
-  BigDecimal rop
-}
+		ValueObject EstoqueId {
+			UUID id
+		}
 
-DomainEvent PedidoCompraCriado {
-  PedidoCompraId pedido
-  FornecedorId fornecedor
-  List<ItemPedido> itens
+		ValueObject MovimentacaoId {
+			UUID id
+		}
+
+		Enum TipoMovimentacao {
+			ENTRADA, SAIDA, AJUSTE, TRANSFERENCIA_ENTRADA, TRANSFERENCIA_SAIDA
+		}
+
+		Service EstoqueServico {
+			void registrarMovimentacao(@EstoqueId id, @ProdutoId produto, int quantidade, TipoMovimentacao tipo);
+			int obterSaldo(@EstoqueId id, @ProdutoId produto);
+			void transferir(@EstoqueId origem, @EstoqueId destino, @ProdutoId produto, int quantidade);
+		}
+	}
+
+	Aggregate Produto {
+		Entity Produto {
+			aggregateRoot
+
+			-ProdutoId id
+			CodigoProduto codigo
+			String nome
+			CategoriaProduto categoria
+			boolean perecivel
+			LoteValidade lote nullable
+			ROP rop nullable
+
+			Repository ProdutoRepositorio {
+				@Produto obter(@ProdutoId id);
+				List<@Produto> listarTodos();
+			}
+		}
+
+		ValueObject ProdutoId {
+			UUID id
+		}
+
+		ValueObject CodigoProduto {
+			String codigo
+		}
+
+		Enum CategoriaProduto {
+			ALIMENTO, BEBIDA, LIMPEZA, HIGIENE, OUTROS
+		}
+
+		ValueObject LoteValidade {
+			String numero
+			Date validade
+		}
+
+		ValueObject ROP {
+			double consumoMedio
+			int leadTimeDias
+			int estoqueSeguranca
+			int valorROP
+		}
+
+		Service ProdutoServico {
+			void definirROP(@ProdutoId id, double consumoMedio, int leadTimeDias, int estoqueSeguranca);
+			void registrarLote(@ProdutoId id, String numero, Date validade);
+		}
+	}
+
+	Aggregate Fornecedor {
+		Entity Fornecedor {
+			aggregateRoot
+
+			-FornecedorId id
+			String nome
+			String cnpj
+			LeadTime leadTimeMedio
+			List<Cotacao> cotacoes
+
+			Repository FornecedorRepositorio {
+				@Fornecedor obter(@FornecedorId id);
+				List<@Fornecedor> listarTodos();
+			}
+		}
+
+		Entity Cotacao {
+			-CotacaoId id
+			-ProdutoId produtoId
+			double preco
+			int prazoDias
+		}
+
+		ValueObject FornecedorId {
+			UUID id
+		}
+
+		ValueObject CotacaoId {
+			UUID id
+		}
+
+		ValueObject LeadTime {
+			int dias
+		}
+
+		Service FornecedorServico {
+			void registrarCotacao(@FornecedorId id, @ProdutoId produto, double preco, int prazoDias);
+			@Cotacao obterMelhorCotacao(@FornecedorId id);
+		}
+	}
+
+	Aggregate Pedido {
+		Entity Pedido {
+			aggregateRoot
+
+			-PedidoId id
+			-FornecedorId fornecedorId
+			-ClienteId clienteId
+			List<ItemPedido> itens
+			CustoPedido custo
+			StatusPedido status
+			Date dataCriacao
+			Date dataEntrega nullable
+
+			Repository PedidoRepositorio {
+				@Pedido obter(@PedidoId id);
+				List<@Pedido> listarPendentes();
+				List<@Pedido> listarPorFornecedor(@FornecedorId fornecedorId);
+				List<@Pedido> listarPorCliente(@ClienteId clienteId);
+			}
+		}
+
+		Entity ItemPedido {
+			-ProdutoId produtoId
+			int quantidade
+			BigDecimal precoUnitario
+		}
+
+		ValueObject PedidoId {
+			UUID id
+		}
+
+		ValueObject CustoPedido {
+			BigDecimal total
+			BigDecimal frete
+			BigDecimal custoLogistico
+		}
+
+		Enum StatusPedido {
+			PENDENTE, EM_PROCESSAMENTO, CONCLUIDO, CANCELADO
+		}
+
+		Service PedidoServico {
+			@Pedido criar(@ClienteId cliente, @FornecedorId fornecedor, List<ItemPedido> itens);
+			void registrarEntrada(@PedidoId id);
+			void agruparPorFornecedor(List<@Pedido> pedidos);
+			void cancelar(@PedidoId id);
+		}
+	}
+
+	Aggregate Custo {
+		Entity Custo {
+			aggregateRoot
+
+			-CustoId id
+			-PedidoId pedidoId
+			List<CustoItem> itens
+			BigDecimal total
+
+			Repository CustoRepositorio {
+				@Custo obter(@CustoId id);
+				@Custo obterPorPedido(@PedidoId pedidoId);
+				List<@Custo> listarTodos();
+			}
+		}
+
+		Entity CustoItem {
+			-ProdutoId produtoId
+			TipoCusto tipo
+			BigDecimal valor
+		}
+
+		ValueObject CustoId {
+			UUID id
+		}
+
+		Enum TipoCusto {
+			PRODUTO, FRETE, LOGISTICO, OUTRO
+		}
+
+		Service CustoServico {
+			@Custo gerarParaPedido(@Pedido pedido, BigDecimal frete, BigDecimal logistica);
+		}
+	}
 }
