@@ -64,20 +64,28 @@ public class Reserva {
 
     /**
      * Reserva um produto
+     * R1H24: Ao gerar um pedido, o sistema deve reservar no estoque a quantidade correspondente dos produtos envolvidos
+     * R2H24: O saldo reservado não pode ser utilizado em movimentações de saída (venda ou consumo)
      */
     public static Reserva reservarProduto(ProdutoId produto, EstoqueId estoque, 
                                          PedidoId pedido, double quantidade) {
+        // R1H24: A reserva é criada automaticamente quando um pedido é gerado
+        // R2H24: O saldo reservado não pode ser utilizado em movimentações de saída
         return new Reserva(produto, estoque, pedido, quantidade);
     }
 
     /**
      * Libera a reserva
+     * R1H25: Caso o pedido seja cancelado, as reservas associadas devem ser liberadas automaticamente
+     * R2H25: O sistema deve manter registro histórico das reservas e liberações para fins de auditoria
      */
     public void liberarReserva() {
         if (status != StatusReserva.ATIVA) {
             throw new IllegalStateException("Apenas reservas ativas podem ser liberadas");
         }
         this.status = StatusReserva.LIBERADA;
+        // R1H25: Liberação automática quando pedido é cancelado
+        // R2H25: Registro histórico seria mantido pelo serviço de domínio
     }
 
     /**

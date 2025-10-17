@@ -59,6 +59,13 @@ BoundedContext Principal implements Principal {
             double quantidade
         }
 
+        ValueObject SaldoProduto {
+            ProdutoId produto
+            double quantidadeDisponivel
+            double quantidadeReservada
+            double quantidadeTotal
+        }
+
         Repository EstoqueRepository {
             Estoque findById(EstoqueId id)
             List<Estoque> findByCliente(ClienteId clienteId)
@@ -69,6 +76,10 @@ BoundedContext Principal implements Principal {
             void registrarProduto(EstoqueId id, ProdutoId produto, double quantidade)
             void atualizarCapacidade(EstoqueId id, double novaCapacidade)
             void desativarEstoque(EstoqueId id)
+            void adicionarPedidoPendente(EstoqueId id, PedidoId pedido)
+            void removerPedidoPendente(EstoqueId id, PedidoId pedido)
+            boolean validarCapacidade(EstoqueId id, double quantidade)
+            double calcularCapacidadeOcupada(EstoqueId id)
         }
     }
 
@@ -90,9 +101,18 @@ BoundedContext Principal implements Principal {
         }
 
         ValueObject Cotacao {
+            -CotacaoId id
             ProdutoId produto
             double preco
             LocalDate validade
+        }
+
+        ValueObject CotacaoId {
+            int id
+        }
+
+        ValueObject LeadTime {
+            int dias
         }
 
         Repository FornecedorRepository {
@@ -104,6 +124,7 @@ BoundedContext Principal implements Principal {
         Service FornecedorService {
             void atualizarCotacao(FornecedorId fornecedor, ProdutoId produto, double preco, LocalDate validade)
             void desativarFornecedor(FornecedorId id)
+            Cotacao selecionarCotacaoMaisVantajosa(ProdutoId produto, List<Cotacao> cotacoes)
         }
     }
 
@@ -112,28 +133,47 @@ BoundedContext Principal implements Principal {
             aggregateRoot
 
             -ProdutoId id
+            String codigo
             String nome
             String descricao
             String unidadeMedida
             boolean ativo
-            EstoqueId estoque
+            List<EstoqueId> estoques
             List<FornecedorId> fornecedores
             double pontoRessuprimento
+            List<PedidoId> pedidosPendentes
         }
 
         ValueObject ProdutoId {
             int id
         }
 
+        ValueObject CodigoProduto {
+            String codigo
+        }
+
+        ValueObject ROP {
+            double consumoMedioDiario
+            int leadTimeDias
+            double estoqueSeguranca
+            double valorROP
+        }
+
         Repository ProdutoRepository {
             Produto findById(ProdutoId id)
+            Produto findByCodigo(String codigo)
             List<Produto> findAll()
+            List<Produto> findByEstoque(EstoqueId estoqueId)
             void save(Produto produto)
         }
 
         Service ProdutoService {
             void definirPontoRessuprimento(ProdutoId id, double novoPonto)
             void vincularFornecedor(ProdutoId id, FornecedorId fornecedor)
+            void adicionarEstoque(ProdutoId id, EstoqueId estoque)
+            void removerEstoque(ProdutoId id, EstoqueId estoque)
+            void adicionarPedidoPendente(ProdutoId id, PedidoId pedido)
+            void removerPedidoPendente(ProdutoId id, PedidoId pedido)
         }
     }
 
@@ -160,6 +200,13 @@ BoundedContext Principal implements Principal {
             double precoUnitario
         }
 
+        ValueObject CustoPedido {
+            double valorTotal
+            double valorFrete
+            double valorDesconto
+            double valorFinal
+        }
+
         Enum PedidoStatus {
             PENDENTE,
             EM_TRANSPORTE,
@@ -176,6 +223,9 @@ BoundedContext Principal implements Principal {
         Service PedidoService {
             void criarPedido(ClienteId cliente, FornecedorId fornecedor, List<ItemPedido> itens)
             void atualizarStatus(PedidoId id, PedidoStatus status)
+            void cancelarPedido(PedidoId id)
+            void confirmarRecebimento(PedidoId id)
+            void definirDataPrevistaEntrega(PedidoId id, LocalDate dataPrevista)
         }
     }
 
@@ -207,8 +257,9 @@ BoundedContext Principal implements Principal {
         }
 
         Service MovimentacaoService {
-            void registrarEntrada(ProdutoId produto, EstoqueId estoque, double quantidade)
+            void registrarEntrada(ProdutoId produto, EstoqueId estoque, double quantidade, String motivo)
             void registrarSaida(ProdutoId produto, EstoqueId estoque, double quantidade, String motivo)
+            Movimentacao criarMovimentacao(ProdutoId produto, EstoqueId estoque, TipoMovimentacao tipo, double quantidade, String motivo)
         }
     }
 
@@ -236,8 +287,10 @@ BoundedContext Principal implements Principal {
         }
 
         Service AlertaService {
-            void gerarAlerta(ProdutoId produto, EstoqueId estoque, double quantidadeAtual)
+            void gerarAlerta(ProdutoId produto, EstoqueId estoque, double quantidadeAtual, double pontoRessuprimento, FornecedorId fornecedorSugerido)
             void resolverAlerta(AlertaId id)
+            List<Alerta> buscarAlertasAtivos()
+            boolean verificarEstoqueBaixo(double quantidadeAtual, double pontoRessuprimento)
         }
     }
 
@@ -252,6 +305,7 @@ BoundedContext Principal implements Principal {
             double quantidade
             LocalDateTime dataHora
             StatusTransferencia status
+            ClienteId cliente
         }
 
         ValueObject TransferenciaId {
@@ -269,8 +323,10 @@ BoundedContext Principal implements Principal {
         }
 
         Service TransferenciaService {
-            void iniciarTransferencia(EstoqueId origem, EstoqueId destino, ProdutoId produto, double quantidade)
+            void iniciarTransferencia(EstoqueId origem, EstoqueId destino, ProdutoId produto, double quantidade, ClienteId cliente)
             void concluirTransferencia(TransferenciaId id)
+            boolean validarTransferencia(EstoqueId origem, EstoqueId destino, ClienteId cliente)
+            void gerarMovimentacoesTransferencia(TransferenciaId id)
         }
     }
 
@@ -304,6 +360,9 @@ BoundedContext Principal implements Principal {
         Service ReservaService {
             void reservarProduto(ProdutoId produto, EstoqueId estoque, PedidoId pedido, double quantidade)
             void liberarReserva(ReservaId id)
+            void liberarReservasPorPedido(PedidoId pedidoId)
+            List<Reserva> buscarReservasAtivas()
+            double calcularSaldoDisponivel(ProdutoId produto, EstoqueId estoque)
         }
     }
 }

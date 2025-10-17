@@ -13,6 +13,7 @@ import java.time.LocalDate;
  */
 public class Cotacao {
 
+    private final CotacaoId id;
     private final ProdutoId produto;
     private final double preco;
     private final LocalDate validade;
@@ -22,9 +23,26 @@ public class Cotacao {
         isTrue(preco > 0, "Preço deve ser positivo");
         notNull(validade, "Validade é obrigatória");
 
+        this.id = new CotacaoId();
         this.produto = produto;
         this.preco = preco;
         this.validade = validade;
+    }
+
+    public Cotacao(CotacaoId id, ProdutoId produto, double preco, LocalDate validade) {
+        notNull(id, "ID é obrigatório");
+        notNull(produto, "Produto é obrigatório");
+        isTrue(preco > 0, "Preço deve ser positivo");
+        notNull(validade, "Validade é obrigatória");
+
+        this.id = id;
+        this.produto = produto;
+        this.preco = preco;
+        this.validade = validade;
+    }
+
+    public CotacaoId getId() {
+        return id;
     }
 
     public ProdutoId getProduto() {
@@ -51,18 +69,16 @@ public class Cotacao {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
         Cotacao other = (Cotacao) obj;
-        return produto.equals(other.produto) && 
-               Double.compare(preco, other.preco) == 0 &&
-               validade.equals(other.validade);
+        return id.equals(other.id);
     }
 
     @Override
     public int hashCode() {
-        return produto.hashCode() + Double.hashCode(preco) + validade.hashCode();
+        return id.hashCode();
     }
 
     @Override
     public String toString() {
-        return String.format("Cotacao[%s, R$ %.2f, válida até %s]", produto, preco, validade);
+        return String.format("Cotacao[%s] - Produto: %s, R$ %.2f, válida até %s", id, produto, preco, validade);
     }
 }

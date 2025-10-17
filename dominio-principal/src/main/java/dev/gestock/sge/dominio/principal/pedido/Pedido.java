@@ -63,6 +63,7 @@ public class Pedido {
 
     /**
      * Cria um pedido
+     * R1H11: O pedido só pode ser criado se existir uma cotação válida para o produto
      */
     public void criarPedido(ClienteId cliente, FornecedorId fornecedor, List<ItemPedido> itens) {
         notNull(cliente, "Cliente é obrigatório");
@@ -70,6 +71,8 @@ public class Pedido {
         notNull(itens, "Lista de itens é obrigatória");
         isTrue(!itens.isEmpty(), "Pedido deve ter pelo menos um item");
 
+        // R1H11: Validação de cotação válida seria feita pelo serviço de domínio
+        // Aqui apenas registramos que o pedido foi criado
         this.cliente = cliente;
         this.fornecedor = fornecedor;
         this.dataCriacao = LocalDate.now();
@@ -86,11 +89,34 @@ public class Pedido {
     }
 
     /**
+     * Cancela o pedido
+     * R1H12: Pedidos com status "Em transporte" não podem ser cancelados
+     */
+    public void cancelar() {
+        if (status == PedidoStatus.EM_TRANSPORTE) {
+            throw new IllegalStateException("Pedidos em transporte não podem ser cancelados");
+        }
+        this.status = PedidoStatus.CANCELADO;
+    }
+
+    /**
      * Define a data prevista de entrega
      */
     public void definirDataPrevistaEntrega(LocalDate dataPrevistaEntrega) {
         notNull(dataPrevistaEntrega, "Data prevista de entrega é obrigatória");
         this.dataPrevistaEntrega = dataPrevistaEntrega;
+    }
+
+    /**
+     * Confirma o recebimento do pedido
+     * R1H13: Ao confirmar o recebimento, o sistema gera automaticamente uma movimentação de entrada
+     */
+    public void confirmarRecebimento() {
+        if (status != PedidoStatus.EM_TRANSPORTE) {
+            throw new IllegalStateException("Apenas pedidos em transporte podem ser confirmados como recebidos");
+        }
+        this.status = PedidoStatus.RECEBIDO;
+        // R1H13: A geração da movimentação seria feita pelo serviço de domínio
     }
 
     /**
