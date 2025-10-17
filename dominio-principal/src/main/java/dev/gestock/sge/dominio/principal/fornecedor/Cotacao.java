@@ -1,6 +1,6 @@
 package dev.gestock.sge.dominio.principal.fornecedor;
 
-import dev.gestock.sge.dominio.principal.produto.ProdutoId;
+import src.main.java.dev.gestock.sge.dominio.principal.produto.ProdutoId;
 
 /**
  * Entidade de domínio: Cotação

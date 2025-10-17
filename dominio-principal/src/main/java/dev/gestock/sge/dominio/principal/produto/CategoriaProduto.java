@@ -1,4 +1,4 @@
-package dev.gestock.sge.dominio.principal.produto;
+package src.main.java.dev.gestock.sge.dominio.principal.produto;
 
 /**
  * Enum: Categoria do Produto.

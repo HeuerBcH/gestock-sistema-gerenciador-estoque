@@ -1,4 +1,4 @@
-package dev.gestock.sge.dominio.principal.pedido;
+package src.main.java.dev.gestock.sge.dominio.principal.pedido;
 
 import java.math.BigDecimal;
 import static org.apache.commons.lang3.Validate.*;

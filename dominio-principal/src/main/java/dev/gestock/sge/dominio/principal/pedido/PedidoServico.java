@@ -1,10 +1,10 @@
-package dev.gestock.sge.dominio.principal.pedido;
+package src.main.java.dev.gestock.sge.dominio.principal.pedido;
 
-import dev.gestock.sge.dominio.principal.cliente.ClienteId;
-import dev.gestock.sge.dominio.principal.fornecedor.Cotacao;
-import dev.gestock.sge.dominio.principal.fornecedor.Fornecedor;
-import dev.gestock.sge.dominio.principal.produto.Produto;
-import dev.gestock.sge.dominio.principal.produto.ProdutoId;
+import src.main.java.dev.gestock.sge.dominio.principal.cliente.ClienteId;
+import src.main.java.dev.gestock.sge.dominio.principal.fornecedor.Cotacao;
+import src.main.java.dev.gestock.sge.dominio.principal.fornecedor.Fornecedor;
+import src.main.java.dev.gestock.sge.dominio.principal.produto.Produto;
+import src.main.java.dev.gestock.sge.dominio.principal.produto.ProdutoId;
 
 import java.math.BigDecimal;
 import java.util.Optional;

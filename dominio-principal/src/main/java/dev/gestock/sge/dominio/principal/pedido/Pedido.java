@@ -1,9 +1,9 @@
-package dev.gestock.sge.dominio.principal.pedido;
+package src.main.java.dev.gestock.sge.dominio.principal.pedido;
 
 import static org.apache.commons.lang3.Validate.*;
 
-import dev.gestock.sge.dominio.principal.cliente.ClienteId;
-import dev.gestock.sge.dominio.principal.fornecedor.FornecedorId;
+import src.main.java.dev.gestock.sge.dominio.principal.cliente.ClienteId;
+import src.main.java.dev.gestock.sge.dominio.principal.fornecedor.FornecedorId;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

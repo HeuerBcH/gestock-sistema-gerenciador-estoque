@@ -1,4 +1,4 @@
-package dev.gestock.sge.dominio.principal.pedido;
+package src.main.java.dev.gestock.sge.dominio.principal.pedido;
 
 /** Estados válidos do pedido (controlam transições de negócio). */
 public enum StatusPedido {

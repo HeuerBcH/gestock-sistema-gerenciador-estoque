@@ -1,4 +1,4 @@
-package dev.gestock.sge.dominio.principal.fornecedor;
+package src.main.java.dev.gestock.sge.dominio.principal.fornecedor;
 
 import java.util.UUID;
 

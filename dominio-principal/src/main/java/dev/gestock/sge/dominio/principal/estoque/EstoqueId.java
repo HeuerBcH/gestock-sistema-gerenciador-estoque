@@ -1,4 +1,4 @@
-package dev.gestock.sge.dominio.principal.estoque;
+package src.main.java.dev.gestock.sge.dominio.principal.estoque;
 
 import java.util.UUID;
 

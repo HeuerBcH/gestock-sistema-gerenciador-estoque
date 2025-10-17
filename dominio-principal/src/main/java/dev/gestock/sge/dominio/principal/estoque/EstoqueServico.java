@@ -1,10 +1,10 @@
-package dev.gestock.sge.dominio.principal.estoque;
+package src.main.java.dev.gestock.sge.dominio.principal.estoque;
 
 import static org.apache.commons.lang3.Validate.*;
 
 import java.util.Map;
 
-import dev.gestock.sge.dominio.principal.produto.ProdutoId;
+import src.main.java.dev.gestock.sge.dominio.principal.produto.ProdutoId;
 
 /**
  * Serviço de domínio para operações que envolvem mais de um Estoque

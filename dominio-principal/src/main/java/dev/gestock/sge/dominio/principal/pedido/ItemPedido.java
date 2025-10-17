@@ -1,7 +1,7 @@
-package dev.gestock.sge.dominio.principal.pedido;
+package src.main.java.dev.gestock.sge.dominio.principal.pedido;
 
 import static org.apache.commons.lang3.Validate.*;
-import dev.gestock.sge.dominio.principal.produto.ProdutoId;
+import src.main.java.dev.gestock.sge.dominio.principal.produto.ProdutoId;
 import java.math.BigDecimal;
 
 /** Entidade: item do pedido (produto + quantidade + preço unitário). */

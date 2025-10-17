@@ -1,9 +1,9 @@
-package dev.gestock.sge.dominio.principal.estoque;
+package src.main.java.dev.gestock.sge.dominio.principal.estoque;
 
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
-import dev.gestock.sge.dominio.principal.produto.ProdutoId;
+import src.main.java.dev.gestock.sge.dominio.principal.produto.ProdutoId;
 /**
  * Entidade de auditoria de movimentos no Estoque.
  * Mantém trilha completa: tipo, produto, quantidade, data/hora, responsável, motivo, metadados.

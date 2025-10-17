@@ -1,4 +1,4 @@
-package dev.gestock.sge.dominio.principal.cliente;
+package src.main.java.dev.gestock.sge.dominio.principal.cliente;
 
 import java.util.UUID;
 
