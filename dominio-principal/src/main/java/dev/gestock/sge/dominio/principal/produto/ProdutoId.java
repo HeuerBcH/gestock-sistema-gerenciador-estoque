@@ -1,18 +1,47 @@
-package src.main.java.dev.gestock.sge.dominio.principal.produto;
+package dev.gestock.sge.dominio.principal.produto;
 
-import java.util.UUID;
-
-/** Value Object: Identidade imutável do Produto */
+/**
+ * Value Object: Identidade imutável do Produto
+ * 
+ * Características:
+ * - Imutável
+ * - Comparação por valor
+ * - Validação de invariantes
+ */
 public class ProdutoId {
 
-    private final UUID id;
+    private final int id;
 
-    public ProdutoId() { this.id = UUID.randomUUID(); }
-    public ProdutoId(UUID id) { this.id = id; }
+    public ProdutoId() {
+        this.id = (int) (System.currentTimeMillis() % Integer.MAX_VALUE);
+    }
 
-    public UUID getId() { return id; }
+    public ProdutoId(int id) {
+        if (id <= 0) {
+            throw new IllegalArgumentException("ID deve ser positivo");
+        }
+        this.id = id;
+    }
 
-    @Override public boolean equals(Object o) { return o instanceof ProdutoId other && id.equals(other.id); }
-    @Override public int hashCode() { return id.hashCode(); }
-    @Override public String toString() { return id.toString(); }
+    public int getId() {
+        return id;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        ProdutoId other = (ProdutoId) obj;
+        return id == other.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(id);
+    }
+
+    @Override
+    public String toString() {
+        return String.valueOf(id);
+    }
 }

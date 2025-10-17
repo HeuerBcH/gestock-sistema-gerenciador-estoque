@@ -1,4 +1,4 @@
-package src.main.java.dev.gestock.sge.dominio.principal.pedido;
+package dev.gestock.sge.dominio.principal.pedido;
 
 import java.util.List;
 import java.util.Optional;

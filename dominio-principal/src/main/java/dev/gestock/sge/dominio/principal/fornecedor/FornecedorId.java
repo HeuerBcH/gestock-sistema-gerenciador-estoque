@@ -1,17 +1,47 @@
-package src.main.java.dev.gestock.sge.dominio.principal.fornecedor;
+package dev.gestock.sge.dominio.principal.fornecedor;
 
-import java.util.UUID;
-
-/** Value Object: Identidade imutável do Fornecedor */
+/**
+ * Value Object: Identidade imutável do Fornecedor
+ * 
+ * Características:
+ * - Imutável
+ * - Comparação por valor
+ * - Validação de invariantes
+ */
 public class FornecedorId {
-    private final UUID id;
 
-    public FornecedorId() { this.id = UUID.randomUUID(); }
-    public FornecedorId(UUID id) { this.id = id; }
+    private final int id;
 
-    public UUID getId() { return id; }
+    public FornecedorId() {
+        this.id = (int) (System.currentTimeMillis() % Integer.MAX_VALUE);
+    }
 
-    @Override public boolean equals(Object o) { return o instanceof FornecedorId other && id.equals(other.id); }
-    @Override public int hashCode() { return id.hashCode(); }
-    @Override public String toString() { return id.toString(); }
+    public FornecedorId(int id) {
+        if (id <= 0) {
+            throw new IllegalArgumentException("ID deve ser positivo");
+        }
+        this.id = id;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        FornecedorId other = (FornecedorId) obj;
+        return id == other.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(id);
+    }
+
+    @Override
+    public String toString() {
+        return String.valueOf(id);
+    }
 }

@@ -1,4 +1,4 @@
-package src.main.java.dev.gestock.sge.dominio.principal.estoque;
+package dev.gestock.sge.dominio.principal.estoque;
 
 /**
  * Value Object: Saldo de um produto dentro do Estoque.

@@ -1,4 +1,4 @@
-package src.main.java.dev.gestock.sge.dominio.principal.produto;
+package dev.gestock.sge.dominio.principal.produto;
 
 import static org.apache.commons.lang3.Validate.notBlank;
 import java.time.LocalDate;

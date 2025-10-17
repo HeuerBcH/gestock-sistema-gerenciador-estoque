@@ -1,4 +1,4 @@
-package src.main.java.dev.gestock.sge.dominio.principal.cliente;
+package dev.gestock.sge.dominio.principal.cliente;
 
 /**
  * Serviço de Domínio: Cliente

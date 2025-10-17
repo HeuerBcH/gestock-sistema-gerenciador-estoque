@@ -1,17 +1,36 @@
-package src.main.java.dev.gestock.sge.dominio.principal.fornecedor;
+package dev.gestock.sge.dominio.principal.fornecedor;
 
-import java.util.UUID;
-
-/** Value Object: Identificador de cotação */
+/**
+ * Value Object: Identificador de cotação
+ */
 public class CotacaoId {
-    private final UUID id;
+    private final int id;
 
-    public CotacaoId() { this.id = UUID.randomUUID(); }
-    public CotacaoId(UUID id) { this.id = id; }
+    public CotacaoId() { 
+        this.id = (int) (System.currentTimeMillis() % Integer.MAX_VALUE); 
+    }
+    
+    public CotacaoId(int id) { 
+        if (id <= 0) {
+            throw new IllegalArgumentException("ID deve ser positivo");
+        }
+        this.id = id; 
+    }
 
-    public UUID getId() { return id; }
+    public int getId() { return id; }
 
-    @Override public boolean equals(Object o) { return o instanceof CotacaoId other && id.equals(other.id); }
-    @Override public int hashCode() { return id.hashCode(); }
-    @Override public String toString() { return id.toString(); }
+    @Override 
+    public boolean equals(Object o) { 
+        return o instanceof CotacaoId other && id == other.id; 
+    }
+    
+    @Override 
+    public int hashCode() { 
+        return Integer.hashCode(id); 
+    }
+    
+    @Override 
+    public String toString() { 
+        return String.valueOf(id); 
+    }
 }

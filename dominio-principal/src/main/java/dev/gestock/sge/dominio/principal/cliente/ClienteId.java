@@ -1,40 +1,47 @@
-package src.main.java.dev.gestock.sge.dominio.principal.cliente;
-
-import java.util.UUID;
+package dev.gestock.sge.dominio.principal.cliente;
 
 /**
- * Value Object que encapsula a identidade do Cliente.
- *
- * - Garante que a identidade é imutável.
- * - Evita "primitive obsession" (usar String/UUID cru em todo o código).
- * - Define igualdade por valor (do UUID).
+ * Value Object: Identidade imutável do Cliente
+ * 
+ * Características:
+ * - Imutável
+ * - Comparação por valor
+ * - Validação de invariantes
  */
 public class ClienteId {
-	private final UUID id;
 
-	public ClienteId() {
-		this.id = UUID.randomUUID();
-	} // gera novo UUID
-	public ClienteId(UUID id) {
-		this.id = id;
-	}         // usado em reidratação
+    private final int id;
 
-	public UUID getId() {
-		return id;
-	}
+    public ClienteId() {
+        this.id = (int) (System.currentTimeMillis() % Integer.MAX_VALUE);
+    }
 
-	@Override
-	public boolean equals(Object o) {
-		return o instanceof ClienteId other && id.equals(other.id);
-	}
+    public ClienteId(int id) {
+        if (id <= 0) {
+            throw new IllegalArgumentException("ID deve ser positivo");
+        }
+        this.id = id;
+    }
 
-	@Override
-	public int hashCode() {
-		return id.hashCode();
-	}
+    public int getId() {
+        return id;
+    }
 
-	@Override
-	public String toString() {
-		return id.toString();
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        ClienteId other = (ClienteId) obj;
+        return id == other.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(id);
+    }
+
+    @Override
+    public String toString() {
+        return String.valueOf(id);
+    }
 }

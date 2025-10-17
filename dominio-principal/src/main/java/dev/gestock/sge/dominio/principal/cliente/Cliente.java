@@ -1,151 +1,117 @@
-package src.main.java.dev.gestock.sge.dominio.principal.cliente;
+package dev.gestock.sge.dominio.principal.cliente;
 
 import static org.apache.commons.lang3.Validate.*;
 
-import src.main.java.dev.gestock.sge.dominio.principal.estoque.Estoque;
+import dev.gestock.sge.dominio.principal.estoque.EstoqueId;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * ENTIDADE: Cliente (Aggregate Root)
+ * Aggregate Root: Cliente
  *
- * Responsabilidade:
- * - Representa o dono dos estoques.
- * - Centraliza a criação e o gerenciamento dos estoques do cliente.
- * - Garante que nenhum estoque exista sem estar vinculado a um cliente.
- *
- * Regras relacionadas:
- * R1 → Cada usuário deve possuir pelo menos um estoque cadastrado.
- *
- * Ligação com Histórias de Usuário:
- * História 1 → "Como usuário, quero poder registrar um ou mais estoques..."
+ * Responsabilidades:
+ * - Gerenciar informações do cliente
+ * - Controlar ativação/desativação
+ * - Manter dados de contato e identificação
+ * - Gerenciar lista de estoques
  */
 public class Cliente {
 
-	// -----------------------------
-	// Atributos de domínio
-	// -----------------------------
-	private final ClienteId id;     // Identidade única (Value Object, imutável)
-	private String nome;            // Nome do cliente
-	private String documento;       // CPF/CNPJ
-	private String email;           // E-mail de contato
+    private final ClienteId id;
+    private String nome;
+    private String email;
+    private String cnpj;
+    private boolean ativo;
+    private List<EstoqueId> estoques;
 
-	private final List<Estoque> estoques = new ArrayList<>();
-	// Relação 1:N com Estoque → garante a regra R1 (todo cliente tem pelo menos 1 estoque)
+    public Cliente(String nome, String email, String cnpj) {
+        notBlank(nome, "Nome é obrigatório");
+        notBlank(email, "Email é obrigatório");
+        notBlank(cnpj, "CNPJ é obrigatório");
 
-	// -----------------------------
-	// Construtores
-	// -----------------------------
+        this.id = new ClienteId();
+        this.nome = nome;
+        this.email = email;
+        this.cnpj = cnpj;
+        this.ativo = true;
+        this.estoques = List.of();
+    }
 
-	/**
-	 * Construtor usado ao criar um novo cliente.
-	 * Gera um novo ID e valida as informações obrigatórias.
-	 */
-	public Cliente(String nome, String documento, String email) {
-		this.id = new ClienteId(); // Gera um UUID interno único
-		setNome(nome);
-		setDocumento(documento);
-		setEmail(email);
-	}
+    public Cliente(ClienteId id, String nome, String email, String cnpj, boolean ativo, List<EstoqueId> estoques) {
+        notNull(id, "ID é obrigatório");
+        notBlank(nome, "Nome é obrigatório");
+        notBlank(email, "Email é obrigatório");
+        notBlank(cnpj, "CNPJ é obrigatório");
+        notNull(estoques, "Lista de estoques é obrigatória");
 
-	/**
-	 * Construtor usado quando o cliente já existe (por exemplo, carregado do banco).
-	 * Mantém o ID existente.
-	 */
-	public Cliente(ClienteId id, String nome, String documento, String email) {
-		notNull(id, "O id do cliente não pode ser nulo");
-		this.id = id;
-		setNome(nome);
-		setDocumento(documento);
-		setEmail(email);
-	}
+        this.id = id;
+        this.nome = nome;
+        this.email = email;
+        this.cnpj = cnpj;
+        this.ativo = ativo;
+        this.estoques = List.copyOf(estoques);
+    }
 
-	// -----------------------------
-	// Getters (exposição controlada)
-	// -----------------------------
-	public ClienteId getId() {
-		return id;
-	}
-	public String getNome() {
-		return nome;
-	}
-	public String getDocumento() {
-		return documento;
-	}
-	public String getEmail() {
-		return email;
-	}
+    /**
+     * Ativa o cliente
+     */
+    public void ativar() {
+        this.ativo = true;
+    }
 
-	/**
-	 * Exposição segura da lista de estoques.
-	 * → Retorna uma cópia imutável da lista.
-	 */
-	public List<Estoque> getEstoques() {
-		return List.copyOf(estoques);
-	}
+    /**
+     * Desativa o cliente
+     */
+    public void desativar() {
+        this.ativo = false;
+    }
 
-	// -----------------------------
-	// Métodos de negócio (comportamentos)
-	// -----------------------------
+    /**
+     * Adiciona um estoque à lista do cliente
+     */
+    public void adicionarEstoque(EstoqueId estoqueId) {
+        notNull(estoqueId, "Estoque é obrigatório");
+        if (!estoques.contains(estoqueId)) {
+            var novaLista = new ArrayList<>(estoques);
+            novaLista.add(estoqueId);
+            this.estoques = List.copyOf(novaLista);
+        }
+    }
 
-	/**
-	 * Adiciona um novo estoque vinculado a este cliente.
-	 *
-	 * Validações:
-	 * - O estoque não pode ser nulo.
-	 * - O estoque deve pertencer ao mesmo cliente.
-	 *
-	 * Regra associada:
-	 * R1 → Cada usuário deve possuir pelo menos um estoque cadastrado.
-	 *
-	 * Histórias associadas:
-	 * História 1 → "Registrar estoques com produtos"
-	 */
-	public void adicionarEstoque(Estoque estoque) {
-		notNull(estoque, "O estoque não pode ser nulo");
+    /**
+     * Remove um estoque da lista do cliente
+     */
+    public void removerEstoque(EstoqueId estoqueId) {
+        notNull(estoqueId, "Estoque é obrigatório");
+        this.estoques = estoques.stream()
+                .filter(id -> !id.equals(estoqueId))
+                .toList();
+    }
 
-		// Garante integridade: o estoque precisa estar associado ao mesmo cliente
-		if (!estoque.getClienteId().equals(this.id)) {
-			throw new IllegalArgumentException("O estoque pertence a outro cliente");
-		}
+    /**
+     * Verifica se o cliente está ativo
+     */
+    public boolean isAtivo() {
+        return ativo;
+    }
 
-		estoques.add(estoque);
-	}
+    /**
+     * Verifica se o cliente está inativo
+     */
+    public boolean isInativo() {
+        return !ativo;
+    }
 
-	/**
-	 * Verifica se o cliente tem ao menos um estoque cadastrado.
-	 *
-	 * Útil para enforcing rule R1 em um serviço de domínio ou regra de negócio.
-	 */
-	public boolean possuiEstoques() {
-		return !estoques.isEmpty();
-	}
+    // Getters
+    public ClienteId getId() { return id; }
+    public String getNome() { return nome; }
+    public String getEmail() { return email; }
+    public String getCnpj() { return cnpj; }
+    public List<EstoqueId> getEstoques() { return List.copyOf(estoques); }
 
-	// -----------------------------
-	// Validações internas (invariantes)
-	// -----------------------------
-
-	private void setNome(String nome) {
-		notBlank(nome, "Nome do cliente é obrigatório");
-		this.nome = nome;
-	}
-
-	private void setDocumento(String documento) {
-		notBlank(documento, "Documento (CPF/CNPJ) é obrigatório");
-		this.documento = documento;
-	}
-
-	private void setEmail(String email) {
-		notBlank(email, "E-mail é obrigatório");
-		this.email = email;
-	}
-
-	// -----------------------------
-	// Representação textual (útil para logs, debug, UI)
-	// -----------------------------
-	@Override
-	public String toString() {
-		return nome + " (" + documento + ")";
-	}
+    @Override
+    public String toString() {
+        return String.format("Cliente[%s] - %s (%s)", id, nome, cnpj);
+    }
 }

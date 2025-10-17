@@ -1,22 +1,22 @@
-package dev.gestock.sge.dominio.principal.pedido;
+package dev.gestock.sge.dominio.principal.transferencia;
 
 /**
- * Value Object: Identidade imutável do Pedido
+ * Value Object: Identidade imutável da Transferencia
  * 
  * Características:
  * - Imutável
  * - Comparação por valor
  * - Validação de invariantes
  */
-public class PedidoId {
+public class TransferenciaId {
 
     private final int id;
 
-    public PedidoId() {
+    public TransferenciaId() {
         this.id = (int) (System.currentTimeMillis() % Integer.MAX_VALUE);
     }
 
-    public PedidoId(int id) {
+    public TransferenciaId(int id) {
         if (id <= 0) {
             throw new IllegalArgumentException("ID deve ser positivo");
         }
@@ -31,7 +31,7 @@ public class PedidoId {
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
-        PedidoId other = (PedidoId) obj;
+        TransferenciaId other = (TransferenciaId) obj;
         return id == other.id;
     }
 

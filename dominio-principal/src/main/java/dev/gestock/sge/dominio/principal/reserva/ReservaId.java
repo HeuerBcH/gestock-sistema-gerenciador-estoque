@@ -1,22 +1,22 @@
-package dev.gestock.sge.dominio.principal.pedido;
+package dev.gestock.sge.dominio.principal.reserva;
 
 /**
- * Value Object: Identidade imutável do Pedido
+ * Value Object: Identidade imutável da Reserva
  * 
  * Características:
  * - Imutável
  * - Comparação por valor
  * - Validação de invariantes
  */
-public class PedidoId {
+public class ReservaId {
 
     private final int id;
 
-    public PedidoId() {
+    public ReservaId() {
         this.id = (int) (System.currentTimeMillis() % Integer.MAX_VALUE);
     }
 
-    public PedidoId(int id) {
+    public ReservaId(int id) {
         if (id <= 0) {
             throw new IllegalArgumentException("ID deve ser positivo");
         }
@@ -31,7 +31,7 @@ public class PedidoId {
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
-        PedidoId other = (PedidoId) obj;
+        ReservaId other = (ReservaId) obj;
         return id == other.id;
     }
 

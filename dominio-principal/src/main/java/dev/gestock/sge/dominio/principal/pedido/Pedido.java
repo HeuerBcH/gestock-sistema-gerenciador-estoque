@@ -1,102 +1,138 @@
-package src.main.java.dev.gestock.sge.dominio.principal.pedido;
+package dev.gestock.sge.dominio.principal.pedido;
 
 import static org.apache.commons.lang3.Validate.*;
 
-import src.main.java.dev.gestock.sge.dominio.principal.cliente.ClienteId;
-import src.main.java.dev.gestock.sge.dominio.principal.fornecedor.FornecedorId;
+import dev.gestock.sge.dominio.principal.cliente.ClienteId;
+import dev.gestock.sge.dominio.principal.fornecedor.FornecedorId;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.List;
 
 /**
- * Aggregate Root: Pedido (ordem de compra Cliente → Fornecedor).
- * Regras:
- *  - R5/R6: seleção de cotação (aplicada via serviço e/ou fornecedor)
- *  - R7: validação (ex.: quantidade mínima)
- *  - R8: recebimento dispara entrada no estoque (feito pela aplicação/orquestração)
- *  - R26: custo total (itens + frete + logística)
+ * Aggregate Root: Pedido
+ *
+ * Responsabilidades:
+ * - Gerenciar pedidos de compra
+ * - Controlar status do pedido
+ * - Gerenciar itens do pedido
+ * - Controlar datas de entrega
  */
 public class Pedido {
 
     private final PedidoId id;
-    private final ClienteId clienteId;
-    private final FornecedorId fornecedorId;
-    private final LocalDate dataCriacao;
+    private ClienteId cliente;
+    private FornecedorId fornecedor;
+    private LocalDate dataCriacao;
+    private LocalDate dataPrevistaEntrega;
+    private PedidoStatus status;
+    private List<ItemPedido> itens;
 
-    private final List<ItemPedido> itens = new ArrayList<>();
-    private CustoPedido custo;               // VO com total do pedido (R26)
-    private StatusPedido status = StatusPedido.CRIADO;
+    public Pedido(ClienteId cliente, FornecedorId fornecedor, List<ItemPedido> itens) {
+        notNull(cliente, "Cliente é obrigatório");
+        notNull(fornecedor, "Fornecedor é obrigatório");
+        notNull(itens, "Lista de itens é obrigatória");
+        isTrue(!itens.isEmpty(), "Pedido deve ter pelo menos um item");
 
-    public Pedido(ClienteId clienteId, FornecedorId fornecedorId) {
-        notNull(clienteId, "Cliente é obrigatório");
-        notNull(fornecedorId, "Fornecedor é obrigatório");
         this.id = new PedidoId();
-        this.clienteId = clienteId;
-        this.fornecedorId = fornecedorId;
+        this.cliente = cliente;
+        this.fornecedor = fornecedor;
         this.dataCriacao = LocalDate.now();
+        this.dataPrevistaEntrega = null; // Será definida pelo serviço
+        this.status = PedidoStatus.PENDENTE;
+        this.itens = List.copyOf(itens);
     }
 
-    // --------- Comportamentos de domínio ---------
+    public Pedido(PedidoId id, ClienteId cliente, FornecedorId fornecedor, 
+                  LocalDate dataCriacao, LocalDate dataPrevistaEntrega, 
+                  PedidoStatus status, List<ItemPedido> itens) {
+        notNull(id, "ID é obrigatório");
+        notNull(cliente, "Cliente é obrigatório");
+        notNull(fornecedor, "Fornecedor é obrigatório");
+        notNull(dataCriacao, "Data de criação é obrigatória");
+        notNull(status, "Status é obrigatório");
+        notNull(itens, "Lista de itens é obrigatória");
 
-    /** (R7) Adiciona um item validando quantidade e preço. */
-    public void adicionarItem(ItemPedido item) {
-        notNull(item, "Item é obrigatório");
-        itens.add(item);
+        this.id = id;
+        this.cliente = cliente;
+        this.fornecedor = fornecedor;
+        this.dataCriacao = dataCriacao;
+        this.dataPrevistaEntrega = dataPrevistaEntrega;
+        this.status = status;
+        this.itens = List.copyOf(itens);
     }
 
-    /** (R26) Registra o custo total do pedido (itens + frete + logística). */
-    public void registrarCusto(CustoPedido custo) {
-        notNull(custo, "Custo é obrigatório");
-        this.custo = custo;
+    /**
+     * Cria um pedido
+     */
+    public void criarPedido(ClienteId cliente, FornecedorId fornecedor, List<ItemPedido> itens) {
+        notNull(cliente, "Cliente é obrigatório");
+        notNull(fornecedor, "Fornecedor é obrigatório");
+        notNull(itens, "Lista de itens é obrigatória");
+        isTrue(!itens.isEmpty(), "Pedido deve ter pelo menos um item");
+
+        this.cliente = cliente;
+        this.fornecedor = fornecedor;
+        this.dataCriacao = LocalDate.now();
+        this.status = PedidoStatus.PENDENTE;
+        this.itens = List.copyOf(itens);
     }
 
-    /** Envia o pedido ao fornecedor (transição CRIADO → ENVIADO). */
-    public void enviar() {
-        isTrue(status == StatusPedido.CRIADO, "Só é possível enviar pedidos em estado CRIADO");
-        isTrue(!itens.isEmpty(), "Pedido sem itens não pode ser enviado");
-        this.status = StatusPedido.ENVIADO;
+    /**
+     * Atualiza o status do pedido
+     */
+    public void atualizarStatus(PedidoStatus novoStatus) {
+        notNull(novoStatus, "Status é obrigatório");
+        this.status = novoStatus;
     }
 
-    /** (R8) Registra o recebimento do pedido (ENVIADO → RECEBIDO). */
-    public void registrarRecebimento() {
-        isTrue(status == StatusPedido.ENVIADO, "Somente pedidos ENVIADO podem ser recebidos");
-        this.status = StatusPedido.RECEBIDO;
+    /**
+     * Define a data prevista de entrega
+     */
+    public void definirDataPrevistaEntrega(LocalDate dataPrevistaEntrega) {
+        notNull(dataPrevistaEntrega, "Data prevista de entrega é obrigatória");
+        this.dataPrevistaEntrega = dataPrevistaEntrega;
     }
 
-    /** Cancela o pedido (qualquer estado exceto CONCLUIDO). */
-    public void cancelar() {
-        isTrue(status != StatusPedido.CONCLUIDO, "Pedido CONCLUIDO não pode ser cancelado");
-        this.status = StatusPedido.CANCELADO;
+    /**
+     * Verifica se o pedido está pendente
+     */
+    public boolean isPendente() {
+        return status == PedidoStatus.PENDENTE;
     }
 
-    /** Conclui o pedido (apenas após RECEBIDO). */
-    public void concluir() {
-        isTrue(status == StatusPedido.RECEBIDO, "Concluir só é permitido após o recebimento");
-        this.status = StatusPedido.CONCLUIDO;
+    /**
+     * Verifica se o pedido está em transporte
+     */
+    public boolean isEmTransporte() {
+        return status == PedidoStatus.EM_TRANSPORTE;
     }
 
-    // --------- Consultas auxiliares ---------
-
-    public BigDecimal calcularTotalItens() {
-        return itens.stream()
-                .map(ItemPedido::getSubtotal)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    /**
+     * Verifica se o pedido foi recebido
+     */
+    public boolean isRecebido() {
+        return status == PedidoStatus.RECEBIDO;
     }
 
-    // --------- Getters imutáveis ---------
+    /**
+     * Verifica se o pedido foi cancelado
+     */
+    public boolean isCancelado() {
+        return status == PedidoStatus.CANCELADO;
+    }
 
-    public PedidoId getId(){ return id; }
-    public ClienteId getClienteId(){ return clienteId; }
-    public FornecedorId getFornecedorId(){ return fornecedorId; }
-    public LocalDate getDataCriacao(){ return dataCriacao; }
-    public List<ItemPedido> getItens(){ return Collections.unmodifiableList(itens); }
-    public CustoPedido getCusto(){ return custo; }
-    public StatusPedido getStatus(){ return status; }
+    // Getters
+    public PedidoId getId() { return id; }
+    public ClienteId getCliente() { return cliente; }
+    public FornecedorId getFornecedor() { return fornecedor; }
+    public LocalDate getDataCriacao() { return dataCriacao; }
+    public LocalDate getDataPrevistaEntrega() { return dataPrevistaEntrega; }
+    public PedidoStatus getStatus() { return status; }
+    public List<ItemPedido> getItens() { return List.copyOf(itens); }
 
-    @Override public String toString() {
-        return "Pedido " + id + " | " + status + " | Itens: " + itens.size() +
-                " | TotalItens: " + calcularTotalItens() +
-                " | Custo: " + (custo != null ? custo.getValorTotal() : "-");
+    @Override
+    public String toString() {
+        return String.format("Pedido[%s] - Cliente: %s, Fornecedor: %s, Status: %s", 
+                           id, cliente, fornecedor, status);
     }
 }

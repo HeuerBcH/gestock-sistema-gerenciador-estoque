@@ -1,22 +1,22 @@
-package dev.gestock.sge.dominio.principal.pedido;
+package dev.gestock.sge.dominio.principal.movimentacao;
 
 /**
- * Value Object: Identidade imutável do Pedido
+ * Value Object: Identidade imutável da Movimentacao
  * 
  * Características:
  * - Imutável
  * - Comparação por valor
  * - Validação de invariantes
  */
-public class PedidoId {
+public class MovimentacaoId {
 
     private final int id;
 
-    public PedidoId() {
+    public MovimentacaoId() {
         this.id = (int) (System.currentTimeMillis() % Integer.MAX_VALUE);
     }
 
-    public PedidoId(int id) {
+    public MovimentacaoId(int id) {
         if (id <= 0) {
             throw new IllegalArgumentException("ID deve ser positivo");
         }
@@ -31,7 +31,7 @@ public class PedidoId {
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
-        PedidoId other = (PedidoId) obj;
+        MovimentacaoId other = (MovimentacaoId) obj;
         return id == other.id;
     }
 

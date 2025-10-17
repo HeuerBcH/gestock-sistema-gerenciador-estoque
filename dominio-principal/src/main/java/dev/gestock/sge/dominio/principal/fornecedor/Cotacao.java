@@ -1,41 +1,68 @@
 package dev.gestock.sge.dominio.principal.fornecedor;
 
-import src.main.java.dev.gestock.sge.dominio.principal.produto.ProdutoId;
+import static org.apache.commons.lang3.Validate.*;
+
+import dev.gestock.sge.dominio.principal.produto.ProdutoId;
+
+import java.time.LocalDate;
 
 /**
- * Entidade de domínio: Cotação
- *
- * Representa o preço e prazo de entrega ofertado por um fornecedor
- * para determinado produto (R2, R5, R6).
+ * Value Object: Cotacao
+ * 
+ * Representa uma cotação de preço para um produto
  */
 public class Cotacao {
 
-    private final CotacaoId id;
-    private final ProdutoId produtoId;
-    private double preco;
-    private int prazoDias; // prazo em dias úteis
+    private final ProdutoId produto;
+    private final double preco;
+    private final LocalDate validade;
 
-    public Cotacao(ProdutoId produtoId, double preco, int prazoDias) {
-        this.id = new CotacaoId();
-        this.produtoId = produtoId;
+    public Cotacao(ProdutoId produto, double preco, LocalDate validade) {
+        notNull(produto, "Produto é obrigatório");
+        isTrue(preco > 0, "Preço deve ser positivo");
+        notNull(validade, "Validade é obrigatória");
+
+        this.produto = produto;
         this.preco = preco;
-        this.prazoDias = prazoDias;
+        this.validade = validade;
     }
 
-    public ProdutoId getProdutoId() { return produtoId; }
-    public double getPreco() { return preco; }
-    public int getPrazoDias() { return prazoDias; }
+    public ProdutoId getProduto() {
+        return produto;
+    }
 
-    public void atualizar(double novoPreco, int novoPrazo) {
-        if (novoPreco <= 0) throw new IllegalArgumentException("Preço inválido");
-        if (novoPrazo <= 0) throw new IllegalArgumentException("Prazo inválido");
-        this.preco = novoPreco;
-        this.prazoDias = novoPrazo;
+    public double getPreco() {
+        return preco;
+    }
+
+    public LocalDate getValidade() {
+        return validade;
+    }
+
+    /**
+     * Verifica se a cotação está válida (não expirada)
+     */
+    public boolean isValida() {
+        return validade.isAfter(LocalDate.now()) || validade.isEqual(LocalDate.now());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Cotacao other = (Cotacao) obj;
+        return produto.equals(other.produto) && 
+               Double.compare(preco, other.preco) == 0 &&
+               validade.equals(other.validade);
+    }
+
+    @Override
+    public int hashCode() {
+        return produto.hashCode() + Double.hashCode(preco) + validade.hashCode();
     }
 
     @Override
     public String toString() {
-        return String.format("Produto %s → R$ %.2f | %d dias", produtoId, preco, prazoDias);
+        return String.format("Cotacao[%s, R$ %.2f, válida até %s]", produto, preco, validade);
     }
 }
-

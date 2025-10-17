@@ -1,32 +1,47 @@
-package src.main.java.dev.gestock.sge.dominio.principal.estoque;
+package dev.gestock.sge.dominio.principal.estoque;
 
-import java.util.UUID;
-
-/** Value Object: identidade do Estoque. */
+/**
+ * Value Object: Identidade imutável do Estoque
+ * 
+ * Características:
+ * - Imutável
+ * - Comparação por valor
+ * - Validação de invariantes
+ */
 public class EstoqueId {
-	private final UUID id;
 
-	public EstoqueId() {
-		this.id = UUID.randomUUID();
-	}
-	public EstoqueId(UUID id) {
-		this.id = id;
-	}
+    private final int id;
 
-	public UUID getId() {
-		return id;
-	}
+    public EstoqueId() {
+        this.id = (int) (System.currentTimeMillis() % Integer.MAX_VALUE);
+    }
 
-	@Override
-	public boolean equals(Object o) {
-		return o instanceof EstoqueId other && id.equals(other.id);
-	}
-	@Override
-	public int hashCode() {
-		return id.hashCode();
-	}
-	@Override
-	public String toString() {
-		return id.toString();
-	}
+    public EstoqueId(int id) {
+        if (id <= 0) {
+            throw new IllegalArgumentException("ID deve ser positivo");
+        }
+        this.id = id;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        EstoqueId other = (EstoqueId) obj;
+        return id == other.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(id);
+    }
+
+    @Override
+    public String toString() {
+        return String.valueOf(id);
+    }
 }

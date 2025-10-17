@@ -1,4 +1,4 @@
-package src.main.java.dev.gestock.sge.dominio.principal.fornecedor;
+package dev.gestock.sge.dominio.principal.fornecedor;
 
 /**
  * Value Object: Lead Time

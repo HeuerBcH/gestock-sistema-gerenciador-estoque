@@ -1,113 +1,110 @@
-package src.main.java.dev.gestock.sge.dominio.principal.fornecedor;
+package dev.gestock.sge.dominio.principal.fornecedor;
 
 import static org.apache.commons.lang3.Validate.*;
 
-import src.main.java.dev.gestock.sge.dominio.principal.produto.ProdutoId;
+import dev.gestock.sge.dominio.principal.produto.ProdutoId;
 
-import java.util.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Aggregate Root: Fornecedor
  *
  * Responsabilidades:
- * - Representar os dados cadastrais de um fornecedor.
- * - Manter as cotações (preço + prazo) associadas a produtos.
- * - Garantir regras de unicidade e atualização de lead time (R2, R14).
- * - Permitir escolha automática da melhor cotação (R5, R6).
+ * - Gerenciar informações do fornecedor
+ * - Controlar lead time
+ * - Gerenciar cotações
+ * - Controlar ativação/desativação
  */
 public class Fornecedor {
 
-    private final FornecedorId id;                 // Identificador único do fornecedor
-    private String nome;                           // Nome do fornecedor
-    private String cnpj;                           // CNPJ ou identificador fiscal
-    private String contato;                        // Contato do fornecedor
-    private LeadTime leadTimeMedio;                // Lead time médio (R14)
-    private final Map<ProdutoId, Cotacao> cotacoes;// Cotações por produto
+    private final FornecedorId id;
+    private String nome;
+    private String cnpj;
+    private String contato;
+    private int leadTime; // em dias
+    private boolean ativo;
+    private List<Cotacao> cotacoes;
 
-    // ------------------ Construtores ------------------
-
-    public Fornecedor(String nome, String cnpj, String contato) {
-        notBlank(nome, "Nome do fornecedor é obrigatório");
+    public Fornecedor(String nome, String cnpj, String contato, int leadTime) {
+        notBlank(nome, "Nome é obrigatório");
         notBlank(cnpj, "CNPJ é obrigatório");
+        notBlank(contato, "Contato é obrigatório");
+        isTrue(leadTime > 0, "Lead time deve ser positivo");
 
         this.id = new FornecedorId();
         this.nome = nome;
         this.cnpj = cnpj;
         this.contato = contato;
-        this.leadTimeMedio = new LeadTime(0);
-        this.cotacoes = new HashMap<>();
+        this.leadTime = leadTime;
+        this.ativo = true;
+        this.cotacoes = List.of();
     }
 
-    public Fornecedor(FornecedorId id, String nome, String cnpj, String contato, LeadTime leadTimeMedio) {
-        notNull(id, "Id é obrigatório");
+    public Fornecedor(FornecedorId id, String nome, String cnpj, String contato, 
+                      int leadTime, boolean ativo, List<Cotacao> cotacoes) {
+        notNull(id, "ID é obrigatório");
         notBlank(nome, "Nome é obrigatório");
         notBlank(cnpj, "CNPJ é obrigatório");
+        notBlank(contato, "Contato é obrigatório");
+        isTrue(leadTime > 0, "Lead time deve ser positivo");
+        notNull(cotacoes, "Lista de cotações é obrigatória");
 
         this.id = id;
         this.nome = nome;
         this.cnpj = cnpj;
         this.contato = contato;
-        this.leadTimeMedio = leadTimeMedio != null ? leadTimeMedio : new LeadTime(0);
-        this.cotacoes = new HashMap<>();
+        this.leadTime = leadTime;
+        this.ativo = ativo;
+        this.cotacoes = List.copyOf(cotacoes);
     }
 
-    // ------------------ Getters ------------------
+    /**
+     * Atualiza cotação para um produto
+     */
+    public void atualizarCotacao(ProdutoId produto, double preco, LocalDate validade) {
+        notNull(produto, "Produto é obrigatório");
+        isTrue(preco > 0, "Preço deve ser positivo");
+        notNull(validade, "Validade é obrigatória");
 
+        Cotacao novaCotacao = new Cotacao(produto, preco, validade);
+        var novaLista = new ArrayList<>(cotacoes);
+        novaLista.add(novaCotacao);
+        this.cotacoes = List.copyOf(novaLista);
+    }
+
+    /**
+     * Desativa o fornecedor
+     */
+    public void desativar() {
+        this.ativo = false;
+    }
+
+    /**
+     * Verifica se o fornecedor está ativo
+     */
+    public boolean isAtivo() {
+        return ativo;
+    }
+
+    /**
+     * Verifica se o fornecedor está inativo
+     */
+    public boolean isInativo() {
+        return !ativo;
+    }
+
+    // Getters
     public FornecedorId getId() { return id; }
     public String getNome() { return nome; }
     public String getCnpj() { return cnpj; }
     public String getContato() { return contato; }
-    public LeadTime getLeadTimeMedio() { return leadTimeMedio; }
-    public Map<ProdutoId, Cotacao> getCotacoesSnapshot() { return Map.copyOf(cotacoes); }
-
-    // ------------------ Métodos de domínio ------------------
-
-    /** Atualiza dados cadastrais básicos */
-    public void atualizarDados(String nome, String contato) {
-        notBlank(nome, "Nome é obrigatório");
-        this.nome = nome;
-        this.contato = contato;
-    }
-
-    /** Registra ou atualiza cotação de produto (R2) */
-    public void registrarCotacao(ProdutoId produtoId, double preco, int prazoDias) {
-        notNull(produtoId, "Produto é obrigatório");
-        isTrue(preco > 0, "Preço deve ser positivo");
-        isTrue(prazoDias > 0, "Prazo deve ser positivo");
-
-        // R2: apenas uma cotação por produto
-        Cotacao nova = new Cotacao(produtoId, preco, prazoDias);
-        cotacoes.put(produtoId, nova);
-    }
-
-    /** Seleciona a melhor cotação entre todos os fornecedores (R5, R6) */
-    public Optional<Cotacao> obterMelhorCotacao() {
-        return cotacoes.values().stream()
-                .min(Comparator.comparingDouble(Cotacao::getPreco)
-                        .thenComparingInt(Cotacao::getPrazoDias));
-    }
-
-    /** Atualiza o Lead Time médio (R14) */
-    public void recalibrarLeadTime(List<Integer> historicoEntregasDias) {
-        if (historicoEntregasDias == null || historicoEntregasDias.isEmpty()) {
-            throw new IllegalStateException("Histórico insuficiente para recalibrar lead time");
-        }
-        double media = historicoEntregasDias.stream().mapToInt(i -> i).average().orElse(0);
-        this.leadTimeMedio = new LeadTime((int) Math.round(media));
-    }
-
-    /** Retorna a cotação de um produto específico */
-    public Optional<Cotacao> obterCotacaoPorProduto(ProdutoId produtoId) {
-        return Optional.ofNullable(cotacoes.get(produtoId));
-    }
-
-    /** Remove cotação de um produto */
-    public void removerCotacao(ProdutoId produtoId) {
-        cotacoes.remove(produtoId);
-    }
+    public int getLeadTime() { return leadTime; }
+    public List<Cotacao> getCotacoes() { return List.copyOf(cotacoes); }
 
     @Override
     public String toString() {
-        return String.format("%s (CNPJ: %s)", nome, cnpj);
+        return String.format("Fornecedor[%s] - %s (%s)", id, nome, cnpj);
     }
 }
