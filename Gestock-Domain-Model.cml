@@ -1,256 +1,309 @@
 Domain Gestock {
-	Subdomain Principal
+    Subdomain Principal
 }
 
 ContextMap {
-	contains Principal
+    contains Principal
 }
 
 BoundedContext Principal implements Principal {
 
-	Aggregate Cliente {
-		Entity Cliente {
-			aggregateRoot
+    Aggregate Cliente {
+        Entity Cliente {
+            aggregateRoot
 
-			-ClienteId id
-			String nome
-			String email
+            -ClienteId id
+            String nome
+            String email
+            String cnpj
+            boolean ativo
+            List<EstoqueId> estoques
+        }
 
-			Repository ClienteRepositorio {
-				@Cliente obter(@ClienteId id);
-				List<@Cliente> listarTodos();
-			}
-		}
+        ValueObject ClienteId {
+            int id
+        }
 
-		ValueObject ClienteId {
-			UUID id
-		}
+        Repository ClienteRepository {
+            Cliente findById(ClienteId id)
+            List<Cliente> findAll()
+            void save(Cliente cliente)
+        }
 
-		Service ClienteServico {
-			@Cliente registrar(String nome, String email);
-			void atualizar(@ClienteId id, String nome, String email);
-		}
-	}
+        Service ClienteService {
+            void cadastrarCliente(String nome, String email, String cnpj)
+            void ativarCliente(ClienteId id)
+            void desativarCliente(ClienteId id)
+        }
+    }
 
-	Aggregate Estoque {
-		Entity Estoque {
-			aggregateRoot
+    Aggregate Estoque {
+        Entity Estoque {
+            aggregateRoot
 
-			-EstoqueId id
-			String nome
-			-ClienteId clienteId
-			List<SaldoProduto> saldos
+            -EstoqueId id
+            String nome
+            String endereco
+            double capacidadeMaxima
+            boolean ativo
+            ClienteId cliente
+            List<ProdutoEstoque> produtos
+        }
 
-			Repository EstoqueRepositorio {
-				@Estoque obter(@EstoqueId id);
-				List<@Estoque> listarTodos();
-				List<@Estoque> listarPorCliente(@ClienteId clienteId);
-			}
-		}
+        ValueObject EstoqueId {
+            int id
+        }
 
-		Entity Movimentacao {
-			-MovimentacaoId id
-			-EstoqueId estoqueId
-			-ProdutoId produtoId
-			int quantidade
-			TipoMovimentacao tipo
-			Date data
-		}
+        ValueObject ProdutoEstoque {
+            ProdutoId produto
+            double quantidade
+        }
 
-		Entity SaldoProduto {
-			-ProdutoId produtoId
-			int saldoAtual
-		}
+        Repository EstoqueRepository {
+            Estoque findById(EstoqueId id)
+            List<Estoque> findByCliente(ClienteId clienteId)
+            void save(Estoque estoque)
+        }
 
-		ValueObject EstoqueId {
-			UUID id
-		}
+        Service EstoqueService {
+            void registrarProduto(EstoqueId id, ProdutoId produto, double quantidade)
+            void atualizarCapacidade(EstoqueId id, double novaCapacidade)
+            void desativarEstoque(EstoqueId id)
+        }
+    }
 
-		ValueObject MovimentacaoId {
-			UUID id
-		}
+    Aggregate Fornecedor {
+        Entity Fornecedor {
+            aggregateRoot
 
-		Enum TipoMovimentacao {
-			ENTRADA, SAIDA, AJUSTE, TRANSFERENCIA_ENTRADA, TRANSFERENCIA_SAIDA
-		}
+            -FornecedorId id
+            String nome
+            String cnpj
+            String contato
+            int leadTime // em dias
+            boolean ativo
+            List<Cotacao> cotacoes
+        }
 
-		Service EstoqueServico {
-			void registrarMovimentacao(@EstoqueId id, @ProdutoId produto, int quantidade, TipoMovimentacao tipo);
-			int obterSaldo(@EstoqueId id, @ProdutoId produto);
-			void transferir(@EstoqueId origem, @EstoqueId destino, @ProdutoId produto, int quantidade);
-		}
-	}
+        ValueObject FornecedorId {
+            int id
+        }
 
-	Aggregate Produto {
-		Entity Produto {
-			aggregateRoot
+        ValueObject Cotacao {
+            ProdutoId produto
+            double preco
+            LocalDate validade
+        }
 
-			-ProdutoId id
-			CodigoProduto codigo
-			String nome
-			CategoriaProduto categoria
-			boolean perecivel
-			LoteValidade lote nullable
-			ROP rop nullable
+        Repository FornecedorRepository {
+            Fornecedor findById(FornecedorId id)
+            List<Fornecedor> findAllAtivos()
+            void save(Fornecedor fornecedor)
+        }
 
-			Repository ProdutoRepositorio {
-				@Produto obter(@ProdutoId id);
-				List<@Produto> listarTodos();
-			}
-		}
+        Service FornecedorService {
+            void atualizarCotacao(FornecedorId fornecedor, ProdutoId produto, double preco, LocalDate validade)
+            void desativarFornecedor(FornecedorId id)
+        }
+    }
 
-		ValueObject ProdutoId {
-			UUID id
-		}
+    Aggregate Produto {
+        Entity Produto {
+            aggregateRoot
 
-		ValueObject CodigoProduto {
-			String codigo
-		}
+            -ProdutoId id
+            String nome
+            String descricao
+            String unidadeMedida
+            boolean ativo
+            EstoqueId estoque
+            List<FornecedorId> fornecedores
+            double pontoRessuprimento
+        }
 
-		Enum CategoriaProduto {
-			ALIMENTO, BEBIDA, LIMPEZA, HIGIENE, OUTROS
-		}
+        ValueObject ProdutoId {
+            int id
+        }
 
-		ValueObject LoteValidade {
-			String numero
-			Date validade
-		}
+        Repository ProdutoRepository {
+            Produto findById(ProdutoId id)
+            List<Produto> findAll()
+            void save(Produto produto)
+        }
 
-		ValueObject ROP {
-			double consumoMedio
-			int leadTimeDias
-			int estoqueSeguranca
-			int valorROP
-		}
+        Service ProdutoService {
+            void definirPontoRessuprimento(ProdutoId id, double novoPonto)
+            void vincularFornecedor(ProdutoId id, FornecedorId fornecedor)
+        }
+    }
 
-		Service ProdutoServico {
-			void definirROP(@ProdutoId id, double consumoMedio, int leadTimeDias, int estoqueSeguranca);
-			void registrarLote(@ProdutoId id, String numero, Date validade);
-		}
-	}
+    Aggregate Pedido {
+        Entity Pedido {
+            aggregateRoot
 
-	Aggregate Fornecedor {
-		Entity Fornecedor {
-			aggregateRoot
+            -PedidoId id
+            ClienteId cliente
+            FornecedorId fornecedor
+            LocalDate dataCriacao
+            LocalDate dataPrevistaEntrega
+            PedidoStatus status
+            List<ItemPedido> itens
+        }
 
-			-FornecedorId id
-			String nome
-			String cnpj
-			LeadTime leadTimeMedio
-			List<Cotacao> cotacoes
+        ValueObject PedidoId {
+            int id
+        }
 
-			Repository FornecedorRepositorio {
-				@Fornecedor obter(@FornecedorId id);
-				List<@Fornecedor> listarTodos();
-			}
-		}
+        ValueObject ItemPedido {
+            ProdutoId produto
+            double quantidade
+            double precoUnitario
+        }
 
-		Entity Cotacao {
-			-CotacaoId id
-			-ProdutoId produtoId
-			double preco
-			int prazoDias
-		}
+        Enum PedidoStatus {
+            PENDENTE,
+            EM_TRANSPORTE,
+            RECEBIDO,
+            CANCELADO
+        }
 
-		ValueObject FornecedorId {
-			UUID id
-		}
+        Repository PedidoRepository {
+            Pedido findById(PedidoId id)
+            List<Pedido> findByStatus(PedidoStatus status)
+            void save(Pedido pedido)
+        }
 
-		ValueObject CotacaoId {
-			UUID id
-		}
+        Service PedidoService {
+            void criarPedido(ClienteId cliente, FornecedorId fornecedor, List<ItemPedido> itens)
+            void atualizarStatus(PedidoId id, PedidoStatus status)
+        }
+    }
 
-		ValueObject LeadTime {
-			int dias
-		}
+    Aggregate Movimentacao {
+        Entity Movimentacao {
+            aggregateRoot
 
-		Service FornecedorServico {
-			void registrarCotacao(@FornecedorId id, @ProdutoId produto, double preco, int prazoDias);
-			@Cotacao obterMelhorCotacao(@FornecedorId id);
-		}
-	}
+            -MovimentacaoId id
+            ProdutoId produto
+            EstoqueId estoque
+            LocalDateTime dataHora
+            TipoMovimentacao tipo
+            double quantidade
+            String motivo
+        }
 
-	Aggregate Pedido {
-		Entity Pedido {
-			aggregateRoot
+        ValueObject MovimentacaoId {
+            int id
+        }
 
-			-PedidoId id
-			-FornecedorId fornecedorId
-			-ClienteId clienteId
-			List<ItemPedido> itens
-			CustoPedido custo
-			StatusPedido status
-			Date dataCriacao
-			Date dataEntrega nullable
+        Enum TipoMovimentacao {
+            ENTRADA,
+            SAIDA
+        }
 
-			Repository PedidoRepositorio {
-				@Pedido obter(@PedidoId id);
-				List<@Pedido> listarPendentes();
-				List<@Pedido> listarPorFornecedor(@FornecedorId fornecedorId);
-				List<@Pedido> listarPorCliente(@ClienteId clienteId);
-			}
-		}
+        Repository MovimentacaoRepository {
+            void save(Movimentacao movimentacao)
+            List<Movimentacao> findByProduto(ProdutoId produto)
+        }
 
-		Entity ItemPedido {
-			-ProdutoId produtoId
-			int quantidade
-			BigDecimal precoUnitario
-		}
+        Service MovimentacaoService {
+            void registrarEntrada(ProdutoId produto, EstoqueId estoque, double quantidade)
+            void registrarSaida(ProdutoId produto, EstoqueId estoque, double quantidade, String motivo)
+        }
+    }
 
-		ValueObject PedidoId {
-			UUID id
-		}
+    Aggregate Alerta {
+        Entity Alerta {
+            aggregateRoot
 
-		ValueObject CustoPedido {
-			BigDecimal total
-			BigDecimal frete
-			BigDecimal custoLogistico
-		}
+            -AlertaId id
+            ProdutoId produto
+            EstoqueId estoque
+            FornecedorId fornecedorSugerido
+            double quantidadeAtual
+            double pontoRessuprimento
+            boolean ativo
+            LocalDateTime dataGeracao
+        }
 
-		Enum StatusPedido {
-			PENDENTE, EM_PROCESSAMENTO, CONCLUIDO, CANCELADO
-		}
+        ValueObject AlertaId {
+            int id
+        }
 
-		Service PedidoServico {
-			@Pedido criar(@ClienteId cliente, @FornecedorId fornecedor, List<ItemPedido> itens);
-			void registrarEntrada(@PedidoId id);
-			void agruparPorFornecedor(List<@Pedido> pedidos);
-			void cancelar(@PedidoId id);
-		}
-	}
+        Repository AlertaRepository {
+            List<Alerta> findAtivos()
+            void save(Alerta alerta)
+        }
 
-	Aggregate Custo {
-		Entity Custo {
-			aggregateRoot
+        Service AlertaService {
+            void gerarAlerta(ProdutoId produto, EstoqueId estoque, double quantidadeAtual)
+            void resolverAlerta(AlertaId id)
+        }
+    }
 
-			-CustoId id
-			-PedidoId pedidoId
-			List<CustoItem> itens
-			BigDecimal total
+    Aggregate Transferencia {
+        Entity Transferencia {
+            aggregateRoot
 
-			Repository CustoRepositorio {
-				@Custo obter(@CustoId id);
-				@Custo obterPorPedido(@PedidoId pedidoId);
-				List<@Custo> listarTodos();
-			}
-		}
+            -TransferenciaId id
+            ProdutoId produto
+            EstoqueId origem
+            EstoqueId destino
+            double quantidade
+            LocalDateTime dataHora
+            StatusTransferencia status
+        }
 
-		Entity CustoItem {
-			-ProdutoId produtoId
-			TipoCusto tipo
-			BigDecimal valor
-		}
+        ValueObject TransferenciaId {
+            int id
+        }
 
-		ValueObject CustoId {
-			UUID id
-		}
+        Enum StatusTransferencia {
+            PENDENTE,
+            CONCLUIDA
+        }
 
-		Enum TipoCusto {
-			PRODUTO, FRETE, LOGISTICO, OUTRO
-		}
+        Repository TransferenciaRepository {
+            void save(Transferencia transferencia)
+            List<Transferencia> findByStatus(StatusTransferencia status)
+        }
 
-		Service CustoServico {
-			@Custo gerarParaPedido(@Pedido pedido, BigDecimal frete, BigDecimal logistica);
-		}
-	}
+        Service TransferenciaService {
+            void iniciarTransferencia(EstoqueId origem, EstoqueId destino, ProdutoId produto, double quantidade)
+            void concluirTransferencia(TransferenciaId id)
+        }
+    }
+
+    Aggregate Reserva {
+        Entity Reserva {
+            aggregateRoot
+
+            -ReservaId id
+            ProdutoId produto
+            EstoqueId estoque
+            PedidoId pedido
+            double quantidadeReservada
+            StatusReserva status
+            LocalDateTime dataHora
+        }
+
+        ValueObject ReservaId {
+            int id
+        }
+
+        Enum StatusReserva {
+            ATIVA,
+            LIBERADA
+        }
+
+        Repository ReservaRepository {
+            List<Reserva> findAtivas()
+            void save(Reserva reserva)
+        }
+
+        Service ReservaService {
+            void reservarProduto(ProdutoId produto, EstoqueId estoque, PedidoId pedido, double quantidade)
+            void liberarReserva(ReservaId id)
+        }
+    }
 }
