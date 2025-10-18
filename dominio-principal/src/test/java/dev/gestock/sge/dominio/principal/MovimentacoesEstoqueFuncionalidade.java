@@ -1,15 +1,15 @@
-package dev.gestock.sge.dominio.principal.estoque;
+package dev.gestock.sge.dominio.principal;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import dev.gestock.sge.dominio.principal.AcervoFuncionalidade;
 import dev.gestock.sge.dominio.principal.produto.Produto;
 import dev.gestock.sge.dominio.principal.produto.ProdutoId;
 import dev.gestock.sge.dominio.principal.estoque.Estoque;
 import dev.gestock.sge.dominio.principal.estoque.EstoqueId;
+import dev.gestock.sge.dominio.principal.estoque.Movimentacao;
 import io.cucumber.java.en.*;
 
 public class MovimentacoesEstoqueFuncionalidade extends AcervoFuncionalidade {

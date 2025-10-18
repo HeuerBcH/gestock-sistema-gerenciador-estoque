@@ -1,11 +1,10 @@
-package dev.gestock.sge.dominio.principal.estoque;
+package dev.gestock.sge.dominio.principal;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import dev.gestock.sge.dominio.principal.AcervoFuncionalidade;
 import dev.gestock.sge.dominio.principal.fornecedor.Fornecedor;
 import dev.gestock.sge.dominio.principal.fornecedor.FornecedorId;
 import dev.gestock.sge.dominio.principal.estoque.Estoque;
