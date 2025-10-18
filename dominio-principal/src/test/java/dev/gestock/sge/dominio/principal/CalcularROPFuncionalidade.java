@@ -1,4 +1,4 @@
-package dev.gestock.sge.dominio.principal.estoque;
+package dev.gestock.sge.dominio.principal;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -6,7 +6,6 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
-import dev.gestock.sge.dominio.principal.AcervoFuncionalidade;
 import dev.gestock.sge.dominio.principal.produto.Produto;
 import dev.gestock.sge.dominio.principal.produto.ProdutoId;
 import io.cucumber.java.en.*;

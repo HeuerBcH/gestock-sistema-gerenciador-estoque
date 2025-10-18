@@ -1,4 +1,4 @@
-package dev.gestock.sge.dominio.principal.estoque;
+package dev.gestock.sge.dominio.principal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import dev.gestock.sge.dominio.principal.AcervoFuncionalidade;
 import dev.gestock.sge.dominio.principal.cliente.Cliente;
 import dev.gestock.sge.dominio.principal.cliente.ClienteId;
 import dev.gestock.sge.dominio.principal.estoque.Estoque;
