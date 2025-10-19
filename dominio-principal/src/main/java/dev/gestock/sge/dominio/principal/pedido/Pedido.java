@@ -28,10 +28,11 @@ public class Pedido {
     private CustoPedido custo;               // VO com total do pedido (R26)
     private StatusPedido status = StatusPedido.CRIADO;
 
-    public Pedido(ClienteId clienteId, FornecedorId fornecedorId) {
+    public Pedido(PedidoId id, ClienteId clienteId, FornecedorId fornecedorId) {
+        notNull(id, "ID é obrigatório");
         notNull(clienteId, "Cliente é obrigatório");
         notNull(fornecedorId, "Fornecedor é obrigatório");
-        this.id = new PedidoId();
+        this.id = id;
         this.clienteId = clienteId;
         this.fornecedorId = fornecedorId;
         this.dataCriacao = LocalDate.now();

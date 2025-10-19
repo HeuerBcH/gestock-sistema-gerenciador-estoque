@@ -19,4 +19,5 @@
 			<artifactId>sge-dominio-principal</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+	</dependencies>
 </project>

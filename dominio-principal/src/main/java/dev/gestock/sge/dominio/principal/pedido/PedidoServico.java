@@ -59,7 +59,8 @@ public class PedidoServico {
         isTrue(cotacao.getPrazoDias() > 0, "Prazo da cotação inválido");
 
         // Cria o pedido base
-        Pedido pedido = new Pedido(clienteId, fornecedor.getId());
+        // NOTA: ID será gerado pela camada de persistência
+        Pedido pedido = new Pedido(new PedidoId(1L), clienteId, fornecedor.getId());
         BigDecimal precoUnitario = BigDecimal.valueOf(cotacao.getPreco());
 
         // Adiciona item ao pedido

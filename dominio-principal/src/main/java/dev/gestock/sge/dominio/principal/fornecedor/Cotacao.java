@@ -15,8 +15,9 @@ public class Cotacao {
     private double preco;
     private int prazoDias; // prazo em dias úteis
 
-    public Cotacao(ProdutoId produtoId, double preco, int prazoDias) {
-        this.id = new CotacaoId();
+    public Cotacao(CotacaoId id, ProdutoId produtoId, double preco, int prazoDias) {
+        if (id == null) throw new IllegalArgumentException("ID é obrigatório");
+        this.id = id;
         this.produtoId = produtoId;
         this.preco = preco;
         this.prazoDias = prazoDias;

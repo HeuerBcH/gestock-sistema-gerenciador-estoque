@@ -1,17 +1,21 @@
 package dev.gestock.sge.dominio.principal.pedido;
 
-import java.util.UUID;
+import java.util.Objects;
 
-/** VO: Identificador imutável do Pedido (UUID). */
+/** VO: Identificador imutável do Pedido (Long). */
 public class PedidoId {
-    private final UUID id;
+    private final Long id;
 
-    public PedidoId() { this.id = UUID.randomUUID(); }
-    public PedidoId(UUID id) { this.id = id; }
+    public PedidoId(Long id) {
+        if (id == null || id <= 0) {
+            throw new IllegalArgumentException("ID deve ser positivo");
+        }
+        this.id = id;
+    }
 
-    public UUID getId() { return id; }
+    public Long getId() { return id; }
 
     @Override public String toString() { return id.toString(); }
     @Override public boolean equals(Object o){ return o instanceof PedidoId other && id.equals(other.id); }
-    @Override public int hashCode(){ return id.hashCode(); }
+    @Override public int hashCode(){ return Objects.hash(id); }
 }
