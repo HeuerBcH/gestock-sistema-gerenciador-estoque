@@ -3,11 +3,9 @@ package dev.gestock.sge.dominio.principal.pedido;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Repositório do agregado Pedido.
- * - Define as operações que a camada de aplicação pode executar.
- * - Implementação concreta fica na infraestrutura (ex.: JPA).
- */
+/* Repositório do agregado Pedido.
+   Define as operações que a camada de aplicação pode executar.
+   Implementação concreta fica na infraestrutura */
 public interface PedidoRepositorio {
 
     void salvar(Pedido pedido);

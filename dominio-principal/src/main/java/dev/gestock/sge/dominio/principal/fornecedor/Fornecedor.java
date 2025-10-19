@@ -88,9 +88,10 @@ public class Fornecedor {
         cotacoes.put(produtoId, nova);
     }
 
-    /** Seleciona a melhor cotação entre todos os fornecedores (R5, R6) */
+    /** Seleciona a melhor cotação deste fornecedor considerando validade (R5, R6, R1H18). */
     public Optional<Cotacao> obterMelhorCotacao() {
         return cotacoes.values().stream()
+                .filter(Cotacao::isValidadeAtiva)
                 .min(Comparator.comparingDouble(Cotacao::getPreco)
                         .thenComparingInt(Cotacao::getPrazoDias));
     }
