@@ -1,8 +1,6 @@
 # language: pt
 Funcionalidade: Emitir Alertas de Estoque Baixo
-  Como cliente
-  Desejo ser notificado quando o estoque atingir o ROP e visualizar uma lista de todos os alertas ativos
-  Para fazer pedidos de reposição
+
 
   # H16: Ser notificado ao atingir ROP
   # R1H16: Alerta gerado automaticamente ao atingir ROP
@@ -27,16 +25,16 @@ Funcionalidade: Emitir Alertas de Estoque Baixo
   # R2H16: Alerta indica produto, estoque e fornecedor sugerido
   Cenário: Alerta contém informações completas
     Dado que existe um alerta gerado para um produto
-    Quando eu visualizo o alerta
-    Então devo ver o nome do produto
-    E devo ver o estoque afetado
-    E devo ver o fornecedor com menor cotação
+    Quando o cliente visualiza o alerta
+    Então  o sistema deve exibir o nome do produto
+    E o sistema deve exibir o estoque afetado
+    E o sitema deve exibir o fornecedor com menor cotação
 
   # H17: Visualizar lista de alertas ativos
   Cenário: Listar todos os alertas ativos
     Dado que existem 3 alertas ativos
-    Quando eu visualizo a lista de alertas
-    Então devo ver 3 alertas
+    Quando o cliente visualiza a lista de alertas
+    Então o sistema deve exibir 3 alertas
 
   # R1H17: Alerta removido após recebimento do pedido
   Cenário: Remover alerta após recebimento

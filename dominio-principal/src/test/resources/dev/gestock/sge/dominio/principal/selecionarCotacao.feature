@@ -1,8 +1,6 @@
 # language: pt
 Funcionalidade: Selecionar Cotação Mais Vantajosa
-  Como cliente
-  Desejo que o sistema selecione automaticamente a melhor cotação
-  Para economizar nos pedidos
+
 
   # H18: Selecionar automaticamente menor preço
   # R1H18: Apenas cotações válidas e fornecedores ativos
@@ -36,6 +34,6 @@ Funcionalidade: Selecionar Cotação Mais Vantajosa
   # R1H19: Cotação aprovada é registrada
   Cenário: Aprovar cotação selecionada
     Dado que o sistema selecionou a melhor cotação para o produto "Produto X"
-    Quando eu aprovo a cotação
+    Quando o cliente aprova a cotação
     Então a cotação deve ser marcada como "selecionada"
     E um pedido deve ser gerado utilizando essa cotação
