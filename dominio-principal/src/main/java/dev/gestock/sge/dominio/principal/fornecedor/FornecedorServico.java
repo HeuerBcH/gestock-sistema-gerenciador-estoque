@@ -25,9 +25,11 @@ public class FornecedorServico {
      */
     public Optional<Cotacao> selecionarMelhorCotacao(List<Fornecedor> fornecedores, ProdutoId produtoId) {
         return fornecedores.stream()
+                .filter(Fornecedor::isAtivo)
                 .map(f -> f.obterCotacaoPorProduto(produtoId))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
+                .filter(Cotacao::isValidadeAtiva)
                 .min((c1, c2) -> {
                     int cmp = Double.compare(c1.getPreco(), c2.getPreco());
                     return (cmp != 0) ? cmp : Integer.compare(c1.getPrazoDias(), c2.getPrazoDias());
