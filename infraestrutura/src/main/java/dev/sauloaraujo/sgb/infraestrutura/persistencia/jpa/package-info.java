@@ -1,1 +1,1 @@
-package dev.gestock.sge.infraestrutura.persistencia.jpa;
+//package dev.gestock.sge.infraestrutura.persistencia.jpa;

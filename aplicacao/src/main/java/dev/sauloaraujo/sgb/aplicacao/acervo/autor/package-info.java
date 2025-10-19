@@ -1,1 +1,1 @@
-package dev.gestock.sge.aplicacao.acervo.autor;
+//package dev.gestock.sge.aplicacao.acervo.autor;
