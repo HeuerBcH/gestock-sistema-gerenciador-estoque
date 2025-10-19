@@ -280,4 +280,31 @@ public class Estoque {
 		);
 		movimentacoes.add(mov);
 	}
+
+	/**
+	 * Alias para consumirReservaComoSaida (compatibilidade com testes).
+	 */
+	public void consumirReserva(ProdutoId produtoId, int quantidade) {
+		consumirReservaComoSaida(produtoId, quantidade, "Sistema", "Consumo de reserva");
+	}
+
+	/**
+	 * Transfere produtos para outro estoque (versão simplificada no agregado).
+	 * Nota: Para transferências entre clientes diferentes, use EstoqueServico.
+	 */
+	public void transferir(ProdutoId produtoId, Estoque destino, int quantidade, String responsavel, String motivo) {
+		notNull(destino, "Estoque de destino é obrigatório");
+		notNull(produtoId, "Produto é obrigatório");
+		isTrue(quantidade > 0, "Quantidade deve ser positiva");
+		notBlank(responsavel, "Responsável é obrigatório");
+
+		// Registra saída na origem
+		this.registrarSaida(produtoId, quantidade, responsavel, motivo);
+
+		// Registra entrada no destino
+		destino.registrarEntrada(produtoId, quantidade, responsavel, "Transferência de estoque", Map.of(
+				"transferencia", "true",
+				"origem", this.id.toString()
+		));
+	}
 }
