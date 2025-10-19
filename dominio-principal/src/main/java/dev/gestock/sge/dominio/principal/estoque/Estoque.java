@@ -28,6 +28,9 @@ public class Estoque {
 	private final EstoqueId id;                    // Identidade imutável do estoque
 	private final ClienteId clienteId;             // FK lógica: o dono deste estoque
 	private String nome;                           // Nome de exibição do estoque
+	private String endereco;                       // Endereço físico do estoque (R2H1)
+	private int capacidadeMaxima;                  // Capacidade máxima em unidades (R1H3)
+	private boolean ativo;                         // Status ativo/inativo (H2)
 
 	// Saldos por produto (mantidos dentro do agregado Estoque)
 	private final Map<ProdutoId, SaldoProduto> saldos = new HashMap<>();
@@ -37,21 +40,32 @@ public class Estoque {
 
 	// ------------------ Construtores ------------------
 
-	public Estoque(ClienteId clienteId, String nome) {
+	public Estoque(EstoqueId id, ClienteId clienteId, String nome, String endereco, int capacidadeMaxima) {
+		notNull(id, "ID do estoque é obrigatório");
 		notNull(clienteId, "Cliente do estoque é obrigatório");
 		notBlank(nome, "Nome do estoque é obrigatório");
-		this.id = new EstoqueId();
-		this.clienteId = clienteId;
-		this.nome = nome;
-	}
-
-	public Estoque(EstoqueId id, ClienteId clienteId, String nome) {
-		notNull(id, "Id do estoque é obrigatório");
-		notNull(clienteId, "Cliente do estoque é obrigatório");
-		notBlank(nome, "Nome do estoque é obrigatório");
+		notBlank(endereco, "Endereço do estoque é obrigatório");
+		isTrue(capacidadeMaxima > 0, "Capacidade deve ser positiva");
 		this.id = id;
 		this.clienteId = clienteId;
 		this.nome = nome;
+		this.endereco = endereco;
+		this.capacidadeMaxima = capacidadeMaxima;
+		this.ativo = true; // inicia ativo por padrão
+	}
+
+	public Estoque(EstoqueId id, ClienteId clienteId, String nome, String endereco, int capacidadeMaxima, boolean ativo) {
+		notNull(id, "Id do estoque é obrigatório");
+		notNull(clienteId, "Cliente do estoque é obrigatório");
+		notBlank(nome, "Nome do estoque é obrigatório");
+		notBlank(endereco, "Endereço do estoque é obrigatório");
+		isTrue(capacidadeMaxima > 0, "Capacidade deve ser positiva");
+		this.id = id;
+		this.clienteId = clienteId;
+		this.nome = nome;
+		this.endereco = endereco;
+		this.capacidadeMaxima = capacidadeMaxima;
+		this.ativo = ativo;
 	}
 
 	// ------------------ Getters básicos ------------------
@@ -65,10 +79,58 @@ public class Estoque {
 	public String getNome() {
 		return nome;
 	}
+	public String getEndereco() {
+		return endereco;
+	}
+	public int getCapacidadeMaxima() {
+		return capacidadeMaxima;
+	}
+	public boolean isAtivo() {
+		return ativo;
+	}
 
 	public void renomear(String novoNome) {
 		notBlank(novoNome, "Nome do estoque é obrigatório");
 		this.nome = novoNome;
+	}
+
+	/** Inativa o estoque (H2, R1H2, R2H2) */
+	public void inativar() {
+		if (temProdutosEmEstoque()) {
+			throw new IllegalStateException("Estoque com produtos não pode ser inativado (R1H2)");
+		}
+		this.ativo = false;
+	}
+
+	/** Reativa um estoque inativado */
+	public void ativar() {
+		this.ativo = true;
+	}
+
+	/** Verifica se o estoque possui produtos */
+	private boolean temProdutosEmEstoque() {
+		return saldos.values().stream()
+				.anyMatch(s -> s.fisico() > 0);
+	}
+
+	/** Altera a capacidade máxima (R1H3) */
+	public void alterarCapacidade(int novaCapacidade) {
+		isTrue(novaCapacidade > 0, "Capacidade deve ser positiva");
+		int ocupacaoAtual = calcularOcupacaoTotal();
+		if (novaCapacidade < ocupacaoAtual) {
+			throw new IllegalArgumentException(
+					"Capacidade não pode ser reduzida abaixo da ocupação atual (R1H3): " +
+					novaCapacidade + " < " + ocupacaoAtual
+			);
+		}
+		this.capacidadeMaxima = novaCapacidade;
+	}
+
+	/** Calcula a ocupação total do estoque */
+	private int calcularOcupacaoTotal() {
+		return saldos.values().stream()
+				.mapToInt(SaldoProduto::fisico)
+				.sum();
 	}
 
 	public Map<ProdutoId, SaldoProduto> getSaldosSnapshot() {
@@ -113,7 +175,9 @@ public class Estoque {
 		SaldoProduto novo  = atual.comEntrada(quantidade);
 		saldos.put(produtoId, novo);
 
+		// NOTA: ID será gerado pela camada de persistência
 		Movimentacao mov = new Movimentacao(
+				1L,
 				TipoMovimentacao.ENTRADA,
 				produtoId,
 				quantidade,
@@ -142,7 +206,9 @@ public class Estoque {
 		SaldoProduto novo = atual.comSaida(quantidade);
 		saldos.put(produtoId, novo);
 
+		// NOTA: ID será gerado pela camada de persistência
 		Movimentacao mov = new Movimentacao(
+				1L,
 				TipoMovimentacao.SAIDA,
 				produtoId,
 				quantidade,
@@ -154,41 +220,6 @@ public class Estoque {
 		movimentacoes.add(mov);
 	}
 
-	/**
-	 * AJUSTE (R12, R13).
-	 * - usado para correções de inventário.
-	 * - exige responsável e motivo para garantir rastreabilidade (R13).
-	 * - quantidade > 0; sinal indicado pelo tipoAjuste (ENTRADA/SAIDA).
-	 */
-	public void registrarAjuste(ProdutoId produtoId, int quantidade, TipoMovimentacao tipoAjuste, String responsavel, String motivo) {
-		notNull(produtoId, "Produto é obrigatório");
-		isTrue(quantidade > 0, "Quantidade do ajuste deve ser positiva");
-		notNull(tipoAjuste, "Tipo de ajuste é obrigatório");
-		isTrue(tipoAjuste == TipoMovimentacao.ENTRADA || tipoAjuste == TipoMovimentacao.SAIDA, "Ajuste só pode ser ENTRADA ou SAIDA");
-		notBlank(responsavel, "Responsável é obrigatório");
-		notBlank(motivo, "Motivo do ajuste é obrigatório");
-
-		SaldoProduto atual = saldos.getOrDefault(produtoId, SaldoProduto.zero());
-		SaldoProduto novo;
-		if (tipoAjuste == TipoMovimentacao.ENTRADA) {
-			novo = atual.comEntrada(quantidade);
-		} else {
-			isTrue(atual.disponivel() >= quantidade, "Saldo disponível insuficiente para ajuste de saída");
-			novo = atual.comSaida(quantidade);
-		}
-		saldos.put(produtoId, novo);
-
-		Movimentacao mov = new Movimentacao(
-				TipoMovimentacao.AJUSTE,
-				produtoId,
-				(tipoAjuste == TipoMovimentacao.ENTRADA ? quantidade : -quantidade), // registra sinal no histórico
-				LocalDateTime.now(),
-				responsavel,
-				motivo,
-				Map.of("tipoAjuste", tipoAjuste.name())
-		);
-		movimentacoes.add(mov);
-	}
 
 	/**
 	 * Reserva preventiva (R15, R16): diminui o disponível sem mexer no físico.
@@ -236,7 +267,9 @@ public class Estoque {
 		SaldoProduto novo = apósReserva.comSaida(quantidade);
 		saldos.put(produtoId, novo);
 
+		// NOTA: ID será gerado pela camada de persistência
 		Movimentacao mov = new Movimentacao(
+				1L,
 				TipoMovimentacao.SAIDA,
 				produtoId,
 				quantidade,
@@ -246,5 +279,32 @@ public class Estoque {
 				Map.of("consumoReserva", "true")
 		);
 		movimentacoes.add(mov);
+	}
+
+	/**
+	 * Alias para consumirReservaComoSaida (compatibilidade com testes).
+	 */
+	public void consumirReserva(ProdutoId produtoId, int quantidade) {
+		consumirReservaComoSaida(produtoId, quantidade, "Sistema", "Consumo de reserva");
+	}
+
+	/**
+	 * Transfere produtos para outro estoque (versão simplificada no agregado).
+	 * Nota: Para transferências entre clientes diferentes, use EstoqueServico.
+	 */
+	public void transferir(ProdutoId produtoId, Estoque destino, int quantidade, String responsavel, String motivo) {
+		notNull(destino, "Estoque de destino é obrigatório");
+		notNull(produtoId, "Produto é obrigatório");
+		isTrue(quantidade > 0, "Quantidade deve ser positiva");
+		notBlank(responsavel, "Responsável é obrigatório");
+
+		// Registra saída na origem
+		this.registrarSaida(produtoId, quantidade, responsavel, motivo);
+
+		// Registra entrada no destino
+		destino.registrarEntrada(produtoId, quantidade, responsavel, "Transferência de estoque", Map.of(
+				"transferencia", "true",
+				"origem", this.id.toString()
+		));
 	}
 }

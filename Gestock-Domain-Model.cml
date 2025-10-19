@@ -23,7 +23,7 @@ BoundedContext Principal implements Principal {
 		}
 
 		ValueObject ClienteId {
-			UUID id
+			Long id
 		}
 
 		Service ClienteServico {
@@ -38,6 +38,9 @@ BoundedContext Principal implements Principal {
 
 			-EstoqueId id
 			String nome
+			String endereco
+			int capacidadeMaxima
+			boolean ativo
 			-ClienteId clienteId
 			List<SaldoProduto> saldos
 
@@ -63,15 +66,15 @@ BoundedContext Principal implements Principal {
 		}
 
 		ValueObject EstoqueId {
-			UUID id
+			Long id
 		}
 
 		ValueObject MovimentacaoId {
-			UUID id
+			Long id
 		}
 
 		Enum TipoMovimentacao {
-			ENTRADA, SAIDA, AJUSTE, TRANSFERENCIA_ENTRADA, TRANSFERENCIA_SAIDA
+			ENTRADA, SAIDA
 		}
 
 		Service EstoqueServico {
@@ -88,8 +91,9 @@ BoundedContext Principal implements Principal {
 			-ProdutoId id
 			CodigoProduto codigo
 			String nome
-			CategoriaProduto categoria
+			String unidadeMedida
 			boolean perecivel
+			boolean ativo
 			LoteValidade lote nullable
 			ROP rop nullable
 
@@ -100,15 +104,11 @@ BoundedContext Principal implements Principal {
 		}
 
 		ValueObject ProdutoId {
-			UUID id
+			Long id
 		}
 
 		ValueObject CodigoProduto {
 			String codigo
-		}
-
-		Enum CategoriaProduto {
-			ALIMENTO, BEBIDA, LIMPEZA, HIGIENE, OUTROS
 		}
 
 		ValueObject LoteValidade {
@@ -136,7 +136,9 @@ BoundedContext Principal implements Principal {
 			-FornecedorId id
 			String nome
 			String cnpj
+			String contato
 			LeadTime leadTimeMedio
+			boolean ativo
 			List<Cotacao> cotacoes
 
 			Repository FornecedorRepositorio {
@@ -153,11 +155,11 @@ BoundedContext Principal implements Principal {
 		}
 
 		ValueObject FornecedorId {
-			UUID id
+			Long id
 		}
 
 		ValueObject CotacaoId {
-			UUID id
+			Long id
 		}
 
 		ValueObject LeadTime {
@@ -198,7 +200,7 @@ BoundedContext Principal implements Principal {
 		}
 
 		ValueObject PedidoId {
-			UUID id
+			Long id
 		}
 
 		ValueObject CustoPedido {
@@ -208,7 +210,7 @@ BoundedContext Principal implements Principal {
 		}
 
 		Enum StatusPedido {
-			PENDENTE, EM_PROCESSAMENTO, CONCLUIDO, CANCELADO
+			CRIADO, ENVIADO, EM_TRANSPORTE, RECEBIDO, CANCELADO, CONCLUIDO
 		}
 
 		Service PedidoServico {
@@ -242,7 +244,7 @@ BoundedContext Principal implements Principal {
 		}
 
 		ValueObject CustoId {
-			UUID id
+			Long id
 		}
 
 		Enum TipoCusto {
@@ -251,6 +253,35 @@ BoundedContext Principal implements Principal {
 
 		Service CustoServico {
 			@Custo gerarParaPedido(@Pedido pedido, BigDecimal frete, BigDecimal logistica);
+		}
+	}
+
+	Aggregate Alerta {
+		Entity Alerta {
+			aggregateRoot
+
+			-AlertaId id
+			-ProdutoId produtoId
+			-EstoqueId estoqueId
+			-FornecedorId fornecedorSugerido nullable
+			Date dataGeracao
+			boolean ativo
+
+			Repository AlertaRepositorio {
+				@Alerta obter(@AlertaId id);
+				List<@Alerta> listarAtivos();
+				List<@Alerta> listarPorProduto(@ProdutoId produtoId);
+				List<@Alerta> listarPorEstoque(@EstoqueId estoqueId);
+			}
+		}
+
+		ValueObject AlertaId {
+			Long id
+		}
+
+		Service AlertaServico {
+			@Alerta gerarAlerta(@ProdutoId produtoId, @EstoqueId estoqueId, @FornecedorId fornecedorSugerido);
+			void desativarAlerta(@AlertaId id);
 		}
 	}
 }

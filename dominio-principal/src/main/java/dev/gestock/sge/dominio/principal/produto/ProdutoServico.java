@@ -1,11 +1,7 @@
 package dev.gestock.sge.dominio.principal.produto;
 
-import java.math.BigDecimal;
-import java.util.List;
-
 /**
  * Serviço de domínio: operações compostas sobre vários produtos.
- * Exemplo: classificação ABC (R24).
  */
 public class ProdutoServico {
 
@@ -15,17 +11,13 @@ public class ProdutoServico {
         this.repositorio = repositorio;
     }
 
-    /**
-     * Classifica produtos com base no valor de movimentação total (R24).
-     * - Top 20% = A
-     * - Próximos 30% = B
-     * - Restante = C
-     */
+    // Classificação ABC removida - não necessária para o sistema
+    
+    /*
     public void classificarProdutosABC(List<Produto> produtos, List<BigDecimal> valoresMovimentacao) {
         if (produtos.size() != valoresMovimentacao.size())
             throw new IllegalArgumentException("Tamanhos de listas incompatíveis");
 
-        // Exemplo simplificado: ordena por valor e classifica
         for (int i = 0; i < produtos.size(); i++) {
             BigDecimal valor = valoresMovimentacao.get(i);
             if (valor.compareTo(BigDecimal.valueOf(10000)) > 0)
@@ -38,4 +30,5 @@ public class ProdutoServico {
             repositorio.salvar(produtos.get(i));
         }
     }
+    */
 }

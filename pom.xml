@@ -19,9 +19,6 @@
 		<module>apresentacao-backend</module>
 		<module>apresentacao-frontend</module>
 		<module>dominio-principal</module>
-		<module>dominio-administracao</module>
-		<module>dominio-analise</module>
-		<module>dominio-compartilhado</module>
 		<module>infraestrutura</module>
 		<module>pai</module>
 	</modules>

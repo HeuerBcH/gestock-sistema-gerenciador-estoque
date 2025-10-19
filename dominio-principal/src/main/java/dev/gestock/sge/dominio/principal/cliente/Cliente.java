@@ -39,19 +39,7 @@ public class Cliente {
 	// -----------------------------
 
 	/**
-	 * Construtor usado ao criar um novo cliente.
-	 * Gera um novo ID e valida as informações obrigatórias.
-	 */
-	public Cliente(String nome, String documento, String email) {
-		this.id = new ClienteId(); // Gera um UUID interno único
-		setNome(nome);
-		setDocumento(documento);
-		setEmail(email);
-	}
-
-	/**
-	 * Construtor usado quando o cliente já existe (por exemplo, carregado do banco).
-	 * Mantém o ID existente.
+	 * Construtor - ID será atribuído pela camada de persistência.
 	 */
 	public Cliente(ClienteId id, String nome, String documento, String email) {
 		notNull(id, "O id do cliente não pode ser nulo");
