@@ -7,14 +7,14 @@ Funcionalidade: Transferir Produtos entre Estoques
   Cenário: Transferir produto com sucesso
     Dado que existem dois estoques do mesmo cliente chamados "Estoque Origem" e "Estoque Destino"
     E o "Estoque Origem" possui 100 unidades do produto "Produto X"
-    Quando eu transfiro 50 unidades do produto para o "Estoque Destino"
+    Quando o cliente transfere 50 unidades do produto para o "Estoque Destino"
     Então o "Estoque Origem" deve ter 50 unidades do produto
     E o "Estoque Destino" deve receber 50 unidades do produto
 
   # R2H22: Origem deve ter quantidade suficiente
   Cenário: Tentar transferir sem saldo suficiente
     Dado que o "Estoque Origem" possui 30 unidades do produto
-    Quando eu tento transferir 50 unidades do produto para o "Estoque Destino"
+    Quando o cliente tenta transferir 50 unidades do produto para o "Estoque Destino"
     Então o sistema deve rejeitar a operação
     E deve exibir a mensagem "Saldo disponível insuficiente"
 
