@@ -1,103 +1,108 @@
 # language: pt
-Funcionalidade: Gerenciar Pedidos
-  Como cliente
-  Desejo gerenciar pedidos de compra
-  Para reabastecer meus estoques
+Funcionalidade: Gerenciar Produtos
 
-  # H11: Criar pedidos de compra
-  Cenário: Criar pedido de compra com sucesso
-    Dado que existe um fornecedor chamado "Fornecedor A" ativo
-    E existe um produto chamado "Produto X" com cotação válida
-    Quando eu crio um pedido com 100 unidades do produto
-    Então o pedido deve ser criado com sucesso
-    E o status do pedido deve ser "CRIADO"
-    E a data prevista de entrega deve ser calculada com base no lead time
 
-  # R1H11: Pedido só pode ser criado se existir cotação válida
-  Cenário: Tentar criar pedido sem cotação válida
-    Dado que existe um fornecedor chamado "Fornecedor A"
-    E existe um produto chamado "Produto X" sem cotações
-    Quando eu tento criar um pedido para o produto
+  # H8: Cadastrar produtos
+  Cenário: Cadastrar produto com sucesso
+    Dado que o cliente informa código "01", nome "Produto A", unidade "UN" e indica que não é perecível
+    Quando o cliente confirma o cadastro do produto
+    Então o sistema deve cadastrar o produto com sucesso
+    E o produto deve estar ativo
+    E o ROP deve estar nulo inicialmente
+
+  Cenário: Cadastrar produto perecível
+    Dado que o cliente informa código "02", nome "Produto B", unidade "KG" e indica que é perecível
+    Quando o cliente confirma o cadastro do produto
+    Então o sistema deve cadastrar o produto com sucesso
+    E o produto deve ser marcado como perecível
+
+  # R1H8: Código único
+  Cenário: Tentar cadastrar produto com código duplicado
+    Dado que existe um produto cadastrado com código "01"
+    Quando o cliente tenta cadastrar outro produto com o mesmo código "01"
+    Então o sistema deve rejeitar o cadastro
+    E o sistema deve exibir a mensagem "Código do produto já existe"
+
+  # R2H8: Produto fornecido por múltiplos fornecedores
+  Cenário: Vincular produto a múltiplos fornecedores
+    Dado que existe um produto chamado "Produto A" com id "01"
+    E existem os seguintes fornecedores cadastrados:
+      | nome         | cnpj               |
+      | Fornecedor A | 11.111.111/0001-11 |
+      | Fornecedor B | 22.222.222/0001-22 |
+    Quando os fornecedores registram cotações para o produto:
+      | fornecedor   | preco | prazo |
+      | Fornecedor A | 100.00 | 10   |
+      | Fornecedor B | 95.00  | 15   |
+    Então o produto deve possuir cotações de dois fornecedores
+
+  # R3H8: Produto vinculado a pelo menos um estoque
+  Cenário: Cadastrar produto vinculado a estoque
+    Dado que existe um estoque ativo chamado "Estoque Central"
+    Quando o cliente cadastra um produto chamado "Produto C" vinculado ao estoque "Estoque Central"
+    Então o sistema deve cadastrar o produto com sucesso
+    E o produto deve estar vinculado ao estoque "Estoque Central"
+
+  # H9: Editar produtos
+  Cenário: Atualizar nome e unidade de medida do produto
+    Dado que existe um produto chamado "Produto A" com unidade "UN"
+    Quando o cliente atualiza o nome para "Produto A Atualizado" e a unidade para "CX"
+    Então o sistema deve atualizar os dados do produto
+    E o nome deve ser "Produto A Atualizado"
+    E a unidade deve ser "CX"
+
+  # R1H9: Alterações não afetam cotações existentes
+  Cenário: Atualizar produto que possui cotações registradas
+    Dado que existe um produto chamado "Produto A" com cotações registradas
+    Quando o cliente atualiza as especificações do produto
+    Então o sistema deve manter as cotações existentes inalteradas
+    E o produto deve estar atualizado
+
+  # H10: Inativar produtos
+  Cenário: Inativar produto sem saldo e sem pedidos
+    Dado que existe um produto chamado "Produto A" sem saldo em estoque
+    E não existem pedidos em andamento para o produto
+    Quando o cliente solicita a inativação do produto "Produto A"
+    Então o sistema deve inativar o produto com sucesso
+    E o status do produto deve ser "inativo"
+
+  # R1H10: Não inativar produto com saldo positivo
+  Cenário: Tentar inativar produto com saldo positivo
+    Dado que existe um produto chamado "Produto A" com saldo de 50 unidades
+    Quando o cliente solicita a inativação do produto "Produto A"
     Então o sistema deve rejeitar a operação
-    E deve exibir a mensagem "Nenhuma cotação encontrada para o produto"
+    E o sistema deve exibir a mensagem "Produto com saldo positivo não pode ser inativado"
 
-  Cenário: Criar pedido com múltiplos itens
-    Dado que existe um fornecedor chamado "Fornecedor A"
-    E existem os seguintes produtos com cotações:
-      | produto    | preco | prazo |
-      | Produto X  | 50.00 | 10    |
-      | Produto Y  | 75.00 | 15    |
-    Quando eu crio um pedido com os seguintes itens:
-      | produto   | quantidade |
-      | Produto X | 50         |
-      | Produto Y | 30         |
-    Então o pedido deve conter 2 itens
-    E o valor total dos itens deve ser calculado corretamente
-
-  # R2H11: Pedido registra data prevista de entrega baseada no Lead Time
-  Cenário: Verificar cálculo da data prevista de entrega
-    Dado que existe um fornecedor com lead time de 10 dias
-    E existe um produto chamado "Produto X" com cotação válida
-    Quando eu crio um pedido hoje
-    Então a data prevista de entrega deve ser 10 dias a partir de hoje
-
-  # H12: Cancelar pedidos
-  Cenário: Cancelar pedido em estado CRIADO
-    Dado que existe um pedido no estado "CRIADO"
-    Quando eu cancelo o pedido
-    Então o pedido deve ser cancelado com sucesso
-    E o status do pedido deve ser "CANCELADO"
-
-  Cenário: Cancelar pedido em estado ENVIADO
-    Dado que existe um pedido no estado "ENVIADO"
-    Quando eu cancelo o pedido
-    Então o pedido deve ser cancelado com sucesso
-    E o status do pedido deve ser "CANCELADO"
-
-  # R1H12: Pedidos com status CONCLUIDO não podem ser cancelados
-  Cenário: Tentar cancelar pedido concluído
-    Dado que existe um pedido no estado "CONCLUIDO"
-    Quando eu tento cancelar o pedido
+  # R1H10: Não inativar produto com pedidos em andamento
+  Cenário: Tentar inativar produto com pedidos em andamento
+    Dado que existe um produto chamado "Produto A" sem saldo em estoque
+    E existem pedidos em andamento para o produto
+    Quando o cliente solicita a inativação do produto "Produto A"
     Então o sistema deve rejeitar a operação
-    E deve exibir a mensagem "Pedido CONCLUIDO não pode ser cancelado"
+    E o sistema deve exibir a mensagem "Produto com pedidos em andamento não pode ser inativado"
 
-  # H13: Confirmar recebimento de pedidos
-  Cenário: Confirmar recebimento de pedido enviado
-    Dado que existe um pedido no estado "ENVIADO"
-    Quando eu confirmo o recebimento do pedido
-    Então o pedido deve ser marcado como "RECEBIDO"
-    E o status do pedido deve ser "RECEBIDO"
-
-  # R1H13: Confirmar recebimento gera movimentação de entrada
-  Cenário: Verificar geração de movimentação ao receber pedido
-    Dado que existe um pedido no estado "ENVIADO" com 100 unidades
-    E existe um estoque para receber o produto
-    Quando eu confirmo o recebimento do pedido
-    Então uma movimentação de entrada deve ser gerada
-    E o saldo do estoque deve aumentar em 100 unidades
-
-  Cenário: Tentar confirmar recebimento de pedido não enviado
-    Dado que existe um pedido no estado "CRIADO"
-    Quando eu tento confirmar o recebimento
+  # R2H10: Bloquear novas cotações após inativação
+  Cenário: Verificar bloqueio de novas cotações após inativação
+    Dado que existe um produto chamado "Produto A" inativo
+    Quando o cliente tenta registrar uma nova cotação para o produto
     Então o sistema deve rejeitar a operação
-    E deve exibir a mensagem "Somente pedidos ENVIADO podem ser recebidos"
+    E o sistema deve exibir a mensagem "Produto inativo não pode receber novas cotações"
 
-  Cenário: Enviar pedido criado
-    Dado que existe um pedido no estado "CRIADO" com itens
-    Quando eu envio o pedido
-    Então o pedido deve ser enviado com sucesso
-    E o status do pedido deve ser "ENVIADO"
+  # H14: Definir e calcular ROP
+  Cenário: Definir ROP para o produto
+    Dado que existe um produto chamado "Produto A"
+    Quando o cliente define o ROP informando consumo médio de 10 unidades por dia, lead time de 7 dias e estoque de segurança de 20 unidades
+    Então o sistema deve calcular o ROP corretamente
+    E o valor do ROP deve ser 90 unidades
 
-  Cenário: Concluir pedido após recebimento
-    Dado que existe um pedido no estado "RECEBIDO"
-    Quando eu concluo o pedido
-    Então o pedido deve ser concluído com sucesso
-    E o status do pedido deve ser "CONCLUIDO"
+  Cenário: Verificar se produto atingiu o ROP
+    Dado que existe um produto chamado "Produto A" com ROP definido em 90 unidades
+    Quando o saldo atual é 85 unidades
+    Então o sistema deve identificar que o produto atingiu o ROP
+    E deve ser necessário acionar reposição
 
-  Cenário: Calcular custo total do pedido
-    Dado que existe um pedido com os seguintes itens:
-      | produto   | quantidade | precoUnitario |
-      | Produto X | 100        | 50.00         |
-      | Produto Y | 50         | 75.00         |
-    Quando eu calculo o custo total
-    Então o valor total dos itens deve ser 8750.00
+  Cenário: Verificar produto acima do ROP
+    Dado que existe um produto chamado "Produto A" com ROP definido em 90 unidades
+    Quando o saldo atual é 100 unidades
+    Então o sistema deve identificar que o produto está acima do ROP
+    E não é necessário acionar reposição
