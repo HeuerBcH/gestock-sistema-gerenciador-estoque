@@ -23,9 +23,10 @@ public class Custo {
     private final List<CustoItem> itens;          // custos por produto/tipo
     private BigDecimal total;                     // total consolidado
 
-    public Custo(PedidoId pedidoId) {
+    public Custo(CustoId id, PedidoId pedidoId) {
+        notNull(id, "ID é obrigatório");
         notNull(pedidoId, "Pedido é obrigatório");
-        this.id = new CustoId();
+        this.id = id;
         this.pedidoId = pedidoId;
         this.itens = new ArrayList<>();
         this.total = BigDecimal.ZERO;

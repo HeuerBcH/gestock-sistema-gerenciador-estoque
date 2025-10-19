@@ -1,15 +1,15 @@
 package dev.gestock.sge.dominio.principal;
 
-import static io.cucumber.core.options.Constants.PLUGIN_PROPERTY_NAME;
+import io.cucumber.junit.Cucumber;
+import io.cucumber.junit.CucumberOptions;
+import org.junit.runner.RunWith;
 
-import org.junit.platform.suite.api.ConfigurationParameter;
-import org.junit.platform.suite.api.IncludeEngines;
-import org.junit.platform.suite.api.SelectPackages;
-import org.junit.platform.suite.api.Suite;
-
-@Suite
-@IncludeEngines("cucumber")
-@SelectPackages("dev.gestock.sge.dominio.acervo")
-@ConfigurationParameter(key = PLUGIN_PROPERTY_NAME, value = "pretty")
+@RunWith(Cucumber.class)
+@CucumberOptions(
+        features = "src/test/resources/dev/gestock/sge/dominio/principal",
+        glue = "dev.gestock.sge.dominio.principal",
+        plugin = {"pretty", "html:target/cucumber-reports.html"},
+        monochrome = true
+)
 public class RunCucumberTest {
 }

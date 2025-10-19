@@ -13,6 +13,28 @@
 
 	<artifactId>sge-dominio-principal</artifactId>
 	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<includes>
+						<include>**/RunCucumberTest.java</include>
+					</includes>
+					<testFailureIgnore>false</testFailureIgnore>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.apache.maven.surefire</groupId>
+						<artifactId>surefire-junit47</artifactId>
+						<version>3.5.2</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+		</plugins>
+	</build>
+	
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -28,16 +50,15 @@
 	<dependencies>
 		<!-- compile -->		
 		<dependency>
-		    <groupId>commons-validator</groupId>
-		    <artifactId>commons-validator</artifactId>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-lang3</artifactId>
 		</dependency>
 		
 		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>sgb-dominio-compartilhado</artifactId>
-			<version>${project.version}</version>
+		    <groupId>commons-validator</groupId>
+		    <artifactId>commons-validator</artifactId>
 		</dependency>
-
+	
     	<!-- test -->
 		<dependency>
 			<groupId>io.cucumber</groupId>
@@ -61,6 +82,20 @@
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-suite</artifactId>
 			<scope>test</scope>
-		</dependency>    		
+		</dependency>
+
+		<!-- JUnit 4 para compatibilidade com os step definitions -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.13.2</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>io.cucumber</groupId>
+			<artifactId>cucumber-junit</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 </project>
