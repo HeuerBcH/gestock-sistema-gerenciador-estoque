@@ -1,32 +1,32 @@
 # language: pt
 Funcionalidade: Emitir Alertas de Estoque Baixo
   Como cliente
-  Desejo ser notificado quando o estoque atingir o ROP
+  Desejo ser notificado quando o estoque atingir o ROP e visualizar uma lista de todos os alertas ativos
   Para fazer pedidos de reposição
 
   # H16: Ser notificado ao atingir ROP
   # R1H16: Alerta gerado automaticamente ao atingir ROP
   Cenário: Gerar alerta ao atingir ROP
-    Dado que existe um produto com ROP de "100" unidades
-    E o saldo atual é "100" unidades
+    Dado que existe um produto com ROP de 100 unidades
+    E o saldo atual do produto é 100 unidades
     Quando o sistema verifica o estoque
     Então um alerta deve ser gerado automaticamente
 
   Cenário: Gerar alerta ao ficar abaixo do ROP
-    Dado que existe um produto com ROP de "100" unidades
-    E o saldo atual é "90" unidades
+    Dado que existe um produto com ROP de 100 unidades
+    E o saldo atual do produto é 90 unidades
     Quando o sistema verifica o estoque
     Então um alerta deve ser gerado
 
   Cenário: Não gerar alerta acima do ROP
-    Dado que existe um produto com ROP de "100" unidades
-    E o saldo atual é "150" unidades
+    Dado que existe um produto com ROP de 100 unidades
+    E o saldo atual do produto é 150 unidades
     Quando o sistema verifica o estoque
     Então nenhum alerta deve ser gerado
 
   # R2H16: Alerta indica produto, estoque e fornecedor sugerido
   Cenário: Alerta contém informações completas
-    Dado que existe um alerta gerado
+    Dado que existe um alerta gerado para um produto
     Quando eu visualizo o alerta
     Então devo ver o nome do produto
     E devo ver o estoque afetado
@@ -41,6 +41,6 @@ Funcionalidade: Emitir Alertas de Estoque Baixo
   # R1H17: Alerta removido após recebimento do pedido
   Cenário: Remover alerta após recebimento
     Dado que existe um alerta ativo para um produto
-    E um pedido foi recebido para esse produto
-    Quando o sistema atualiza os alertas
+    E um pedido foi recebido para suprir o estoque do produto
+    Quando o sistema atualiza o estoque
     Então o alerta deve ser removido automaticamente

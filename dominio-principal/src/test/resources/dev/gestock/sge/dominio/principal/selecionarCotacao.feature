@@ -5,9 +5,9 @@ Funcionalidade: Selecionar Cotação Mais Vantajosa
   Para economizar nos pedidos
 
   # H18: Selecionar automaticamente menor preço
-  # R1H18: Apenas cotações válidas e fornecedor ativo
+  # R1H18: Apenas cotações válidas e fornecedores ativos
   Cenário: Selecionar cotação com menor preço
-    Dado que existem as seguintes cotações para um produto:
+    Dado que existem as seguintes cotações para o produto "Produto X":
       | fornecedor   | preco | prazo | ativo |
       | Fornecedor A | 100.00| 10    | true  |
       | Fornecedor B | 95.00 | 15    | true  |
@@ -17,7 +17,7 @@ Funcionalidade: Selecionar Cotação Mais Vantajosa
 
   # R2H18: Em empate, priorizar menor Lead Time
   Cenário: Desempate por menor lead time
-    Dado que existem as seguintes cotações:
+    Dado que existem as seguintes cotações para o produto "Produto X":
       | fornecedor   | preco | prazo |
       | Fornecedor A | 100.00| 10    |
       | Fornecedor B | 100.00| 7     |
@@ -25,7 +25,7 @@ Funcionalidade: Selecionar Cotação Mais Vantajosa
     Então a cotação do "Fornecedor B" deve ser selecionada
 
   Cenário: Ignorar fornecedor inativo
-    Dado que existem as seguintes cotações:
+    Dado que existem as seguintes cotações para o produto "Produto X":
       | fornecedor   | preco | prazo | ativo |
       | Fornecedor A | 100.00| 10    | true  |
       | Fornecedor B | 80.00 | 15    | false |
@@ -35,7 +35,7 @@ Funcionalidade: Selecionar Cotação Mais Vantajosa
   # H19: Revisar e aprovar cotação
   # R1H19: Cotação aprovada é registrada
   Cenário: Aprovar cotação selecionada
-    Dado que o sistema selecionou uma cotação
+    Dado que o sistema selecionou a melhor cotação para o produto "Produto X"
     Quando eu aprovo a cotação
     Então a cotação deve ser marcada como "selecionada"
-    E um pedido deve ser gerado com essa cotação
+    E um pedido deve ser gerado utilizando essa cotação
