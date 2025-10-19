@@ -21,20 +21,25 @@ public class Fornecedor {
     private String nome;                           // Nome do fornecedor
     private String cnpj;                           // CNPJ ou identificador fiscal
     private String contato;                        // Contato do fornecedor
-    private LeadTime leadTimeMedio;                // Lead time médio (R14)
+    private LeadTime leadTimeMedio;                // Lead time médio (R2H5, R1H6)
+    private boolean ativo;                         // Status ativo/inativo (H7)
     private final Map<ProdutoId, Cotacao> cotacoes;// Cotações por produto
 
     // ------------------ Construtores ------------------
 
-    public Fornecedor(String nome, String cnpj, String contato) {
+    public Fornecedor(FornecedorId id, String nome, String cnpj, String contato) {
+        if (id == null) {
+            throw new IllegalArgumentException("ID é obrigatório");
+        }
         notBlank(nome, "Nome do fornecedor é obrigatório");
         notBlank(cnpj, "CNPJ é obrigatório");
 
-        this.id = new FornecedorId();
+        this.id = id;
         this.nome = nome;
         this.cnpj = cnpj;
         this.contato = contato;
         this.leadTimeMedio = new LeadTime(0);
+        this.ativo = true; // inicia ativo por padrão
         this.cotacoes = new HashMap<>();
     }
 
@@ -48,6 +53,7 @@ public class Fornecedor {
         this.cnpj = cnpj;
         this.contato = contato;
         this.leadTimeMedio = leadTimeMedio != null ? leadTimeMedio : new LeadTime(0);
+        this.ativo = true;
         this.cotacoes = new HashMap<>();
     }
 
@@ -58,6 +64,7 @@ public class Fornecedor {
     public String getCnpj() { return cnpj; }
     public String getContato() { return contato; }
     public LeadTime getLeadTimeMedio() { return leadTimeMedio; }
+    public boolean isAtivo() { return ativo; }
     public Map<ProdutoId, Cotacao> getCotacoesSnapshot() { return Map.copyOf(cotacoes); }
 
     // ------------------ Métodos de domínio ------------------
@@ -76,7 +83,8 @@ public class Fornecedor {
         isTrue(prazoDias > 0, "Prazo deve ser positivo");
 
         // R2: apenas uma cotação por produto
-        Cotacao nova = new Cotacao(produtoId, preco, prazoDias);
+        // NOTA: ID será gerado pela camada de persistência
+        Cotacao nova = new Cotacao(new CotacaoId(1L), produtoId, preco, prazoDias);
         cotacoes.put(produtoId, nova);
     }
 
@@ -104,6 +112,16 @@ public class Fornecedor {
     /** Remove cotação de um produto */
     public void removerCotacao(ProdutoId produtoId) {
         cotacoes.remove(produtoId);
+    }
+
+    /** Inativa o fornecedor (H7, R1H7) */
+    public void inativar() {
+        this.ativo = false;
+    }
+
+    /** Reativa o fornecedor */
+    public void ativar() {
+        this.ativo = true;
     }
 
     @Override

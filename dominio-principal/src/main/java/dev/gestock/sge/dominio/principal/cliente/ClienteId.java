@@ -1,25 +1,25 @@
 package dev.gestock.sge.dominio.principal.cliente;
 
-import java.util.UUID;
+import java.util.Objects;
 
 /**
  * Value Object que encapsula a identidade do Cliente.
  *
  * - Garante que a identidade é imutável.
- * - Evita "primitive obsession" (usar String/UUID cru em todo o código).
- * - Define igualdade por valor (do UUID).
+ * - Evita "primitive obsession" (usar Long cru em todo o código).
+ * - Define igualdade por valor (do Long).
  */
 public class ClienteId {
-	private final UUID id;
+	private final Long id;
 
-	public ClienteId() {
-		this.id = UUID.randomUUID();
-	} // gera novo UUID
-	public ClienteId(UUID id) {
+	public ClienteId(Long id) {
+		if (id == null || id <= 0) {
+			throw new IllegalArgumentException("ID deve ser positivo");
+		}
 		this.id = id;
-	}         // usado em reidratação
+	}
 
-	public UUID getId() {
+	public Long getId() {
 		return id;
 	}
 
@@ -30,7 +30,7 @@ public class ClienteId {
 
 	@Override
 	public int hashCode() {
-		return id.hashCode();
+		return Objects.hash(id);
 	}
 
 	@Override

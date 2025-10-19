@@ -28,16 +28,15 @@
 	<dependencies>
 		<!-- compile -->		
 		<dependency>
-		    <groupId>commons-validator</groupId>
-		    <artifactId>commons-validator</artifactId>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-lang3</artifactId>
 		</dependency>
 		
 		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>sgb-dominio-compartilhado</artifactId>
-			<version>${project.version}</version>
+		    <groupId>commons-validator</groupId>
+		    <artifactId>commons-validator</artifactId>
 		</dependency>
-
+	
     	<!-- test -->
 		<dependency>
 			<groupId>io.cucumber</groupId>
