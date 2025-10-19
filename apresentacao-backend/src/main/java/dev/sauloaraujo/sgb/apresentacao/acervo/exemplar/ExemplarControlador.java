@@ -1,43 +1,43 @@
-package dev.gestock.sge.apresentacao.acervo.exemplar;
-
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
-
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import dev.gestock.sge.aplicacao.acervo.exemplar.ExemplarResumo;
-import dev.gestock.sge.aplicacao.acervo.exemplar.ExemplarResumoExpandido;
-import dev.gestock.sge.aplicacao.acervo.exemplar.ExemplarServicoAplicacao;
-import dev.gestock.sge.apresentacao.BackendMapeador;
-import dev.gestock.sge.dominio.principal.estoque.EstoqueId;
-import dev.gestock.sge.dominio.principal.estoque.ExemplarId;
-
-@RestController
-@RequestMapping("backend/exemplar")
-class ExemplarControlador {
-	private @Autowired EstoqueId emprestimoServico;
-	private @Autowired ExemplarServicoAplicacao exemplarServicoConsulta;
-
-	private @Autowired BackendMapeador mapeador;
-
-	@RequestMapping(method = GET, path = "pesquisa")
-	List<ExemplarResumo> pesquisa() {
-		return exemplarServicoConsulta.pesquisarResumos();
-	}
-
-	@RequestMapping(method = GET, path = "pesquisa-emprestados")
-	List<ExemplarResumoExpandido> pesquisaEmprestados() {
-		return exemplarServicoConsulta.pesquisarEmprestados();
-	}
-
-	@RequestMapping(method = POST, path = "{id}/devolver")
-	void realizarEmprestimo(@PathVariable("id") int id) {
-		var exemplarId = mapeador.map(id, ExemplarId.class);
-		emprestimoServico.devolver(exemplarId);
-	}
-}
+//package dev.gestock.sge.apresentacao.acervo.exemplar;
+//
+//import static org.springframework.web.bind.annotation.RequestMethod.GET;
+//import static org.springframework.web.bind.annotation.RequestMethod.POST;
+//
+//import java.util.List;
+//
+//import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.web.bind.annotation.PathVariable;
+//import org.springframework.web.bind.annotation.RequestMapping;
+//import org.springframework.web.bind.annotation.RestController;
+//
+//import dev.gestock.sge.aplicacao.acervo.exemplar.ExemplarResumo;
+//import dev.gestock.sge.aplicacao.acervo.exemplar.ExemplarResumoExpandido;
+//import dev.gestock.sge.aplicacao.acervo.exemplar.ExemplarServicoAplicacao;
+//import dev.gestock.sge.apresentacao.BackendMapeador;
+//import dev.gestock.sge.dominio.principal.estoque.EstoqueId;
+//import dev.gestock.sge.dominio.principal.estoque.ExemplarId;
+//
+//@RestController
+//@RequestMapping("backend/exemplar")
+//class ExemplarControlador {
+//	private @Autowired EstoqueId emprestimoServico;
+//	private @Autowired ExemplarServicoAplicacao exemplarServicoConsulta;
+//
+//	private @Autowired BackendMapeador mapeador;
+//
+//	@RequestMapping(method = GET, path = "pesquisa")
+//	List<ExemplarResumo> pesquisa() {
+//		return exemplarServicoConsulta.pesquisarResumos();
+//	}
+//
+//	@RequestMapping(method = GET, path = "pesquisa-emprestados")
+//	List<ExemplarResumoExpandido> pesquisaEmprestados() {
+//		return exemplarServicoConsulta.pesquisarEmprestados();
+//	}
+//
+//	@RequestMapping(method = POST, path = "{id}/devolver")
+//	void realizarEmprestimo(@PathVariable("id") int id) {
+//		var exemplarId = mapeador.map(id, ExemplarId.class);
+//		emprestimoServico.devolver(exemplarId);
+//	}
+//}
