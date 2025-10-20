@@ -1,15 +1,18 @@
 package dev.gestock.sge.dominio.principal.cliente;
 
-/* Serviço de Domínio: Cliente
+import static org.apache.commons.lang3.Validate.*;
 
- Responsabilidade:
- - Agrupar regras e operações que envolvem clientes, mas não pertencem diretamente à entidade.
- - Exemplo: registrar um cliente, validar se ele tem ao menos um estoque, etc.
-
- Ligação com histórias e regras:
- - História 1 (registro de estoques)
- - Regra R1 (todo cliente precisa ter ao menos 1 estoque) */
-
+/**
+ * Serviço de domínio para gerenciamento de clientes.
+ * 
+ * Responsabilidade:
+ * - Agrupar regras e operações que envolvem clientes
+ * - Validar regras de negócio relacionadas a clientes
+ * 
+ * Suporta:
+ * - R1H1: Todo estoque deve pertencer a um único cliente
+ * - Validação de integridade do cliente
+ */
 public class ClienteServico {
 
     private final ClienteRepositorio repositorio;
@@ -18,16 +21,20 @@ public class ClienteServico {
         this.repositorio = repositorio;
     }
 
-    /* Cadastra um novo cliente no sistema → Aplica validações antes de salvar. */
+    /**
+     * Cadastra um novo cliente no sistema.
+     * Aplica validações antes de salvar.
+     */
     public void registrarCliente(Cliente cliente) {
-        if (cliente == null)
-            throw new IllegalArgumentException("Cliente não pode ser nulo");
-
+        notNull(cliente, "Cliente não pode ser nulo");
         repositorio.salvar(cliente);
     }
 
-    /* Valida se o cliente cumpre a regra R1: deve possuir pelo menos um estoque cadastrado */
+    /**
+     * Valida se o cliente possui pelo menos um estoque cadastrado.
+     */
     public boolean validarPossuiEstoques(Cliente cliente) {
+        notNull(cliente, "Cliente é obrigatório");
         return cliente.possuiEstoques();
     }
 }
