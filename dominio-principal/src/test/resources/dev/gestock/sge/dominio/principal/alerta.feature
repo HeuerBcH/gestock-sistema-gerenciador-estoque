@@ -4,41 +4,41 @@ Funcionalidade: Emitir Alertas de Estoque Baixo
 
   # H16: Ser notificado ao atingir ROP
   # R1H16: Alerta gerado automaticamente ao atingir ROP
-  Cenário: Gerar alerta ao atingir ROP
+  Cenario: Gerar alerta ao atingir ROP
     Dado que existe um produto com ROP de 100 unidades
-    E o saldo atual do produto é 100 unidades
+    E o saldo atual do produto e 100 unidades
     Quando o sistema verifica o estoque
-    Então um alerta deve ser gerado automaticamente
+    Entao um alerta deve ser gerado automaticamente
 
-  Cenário: Gerar alerta ao ficar abaixo do ROP
+  Cenario: Gerar alerta ao ficar abaixo do ROP
     Dado que existe um produto com ROP de 100 unidades
-    E o saldo atual do produto é 90 unidades
+    E o saldo atual do produto e 90 unidades
     Quando o sistema verifica o estoque
-    Então um alerta deve ser gerado
+    Entao um alerta deve ser gerado
 
-  Cenário: Não gerar alerta acima do ROP
+  Cenario: Nao gerar alerta acima do ROP
     Dado que existe um produto com ROP de 100 unidades
-    E o saldo atual do produto é 150 unidades
+    E o saldo atual do produto e 150 unidades
     Quando o sistema verifica o estoque
-    Então nenhum alerta deve ser gerado
+    Entao nenhum alerta deve ser gerado
 
   # R2H16: Alerta indica produto, estoque e fornecedor sugerido
-  Cenário: Alerta contém informações completas
+  Cenario: Alerta contem informacoes completas
     Dado que existe um alerta gerado para um produto
     Quando o cliente visualiza o alerta
-    Então  o sistema deve exibir o nome do produto
+    Entao  o sistema deve exibir o nome do produto
     E o sistema deve exibir o estoque afetado
-    E o sitema deve exibir o fornecedor com menor cotação
+    E o sitema deve exibir o fornecedor com menor cotacao
 
   # H17: Visualizar lista de alertas ativos
-  Cenário: Listar todos os alertas ativos
+  Cenario: Listar todos os alertas ativos
     Dado que existem 3 alertas ativos
     Quando o cliente visualiza a lista de alertas
-    Então o sistema deve exibir 3 alertas
+    Entao o sistema deve exibir 3 alertas
 
-  # R1H17: Alerta removido após recebimento do pedido
-  Cenário: Remover alerta após recebimento
+  # R1H17: Alerta removido apos recebimento do pedido
+  Cenario: Remover alerta apos recebimento
     Dado que existe um alerta ativo para um produto
     E um pedido foi recebido para suprir o estoque do produto
     Quando o sistema atualiza o estoque
-    Então o alerta deve ser removido automaticamente
+    Entao o alerta deve ser removido automaticamente

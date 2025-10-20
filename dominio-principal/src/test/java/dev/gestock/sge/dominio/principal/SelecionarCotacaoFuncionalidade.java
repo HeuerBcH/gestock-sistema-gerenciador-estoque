@@ -2,12 +2,18 @@ package dev.gestock.sge.dominio.principal;
 
 import dev.gestock.sge.dominio.principal.fornecedor.*;
 import dev.gestock.sge.dominio.principal.produto.ProdutoId;
+import dev.gestock.sge.infraestrutura.persistencia.memoria.Repositorio;
+
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.pt.*;
+
 import java.util.*;
+
 import static org.junit.Assert.*;
 
 public class SelecionarCotacaoFuncionalidade {
+
+    private final Repositorio repositorio = new Repositorio();
 
     private Map<String, Fornecedor> fornecedores = new HashMap<>();
     private ProdutoId produtoId = new ProdutoId(1L);
@@ -15,56 +21,41 @@ public class SelecionarCotacaoFuncionalidade {
     private int contadorFornecedores = 1;
     private boolean cotacaoAprovada = false;
 
-    @Dado("que existem as seguintes cotações para um produto:")
-    public void queExistemAsSeguintesCotacoesParaUmProduto(DataTable dataTable) {
+    // =========================================================
+    // H18 — Selecionar cotação mais vantajosa
+    // =========================================================
+
+    @Dado("que existem as seguintes cotações para o produto {string}:")
+    public void queExistemAsSeguintesCotacoesParaOProduto(String nomeProduto, DataTable dataTable) {
         List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
         for (Map<String, String> row : rows) {
             String nome = row.get("fornecedor");
             FornecedorId id = new FornecedorId((long) contadorFornecedores++);
-            Fornecedor forn = new Fornecedor(id, nome, "12.345.678/0001-90", "contato@fornecedor.com");
+            Fornecedor fornecedor = new Fornecedor(id, nome, "12.345.678/0001-90", "contato@" + nome + ".com");
             double preco = Double.parseDouble(row.get("preco"));
             int prazo = Integer.parseInt(row.get("prazo"));
-            forn.registrarCotacao(produtoId, preco, prazo);
             boolean ativo = row.containsKey("ativo") ? Boolean.parseBoolean(row.get("ativo")) : true;
-            if (!ativo) forn.inativar();
-            fornecedores.put(nome, forn);
+
+            fornecedor.registrarCotacao(produtoId, preco, prazo);
+            if (!ativo) fornecedor.inativar();
+
+            fornecedores.put(nome, fornecedor);
+            repositorio.salvar(fornecedor);
         }
-    }
-
-    @Dado("que existem as seguintes cotações para o produto {string}:")
-    public void queExistemAsSeguintesCotacoesParaOProduto(String nomeProduto, DataTable dataTable) {
-        queExistemAsSeguintesCotacoesParaUmProduto(dataTable);
-    }
-
-    @Dado("que existem as seguintes cotações:")
-    public void queExistemAsSeguintesCotacoes(DataTable dataTable) {
-        queExistemAsSeguintesCotacoesParaUmProduto(dataTable);
-    }
-
-    @Dado("que o sistema selecionou uma cotação")
-    public void queOSistemaSelecionouUmaCotacao() {
-        FornecedorId id = new FornecedorId(1L);
-        Fornecedor forn = new Fornecedor(id, "Fornecedor A", "12.345.678/0001-90", "contato@fornecedor.com");
-        forn.registrarCotacao(produtoId, 100.0, 10);
-        cotacaoSelecionada = forn.obterCotacaoPorProduto(produtoId).get();
-    }
-
-    @Dado("que o sistema selecionou a melhor cotação para o produto {string}")
-    public void queOSistemaSelecionouAMelhorCotacaoParaOProduto(String nomeProduto) {
-        queOSistemaSelecionouUmaCotacao();
     }
 
     @Quando("o sistema seleciona a melhor cotação")
     public void oSistemaSelecionaAMelhorCotacao() {
         double menorPreco = Double.MAX_VALUE;
         int menorPrazo = Integer.MAX_VALUE;
-        
-        for (Fornecedor forn : fornecedores.values()) {
-            if (forn.isAtivo()) {
-                Optional<Cotacao> cot = forn.obterCotacaoPorProduto(produtoId);
+        cotacaoSelecionada = null;
+
+        for (Fornecedor fornecedor : fornecedores.values()) {
+            if (fornecedor.isAtivo()) {
+                Optional<Cotacao> cot = fornecedor.obterCotacaoPorProduto(produtoId);
                 if (cot.isPresent()) {
                     Cotacao c = cot.get();
-                    if (c.getPreco() < menorPreco || 
+                    if (c.getPreco() < menorPreco ||
                         (c.getPreco() == menorPreco && c.getPrazoDias() < menorPrazo)) {
                         menorPreco = c.getPreco();
                         menorPrazo = c.getPrazoDias();
@@ -75,36 +66,42 @@ public class SelecionarCotacaoFuncionalidade {
         }
     }
 
-    @Quando("eu aprovo a cotação")
-    public void euAprovoACotacao() {
-        // Marca como aprovada (simulação)
-        cotacaoAprovada = true;
+    @Entao("a cotação do {string} deve ser selecionada")
+    public void aCotacaoDoDeveSerSelecionada(String nomeFornecedor) {
+        assertNotNull("Nenhuma cotação foi selecionada", cotacaoSelecionada);
+        Fornecedor fornecedorEsperado = fornecedores.get(nomeFornecedor);
+        assertNotNull("Fornecedor esperado não encontrado", fornecedorEsperado);
+
+        Optional<Cotacao> cotEsperada = fornecedorEsperado.obterCotacaoPorProduto(produtoId);
+        assertTrue("Fornecedor não possui cotação para o produto", cotEsperada.isPresent());
+        assertEquals(cotEsperada.get().getPreco(), cotacaoSelecionada.getPreco(), 0.01);
+    }
+
+    // =========================================================
+    // H19 — Revisar e aprovar cotação
+    // =========================================================
+
+    @Dado("que o sistema selecionou a melhor cotação para o produto {string}")
+    public void queOSistemaSelecionouAMelhorCotacaoParaOProduto(String nomeProduto) {
+        FornecedorId id = new FornecedorId(1L);
+        Fornecedor fornecedor = new Fornecedor(id, "Fornecedor A", "12.345.678/0001-90", "contato@fornecedor.com");
+        fornecedor.registrarCotacao(produtoId, 100.0, 10);
+        cotacaoSelecionada = fornecedor.obterCotacaoPorProduto(produtoId).get();
+        repositorio.salvar(fornecedor);
     }
 
     @Quando("o cliente aprova a cotação")
     public void oClienteAprovaACotacao() {
-        euAprovoACotacao();
+        cotacaoAprovada = true;
     }
 
-    @Então("a cotação do {string} deve ser selecionada")
-    public void aCotacaoDoDeveSelecionada(String nomeFornecedor) {
-        assertNotNull("Cotação deve ter sido selecionada", cotacaoSelecionada);
-        Fornecedor fornEsperado = fornecedores.get(nomeFornecedor);
-        assertNotNull("Fornecedor deve existir", fornEsperado);
-    }
-
-    @Então("a cotação deve ser marcada como {string}")
+    @Entao("a cotação deve ser marcada como {string}")
     public void aCotacaoDeveSerMarcadaComo(String status) {
-        assertTrue("Cotação deve estar aprovada", cotacaoAprovada);
+        assertTrue("Cotação deveria estar aprovada", cotacaoAprovada);
     }
 
-    @Então("um pedido deve ser gerado com essa cotação")
-    public void umPedidoDeveSerGeradoComEssaCotacao() {
-        assertNotNull("Cotação deve existir", cotacaoSelecionada);
-    }
-
-    @Então("um pedido deve ser gerado utilizando essa cotação")
+    @E("um pedido deve ser gerado utilizando essa cotação")
     public void umPedidoDeveSerGeradoUtilizandoEssaCotacao() {
-        umPedidoDeveSerGeradoComEssaCotacao();
+        assertNotNull("Cotação selecionada deve existir", cotacaoSelecionada);
     }
 }

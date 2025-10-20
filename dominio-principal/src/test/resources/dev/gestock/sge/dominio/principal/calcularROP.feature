@@ -3,31 +3,31 @@ Funcionalidade: Calcular Ponto de Ressuprimento (ROP)
 
 
   # H14: Calcular ROP automaticamente
-  # R1H14: ROP = (Consumo Médio Diário × Lead Time) + Estoque de Segurança
-  Cenário: Calcular ROP com dados válidos
+  # R1H14: ROP = (Consumo Medio Diario × Lead Time) + Estoque de Seguranca
+  Cenario: Calcular ROP com dados validos
     Dado que existe um produto chamado "Produto A"
-    E o consumo médio diário do produto é 10 unidades
-    E o lead time do fornecedor é 7 dias
-    E o estoque de segurança é 20 unidades
+    E o consumo medio diario do produto e 10 unidades
+    E o lead time do fornecedor e 7 dias
+    E o estoque de seguranca e 20 unidades
     Quando o ROP do produto for calculado
-    Então o ROP do produto deve ser 90 unidades
+    Entao o ROP do produto deve ser 90 unidades
 
-  # R2H14: O histórico deve considerar consumo médio dos últimos 90 dias
-  Cenário: Calcular ROP com histórico de 90 dias
+  # R2H14: O historico deve considerar consumo medio dos ultimos 90 dias
+  Cenario: Calcular ROP com historico de 90 dias
     Dado que existe um produto chamado "Produto B"
-    E o histórico de consumo dos últimos 90 dias
-    Quando o sistema calcula o consumo médio
-    Então o ROP do produto é calculado com base nesse histórico
+    E o historico de consumo dos ultimos 90 dias
+    Quando o sistema calcula o consumo medio
+    Entao o ROP do produto e calculado com base nesse historico
 
   # H15: Visualizar valores de ROP
-  Cenário: Visualizar ROP de um produto
+  Cenario: Visualizar ROP de um produto
     Dado que existe um produto chamado "Produto A" com ROP calculado
     Quando o cliente clica para visualizar o ROP dos produtos
-    Então o sistema deve exibir o valor do ROP
-    E o sistema deve exibir o consumo médio utilizado no cálculo
+    Entao o sistema deve exibir o valor do ROP
+    E o sistema deve exibir o consumo medio utilizado no calculo
 
-  # R1H15: Produtos sem histórico usam ROP padrão
-  Cenário: Produto sem histórico usa ROP padrão
-    Dado que existe um produto chamado "Produto C" sem histórico
+  # R1H15: Produtos sem historico usam ROP padrao
+  Cenario: Produto sem historico usa ROP padrao
+    Dado que existe um produto chamado "Produto C" sem historico
     Quando O sistema tentar calcular o ROP do produto
-    Então o sistema deve usar um ROP padrão de 1 unidade
+    Entao o sistema deve usar um ROP padrao de 1 unidade
