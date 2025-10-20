@@ -33,7 +33,7 @@ public class GerenciarPedidosFuncionalidade {
     @Dado("existe um produto {string} com cota\u00e7\u00e3o v\u00e1lida")
     public void existeUmProdutoComCotacaoValida(String nome) {
         ProdutoId id = new ProdutoId(1L);
-        produto = new Produto(id, "PROD-001", nome, "UN", false);
+        produto = new Produto(id, "PROD-001", nome, "UN", false, 0.0);
         fornecedor.registrarCotacao(id, 50.0, 10);
         produtos.put(nome, produto);
     }
@@ -70,7 +70,7 @@ public class GerenciarPedidosFuncionalidade {
     @Dado("existe um produto {string} sem cota\u00e7\u00f5es")
     public void existeUmProdutoSemCotacoes(String nome) {
         ProdutoId id = new ProdutoId(1L);
-        produto = new Produto(id, "PROD-001", nome, "UN", false);
+        produto = new Produto(id, "PROD-001", nome, "UN", false, 0.0);
     }
 
     @Quando("eu tento criar um pedido para o produto")
@@ -91,7 +91,7 @@ public class GerenciarPedidosFuncionalidade {
         for (Map<String, String> row : rows) {
             String nomeProd = row.get("produto");
             ProdutoId id = new ProdutoId((long) produtos.size() + 1);
-            Produto p = new Produto(id, "PROD-X", nomeProd, "UN", false);
+            Produto p = new Produto(id, "PROD-X", nomeProd, "UN", false, 0.0);
             produtos.put(nomeProd, p);
             fornecedor.registrarCotacao(id, Double.parseDouble(row.get("preco")), Integer.parseInt(row.get("prazo")));
         }
@@ -131,7 +131,7 @@ public class GerenciarPedidosFuncionalidade {
     @Dado("existe um produto com cota\u00e7\u00e3o v\u00e1lida")
     public void existeUmProdutoComCotacaoValida() {
         ProdutoId id = new ProdutoId(1L);
-        produto = new Produto(id, "PROD-001", "Produto X", "UN", false);
+        produto = new Produto(id, "PROD-001", "Produto X", "UN", false, 0.0);
         fornecedor.registrarCotacao(id, 50.0, 10);
     }
 

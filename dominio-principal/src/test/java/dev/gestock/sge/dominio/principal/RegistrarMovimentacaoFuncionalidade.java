@@ -28,7 +28,7 @@ public class RegistrarMovimentacaoFuncionalidade {
     @Dado("existe um produto {string}")
     public void existeUmProduto(String nome) {
         produtoId = new ProdutoId(1L);
-        produto = new Produto(produtoId, "PROD-001", nome, "UN", false);
+        produto = new Produto(produtoId, "PROD-001", nome, "UN", false, 0.0);
     }
 
     @Quando("eu registro uma entrada de {int} unidades")

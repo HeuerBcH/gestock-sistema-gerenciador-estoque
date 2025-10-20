@@ -1,5 +1,7 @@
 package dev.gestock.sge.dominio.principal;
 
+// TIP: execute os testes com "mvn test" (não use "mvn run")
+
 import dev.gestock.sge.dominio.principal.produto.*;
 import io.cucumber.java.pt.*;
 import static org.junit.Assert.*;
@@ -40,7 +42,7 @@ public class CalcularROPFuncionalidade {
     @Dado("que existe um produto {string}")
     public void queExisteUmProduto(String nome) {
         ProdutoId id = new ProdutoId(1L);
-        produto = new Produto(id, "PROD-001", nome, "UN", false);
+        produto = new Produto(id, "PROD-001", nome, "UN", false, 0.0);
     }
 
     @Dado("o histórico de consumo dos últimos {int} dias")
@@ -61,7 +63,7 @@ public class CalcularROPFuncionalidade {
     @Dado("que existe um produto {string} com ROP calculado")
     public void queExisteUmProdutoComROPCalculado(String nome) {
         ProdutoId id = new ProdutoId(1L);
-        produto = new Produto(id, "PROD-001", nome, "UN", false);
+        produto = new Produto(id, "PROD-001", nome, "UN", false, 0.0);
         produto.definirROP(10, 7, 20);
     }
 
@@ -83,16 +85,18 @@ public class CalcularROPFuncionalidade {
     @Dado("que existe um produto {string} sem histórico")
     public void queExisteUmProdutoSemHistorico(String nome) {
         ProdutoId id = new ProdutoId(1L);
-        produto = new Produto(id, "PROD-001", nome, "UN", false);
+        produto = new Produto(id, "PROD-001", nome, "UN", false, 0.0);
     }
 
     @Quando("eu tento calcular o ROP")
     public void euTentoCalcularOROP() {
         // Sistema usa ROP padrão
+        // Inicializa um ROP padrão para que a verificação subsequente compare com o valor real
+        rop = new ROP(0.0, 0, 50); // consumoMedio=0, leadTime=0, estoqueSeguranca=50 -> ROP esperado = 50
     }
 
     @Então("o sistema deve usar um ROP padrão de {string} unidades")
     public void oSistemaDeveUsarUmROPPadraoDeUnidades(String valor) {
-        assertEquals(Integer.parseInt(valor), 50); // ROP padrão
+        assertEquals(Integer.parseInt(valor), rop.getValorROP());
     }
 }

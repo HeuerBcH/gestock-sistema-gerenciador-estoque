@@ -30,4 +30,4 @@ Funcionalidade: Calcular Ponto de Ressuprimento (ROP)
   Cenário: Produto sem histórico usa ROP padrão
     Dado que existe um produto chamado "Produto C" sem histórico
     Quando O sistema tentar calcular o ROP do produto
-    Então o sistema deve usar um ROP padrão de 50 unidades
+    Então o sistema deve usar um ROP padrão de 1 unidade
