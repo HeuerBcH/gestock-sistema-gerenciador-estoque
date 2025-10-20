@@ -5,8 +5,6 @@ package dev.gestock.sge.dominio.principal;
 import dev.gestock.sge.dominio.principal.cliente.ClienteId;
 import dev.gestock.sge.dominio.principal.estoque.Estoque;
 import dev.gestock.sge.dominio.principal.estoque.EstoqueId;
-import dev.gestock.sge.dominio.principal.estoque.EstoqueRepositorio;
-import dev.gestock.sge.dominio.principal.produto.Produto;
 import dev.gestock.sge.dominio.principal.produto.ProdutoId;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.pt.*;
@@ -53,6 +51,11 @@ public class GerenciarEstoqueFuncionalidade {
         estoquePorEndereco.put(endereco, "Estoque Existente");
     }
 
+    @Dado("já existe um estoque chamado {string}")
+    public void jaExisteUmEstoqueChamado(String nome) {
+        jaExisteUmEstoqueComNome(nome);
+    }
+
     @Dado("já existe um estoque com nome {string}")
     public void jaExisteUmEstoqueComNome(String nome) {
         EstoqueId id = new EstoqueId((long) contadorEstoques++);
@@ -61,11 +64,21 @@ public class GerenciarEstoqueFuncionalidade {
         estoquePorNome.put(nome, nome);
     }
 
+    @Dado("que existe um estoque chamado {string} sem produtos")
+    public void queExisteUmEstoqueChamadoSemProdutos(String nome) {
+        queExisteUmEstoqueSemProdutos(nome);
+    }
+
     @Dado("que existe um estoque {string} sem produtos")
     public void queExisteUmEstoqueSemProdutos(String nome) {
         EstoqueId id = new EstoqueId((long) contadorEstoques++);
         estoqueAtual = new Estoque(id, clienteId, nome, "Endereço " + contadorEstoques, 1000);
         estoques.put(nome, estoqueAtual);
+    }
+
+    @Dado("que existe um estoque chamado {string} com produtos")
+    public void queExisteUmEstoqueChamadoComProdutos(String nome) {
+        queExisteUmEstoqueComProdutos(nome);
     }
 
     @Dado("que existe um estoque {string} com produtos")
@@ -87,11 +100,21 @@ public class GerenciarEstoqueFuncionalidade {
         this.temPedidoPendente = true;
     }
 
+    @Dado("que existe um estoque chamado {string}")
+    public void queExisteUmEstoqueChamado(String nome) {
+        queExisteUmEstoque(nome);
+    }
+
     @Dado("que existe um estoque {string}")
     public void queExisteUmEstoque(String nome) {
         EstoqueId id = new EstoqueId((long) contadorEstoques++);
         estoqueAtual = new Estoque(id, clienteId, nome, "Endereço " + contadorEstoques, 1000);
         estoques.put(nome, estoqueAtual);
+    }
+
+    @Dado("que existe um estoque com capacidade {int}")
+    public void queExisteUmEstoqueComCapacidadeInt(int capacidade) {
+        queExisteUmEstoqueComCapacidade(String.valueOf(capacidade));
     }
 
     @Dado("que existe um estoque com capacidade {string}")
@@ -124,6 +147,11 @@ public class GerenciarEstoqueFuncionalidade {
         estoques.clear();
     }
 
+    @Dado("que existe um estoque chamado {string} no endereço {string} com capacidade {int}")
+    public void queExisteUmEstoqueChamadoNoEnderecoComCapacidadeInt(String nome, String endereco, int capacidade) {
+        queExisteUmEstoqueNoEnderecoComCapacidade(nome, endereco, String.valueOf(capacidade));
+    }
+
     @Dado("que existe um estoque {string} no endereço {string} com capacidade {string}")
     public void queExisteUmEstoqueNoEnderecoComCapacidade(String nome, String endereco, String capacidade) {
         EstoqueId id = new EstoqueId((long) contadorEstoques++);
@@ -133,16 +161,21 @@ public class GerenciarEstoqueFuncionalidade {
 
     // ========== WHEN (Quando) ==========
 
-    @Quando("eu cadastro um estoque com nome {string}, endereço {string} e capacidade {string}")
-    public void euCadastroUmEstoqueComNomeEnderecoECapacidade(String nome, String endereco, String capacidade) {
+    @Quando("o cliente cadastra um estoque com nome {string}, endereço {string} e capacidade {int}")
+    public void oClienteCadastraUmEstoqueComNomeEnderecoECapacidade(String nome, String endereco, int capacidade) {
         try {
             EstoqueId id = new EstoqueId((long) contadorEstoques++);
-            estoque = new Estoque(id, clienteId, nome, endereco, Integer.parseInt(capacidade));
+            estoque = new Estoque(id, clienteId, nome, endereco, capacidade);
             estoques.put(nome, estoque);
         } catch (Exception e) {
             excecaoCapturada = e;
             mensagemErro = e.getMessage();
         }
+    }
+
+    @Quando("o clinte cadastra um estoque com nome {string}, endereço {string} e capacidade {int}")
+    public void oClinteCadastraUmEstoqueComNomeEnderecoECapacidade(String nome, String endereco, int capacidade) {
+        oClienteCadastraUmEstoqueComNomeEnderecoECapacidade(nome, endereco, capacidade);
     }
 
     @Quando("eu tento cadastrar um estoque com endereço {string}")
@@ -173,6 +206,11 @@ public class GerenciarEstoqueFuncionalidade {
         }
     }
 
+    @Quando("o cliente inativa o estoque {string}")
+    public void oClienteInativaOEstoque(String nome) {
+        euInativoOEstoque(nome);
+    }
+
     @Quando("eu inativo o estoque {string}")
     public void euInativoOEstoque(String nome) {
         try {
@@ -182,6 +220,11 @@ public class GerenciarEstoqueFuncionalidade {
             excecaoCapturada = e;
             mensagemErro = e.getMessage();
         }
+    }
+
+    @Quando("o cliente tenta inativar o estoque {string}")
+    public void oClienteTentaInativarOEstoque(String nome) {
+        euTentoInativarOEstoque(nome);
     }
 
     @Quando("eu tento inativar o estoque {string}")
@@ -198,9 +241,19 @@ public class GerenciarEstoqueFuncionalidade {
         }
     }
 
+    @Quando("o cliente altera o nome do estoque para {string}")
+    public void oClienteAlteraONomeDoEstoquePara(String novoNome) {
+        euAlteroONomePara(novoNome);
+    }
+
     @Quando("eu altero o nome para {string}")
     public void euAlteroONomePara(String novoNome) {
         estoqueAtual.renomear(novoNome);
+    }
+
+    @Quando("o cliente altera a capacidade do estoque para {int}")
+    public void oClienteAlteraACapacidadeDoEstoquePara(int novaCapacidade) {
+        euAlteroACapacidadePara(String.valueOf(novaCapacidade));
     }
 
     @Quando("eu altero a capacidade para {string}")
@@ -213,6 +266,11 @@ public class GerenciarEstoqueFuncionalidade {
         }
     }
 
+    @Quando("o cliente tenta alterar a capacidade para {int}")
+    public void oClienteTentaAlterarACapacidadePara(int novaCapacidade) {
+        euTentoAlterarACapacidadePara(String.valueOf(novaCapacidade));
+    }
+
     @Quando("eu tento alterar a capacidade para {string}")
     public void euTentoAlterarACapacidadePara(String novaCapacidade) {
         try {
@@ -221,6 +279,11 @@ public class GerenciarEstoqueFuncionalidade {
             excecaoCapturada = e;
             mensagemErro = e.getMessage();
         }
+    }
+
+    @Quando("o cliente pesquisa por estoques com nome contendo {string}")
+    public void oClientePesquisaPorEstoquesComNomeContendo(String termo) {
+        euPesquisoPorEstoquesComNomeContendo(termo);
     }
 
     @Quando("eu pesquiso por estoques com nome contendo {string}")
@@ -240,6 +303,11 @@ public class GerenciarEstoqueFuncionalidade {
         }
     }
 
+    @Quando("o cliente pesquisa por estoques com endereço contendo {string}")
+    public void oClientePesquisaPorEstoquesComEnderecoContendo(String termo) {
+        euPesquisoPorEstoquesComEnderecoContendo(termo);
+    }
+
     @Quando("eu pesquiso por estoques com endereço contendo {string}")
     public void euPesquisoPorEstoquesComEnderecoContendo(String termo) {
         resultadosPesquisa.clear();
@@ -248,6 +316,11 @@ public class GerenciarEstoqueFuncionalidade {
                 resultadosPesquisa.add(est);
             }
         }
+    }
+
+    @Quando("o cliente visualiza os detalhes do estoque")
+    public void oClienteVisualizaOsDetalhesDoEstoque() {
+        euVisualizoOsDetalhesDoEstoque();
     }
 
     @Quando("eu visualizo os detalhes do estoque")
@@ -317,9 +390,19 @@ public class GerenciarEstoqueFuncionalidade {
         assertEquals(1500, estoqueAtual.getCapacidadeMaxima());
     }
 
+    @Então("o sistema deve exibir {int} estoques")
+    public void oSistemaDeveExibirEstoques(int quantidade) {
+        devoEncontrarEstoques(quantidade);
+    }
+
     @Então("devo encontrar {int} estoques")
     public void devoEncontrarEstoques(int quantidade) {
         assertEquals(quantidade, resultadosPesquisa.size());
+    }
+
+    @Então("o sistema deve exibir {string} e {string}")
+    public void oSistemaDeveExibirE(String nome1, String nome2) {
+        osResultadosDevemIncluirE(nome1, nome2);
     }
 
     @Então("os resultados devem incluir {string} e {string}")
@@ -335,14 +418,29 @@ public class GerenciarEstoqueFuncionalidade {
         assertEquals(mensagem, mensagemErro);
     }
 
+    @Então("o sistema deve exibir o nome {string}")
+    public void oSistemaDeveExibirONome(String nome) {
+        devoVerONome(nome);
+    }
+
     @Então("devo ver o nome {string}")
     public void devoVerONome(String nome) {
         assertEquals(nome, estoqueAtual.getNome());
     }
 
+    @Então("o sistema deve exibir o endereço {string}")
+    public void oSistemaDeveExibirOEndereco(String endereco) {
+        devoVerOEndereco(endereco);
+    }
+
     @Então("devo ver o endereço {string}")
     public void devoVerOEndereco(String endereco) {
         assertEquals(endereco, estoqueAtual.getEndereco());
+    }
+
+    @Então("o sistema deve exibir a capacidade {int}")
+    public void oSistemaDeveExibirACapacidade(int capacidade) {
+        devoVerACapacidade(String.valueOf(capacidade));
     }
 
     @Então("devo ver a capacidade {string}")

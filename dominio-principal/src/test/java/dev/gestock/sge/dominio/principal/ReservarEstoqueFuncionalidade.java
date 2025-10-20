@@ -17,12 +17,22 @@ public class ReservarEstoqueFuncionalidade {
     private String mensagemErro;
     private boolean reservaLiberada = false;
 
+    @Dado("que existe um estoque chamado {string} com {int} unidades disponíveis")
+    public void queExisteUmEstoqueChamadoComUnidadesDisponiveis(String nome, int quantidade) {
+        queExisteUmEstoqueComUnidadesDisponiveis(quantidade);
+    }
+
     @Dado("que existe um estoque com {int} unidades disponíveis")
     public void queExisteUmEstoqueComUnidadesDisponiveis(int quantidade) {
         ClienteId clienteId = new ClienteId(1L);
         estoque = new Estoque(new EstoqueId(1L), clienteId, "Estoque A", "End A", 1000);
         estoque.registrarEntrada(produtoId, quantidade, "Sistema", "Carga", Map.of());
         saldoFisicoInicial = quantidade;
+    }
+
+    @Quando("o cliente cria um pedido de venda com {int} unidades do produto")
+    public void oClienteCriaUmPedidoDeVendaComUnidadesDoProduto(int quantidade) {
+        euCrioUmPedidoDeVendaComUnidades(quantidade);
     }
 
     @Quando("eu crio um pedido de venda com {int} unidades")
@@ -46,6 +56,11 @@ public class ReservarEstoqueFuncionalidade {
         assertEquals(quantidade, estoque.getSaldoFisico(produtoId));
     }
 
+    @Dado("que existe um estoque chamado {string} com {int} unidades físicas")
+    public void queExisteUmEstoqueChamadoComUnidadesFisicas(String nome, int quantidade) {
+        queExisteUmEstoqueComUnidadesFisicas(quantidade);
+    }
+
     @Dado("que existe um estoque com {int} unidades físicas")
     public void queExisteUmEstoqueComUnidadesFisicas(int quantidade) {
         queExisteUmEstoqueComUnidadesDisponiveis(quantidade);
@@ -66,6 +81,11 @@ public class ReservarEstoqueFuncionalidade {
         }
     }
 
+    @Quando("o cliente tenta registrar uma saída de {int} unidades do produto")
+    public void oClienteTentaRegistrarUmaSaidaDeUnidadesDoProduto(int quantidade) {
+        euTentoRegistrarUmaSaidaDeUnidades(quantidade);
+    }
+
     @Então("o sistema deve rejeitar a operação")
     public void oSistemaDeveRejeitarAOperacao() {
         assertNotNull(excecaoCapturada);
@@ -74,6 +94,16 @@ public class ReservarEstoqueFuncionalidade {
     @Então("deve exibir a mensagem {string}")
     public void deveExibirAMensagem(String mensagem) {
         assertTrue(mensagemErro.contains(mensagem));
+    }
+
+    @Dado("que existe uma reserva de {int} unidades do produto")
+    public void queExisteUmaReservaDeUnidadesDoProduto(int quantidade) {
+        queExisteUmaReservaDeUnidades(quantidade);
+    }
+
+    @Dado("que existe um estoque chamado {string} com {int} unidades físicas")
+    public void queExisteUmEstoqueChamadoComUnidadesFisicasReserva(String nome, int quantidade) {
+        queExisteUmEstoqueComUnidadesDisponiveis(quantidade);
     }
 
     @Dado("que existe uma reserva de {int} unidades")
@@ -99,6 +129,11 @@ public class ReservarEstoqueFuncionalidade {
         assertTrue(estoque.getSaldoDisponivel(produtoId) > 0);
     }
 
+    @Dado("que foi criada uma reserva de {int} unidades")
+    public void queFoiCriadaUmaReservaDeUnidades(int quantidade) {
+        queExisteUmaReservaDeUnidades(quantidade);
+    }
+
     @Dado("que foi criada uma reserva")
     public void queFoiCriadaUmaReserva() {
         queExisteUmaReservaDeUnidades(50);
@@ -114,14 +149,29 @@ public class ReservarEstoqueFuncionalidade {
         // Consulta histórico
     }
 
+    @Quando("o cliente consulta o histórico de reservas")
+    public void oClienteConsultaOHistoricoDeReservas() {
+        euConsultoOHistorico();
+    }
+
     @Então("devo ver o registro da reserva")
     public void devoVerORegistroDaReserva() {
         assertTrue(true);
     }
 
+    @Então("o sistema deve exibir o registro da reserva")
+    public void oSistemaDeveExibirORegistroDaReserva() {
+        devoVerORegistroDaReserva();
+    }
+
     @Então("devo ver o registro da liberação")
     public void devoVerORegistroDaLiberacao() {
         assertTrue(reservaLiberada);
+    }
+
+    @Então("o sistema deve exibir o registro da liberação")
+    public void oSistemaDeveExibirORegistroDaLiberacao() {
+        devoVerORegistroDaLiberacao();
     }
 
     @Quando("o pedido é atendido")

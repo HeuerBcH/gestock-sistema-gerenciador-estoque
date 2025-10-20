@@ -32,6 +32,26 @@ public class GerenciarProdutosFuncionalidade {
 
     // ========== WHEN (Quando) ==========
 
+    @Dado("que o cliente informa código {string}, nome {string}, unidade {string} e indica que não é perecível")
+    public void queOClienteInformaCodigoNomeUnidadeEIndicaQueNaoEPerecivel(String codigo, String nome, String unidade) {
+        ProdutoId id = new ProdutoId((long) contadorProdutos);
+        produto = new Produto(id, codigo, nome, unidade, false, 0.0);
+        codigosProdutos.put(codigo, nome);
+    }
+
+    @Quando("o cliente confirma o cadastro do produto")
+    public void oClienteConfirmaOCadastroDoProduto() {
+        try {
+            if (produto != null) {
+                contadorProdutos++;
+                produtos.put(produto.getNome(), produto);
+            }
+        } catch (Exception e) {
+            excecaoCapturada = e;
+            mensagemErro = e.getMessage();
+        }
+    }
+
     @Quando("eu cadastro um produto com código {string}, nome {string}, unidade {string} e não perecível")
     public void euCadastroUmProdutoComCodigoNomeUnidadeENaoPerecivel(String codigo, String nome, String unidade) {
         try {
@@ -45,6 +65,13 @@ public class GerenciarProdutosFuncionalidade {
         }
     }
 
+    @Dado("que o cliente informa código {string}, nome {string}, unidade {string} e indica que é perecível")
+    public void queOClienteInformaCodigoNomeUnidadeEIndicaQueEPerecivel(String codigo, String nome, String unidade) {
+        ProdutoId id = new ProdutoId((long) contadorProdutos);
+        produto = new Produto(id, codigo, nome, unidade, true, 0.0);
+        codigosProdutos.put(codigo, nome);
+    }
+
     @Quando("eu cadastro um produto com código {string}, nome {string}, unidade {string} e perecível")
     public void euCadastroUmProdutoComCodigoNomeUnidadeEPerecivel(String codigo, String nome, String unidade) {
         try {
@@ -56,6 +83,11 @@ public class GerenciarProdutosFuncionalidade {
             excecaoCapturada = e;
             mensagemErro = e.getMessage();
         }
+    }
+
+    @Quando("o cliente tenta cadastrar outro produto com o mesmo código {string}")
+    public void oClienteTentaCadastrarOutroProdutoComOMesmoCodigo(String codigo) {
+        euTentoCadastrarOutroProdutoComCodigo(codigo);
     }
 
     @Quando("eu tento cadastrar outro produto com código {string}")
@@ -87,11 +119,21 @@ public class GerenciarProdutosFuncionalidade {
         }
     }
 
-    @Quando("eu cadastro um produto {string} vinculado ao estoque {string}")
-    public void euCadastroUmProdutoVinculadoAoEstoque(String nomeProduto, String nomeEstoque) {
+    @Quando("o cliente cadastra um produto chamado {string} vinculado ao estoque {string}")
+    public void oClienteCadastraUmProdutoChamadoVinculadoAoEstoque(String nomeProduto, String nomeEstoque) {
         ProdutoId id = new ProdutoId((long) contadorProdutos++);
         produto = new Produto(id, "PROD-X", nomeProduto, "UN", false, 0.0);
         produtos.put(nomeProduto, produto);
+    }
+
+    @Quando("eu cadastro um produto {string} vinculado ao estoque {string}")
+    public void euCadastroUmProdutoVinculadoAoEstoque(String nomeProduto, String nomeEstoque) {
+        oClienteCadastraUmProdutoChamadoVinculadoAoEstoque(nomeProduto, nomeEstoque);
+    }
+
+    @Quando("o cliente atualiza o nome para {string} e a unidade para {string}")
+    public void oClienteAtualizaONomeParaEAUnidadePara(String nome, String unidade) {
+        produto.atualizar(nome, unidade);
     }
 
     @Quando("eu atualizo o nome para {string} e unidade para {string}")
@@ -99,9 +141,19 @@ public class GerenciarProdutosFuncionalidade {
         produto.atualizar(nome, unidade);
     }
 
+    @Quando("o cliente atualiza as especificações do produto")
+    public void oClienteAtualizaAsEspecificacoesDoProduto() {
+        produto.atualizar("Produto Atualizado", "KG");
+    }
+
     @Quando("eu atualizo as especificações do produto")
     public void euAtualizoAsEspecificacoesDoProduto() {
-        produto.atualizar("Produto Atualizado", "KG");
+        oClienteAtualizaAsEspecificacoesDoProduto();
+    }
+
+    @Quando("o cliente solicita a inativação do produto {string}")
+    public void oClienteSolicitaAInativacaoDoProduto(String nome) {
+        euInativoOProduto(nome);
     }
 
     @Quando("eu inativo o produto {string}")
@@ -113,6 +165,11 @@ public class GerenciarProdutosFuncionalidade {
             excecaoCapturada = e;
             mensagemErro = e.getMessage();
         }
+    }
+
+    @Quando("o cliente solicita a inativação do produto {string}")
+    public void oClienteSolicitaInativacaoDoProduto(String nome) {
+        euTentoInativarOProduto(nome);
     }
 
     @Quando("eu tento inativar o produto {string}")
@@ -132,6 +189,11 @@ public class GerenciarProdutosFuncionalidade {
         }
     }
 
+    @Quando("o cliente tenta registrar uma nova cotação para o produto")
+    public void oClienteTentaRegistrarUmaNovaCotacaoParaOProduto() {
+        euTentoRegistrarUmaNovaCotacaoParaOProduto();
+    }
+
     @Quando("eu tento registrar uma nova cotação para o produto")
     public void euTentoRegistrarUmaNovaCotacaoParaOProduto() {
         try {
@@ -142,6 +204,11 @@ public class GerenciarProdutosFuncionalidade {
             excecaoCapturada = e;
             mensagemErro = e.getMessage();
         }
+    }
+
+    @Quando("o cliente define o ROP informando consumo médio de {int} unidades por dia, lead time de {int} dias e estoque de segurança de {int} unidades")
+    public void oClienteDefineOROPInformandoConsumoMedioDeUnidadesPorDiaLeadTimeDeDiasEEstoqueDeSegurancaDeUnidades(int consumo, int leadTime, int seguranca) {
+        euDefinoOROPComConsumoMedioLeadTimeDiasEEstoqueDeSeguranca(String.valueOf(consumo), String.valueOf(leadTime), String.valueOf(seguranca));
     }
 
     @Quando("eu defino o ROP com consumo médio {string}, lead time {string} dias e estoque de segurança {string}")
@@ -159,6 +226,11 @@ public class GerenciarProdutosFuncionalidade {
         est.definirROP(produto.getId(), consumoMedio, lead, seg);
     }
 
+    @Quando("o saldo atual é {int} unidades")
+    public void oSaldoAtualEUnidadesInt(int saldo) {
+        oSaldoAtualEUnidades(String.valueOf(saldo));
+    }
+
     @Quando("o saldo atual é {string} unidades")
     public void oSaldoAtualEUnidades(String saldo) {
         saldoAtual = Integer.parseInt(saldo);
@@ -172,6 +244,11 @@ public class GerenciarProdutosFuncionalidade {
     }
 
     // ========== GIVEN (Dado) ==========
+
+    @Dado("que existe um produto cadastrado com código {string}")
+    public void queExisteUmProdutoCadastradoComCodigo(String codigo) {
+        queExisteUmProdutoComCodigo(codigo);
+    }
 
     @Dado("que existe um produto com código {string}")
     public void queExisteUmProdutoComCodigo(String codigo) {
@@ -188,6 +265,11 @@ public class GerenciarProdutosFuncionalidade {
         produtos.put(nome, produto);
     }
 
+    @Dado("existem os seguintes fornecedores cadastrados:")
+    public void existemOsSeguintesFornecedoresCadastrados(DataTable dataTable) {
+        existemOsSeguintesFornecedores(dataTable);
+    }
+
     @Dado("existem os seguintes fornecedores:")
     public void existemOsSeguintesFornecedores(DataTable dataTable) {
         List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
@@ -198,6 +280,11 @@ public class GerenciarProdutosFuncionalidade {
             Fornecedor forn = new Fornecedor(id, nome, cnpj, "contato@fornecedor.com");
             fornecedores.put(nome, forn);
         }
+    }
+
+    @Dado("que existe um estoque ativo chamado {string}")
+    public void queExisteUmEstoqueAtivoChamado(String nome) {
+        queExisteUmEstoqueAtivo(nome);
     }
 
     @Dado("que existe um estoque ativo {string}")
@@ -280,9 +367,14 @@ public class GerenciarProdutosFuncionalidade {
 
     // ========== THEN (Então) ==========
 
+    @Então("o sistema deve cadastrar o produto com sucesso")
+    public void oSistemaDeveCadastrarOProdutoComSucesso() {
+        assertNotNull("Produto não foi cadastrado", produto);
+    }
+
     @Então("o produto deve ser cadastrado com sucesso")
     public void oProdutoDeveSerCadastradoComSucesso() {
-        assertNotNull("Produto não foi cadastrado", produto);
+        oSistemaDeveCadastrarOProdutoComSucesso();
     }
 
     @Então("o produto deve estar ativo")
@@ -317,6 +409,11 @@ public class GerenciarProdutosFuncionalidade {
         assertTrue("Mensagem incorreta: " + mensagemErro, mensagemErro.contains(mensagemEsperada));
     }
 
+    @Então("o produto deve possuir cotações de dois fornecedores")
+    public void oProdutoDevePossuirCotacoesDeDoisFornecedores() {
+        assertEquals(2, totalCotacoesFornecedores);
+    }
+
     @Então("o produto deve ter cotações de {int} fornecedores")
     public void oProdutoDeveTerCotacoesDeFornecedores(int quantidade) {
         assertEquals(quantidade, totalCotacoesFornecedores);
@@ -327,9 +424,14 @@ public class GerenciarProdutosFuncionalidade {
         assertTrue("Produto deveria estar vinculado ao estoque", estoques.containsKey(nomeEstoque));
     }
 
+    @Então("o sistema deve atualizar os dados do produto")
+    public void oSistemaDeveAtualizarOsDadosDoProduto() {
+        assertNotNull("Nome do produto não foi atualizado", produto.getNome());
+    }
+
     @Então("os dados do produto devem ser atualizados")
     public void osDadosDoProdutoDevemSerAtualizados() {
-        assertNotNull("Nome do produto não foi atualizado", produto.getNome());
+        oSistemaDeveAtualizarOsDadosDoProduto();
     }
 
     @Então("o nome deve ser {string}")
@@ -342,9 +444,14 @@ public class GerenciarProdutosFuncionalidade {
         assertEquals(unidade, produto.getUnidadeMedida());
     }
 
+    @Então("o sistema deve manter as cotações existentes inalteradas")
+    public void oSistemaDeveManterAsCotacoesExistentesInalteradas() {
+        assertEquals(2, numeroCotacoesExistentes);
+    }
+
     @Então("as cotações existentes devem permanecer inalteradas")
     public void asCotacoesExistentesDevemPermanecerInalteradas() {
-        assertEquals(2, numeroCotacoesExistentes);
+        oSistemaDeveManterAsCotacoesExistentesInalteradas();
     }
 
     @Então("o produto deve estar atualizado")
@@ -352,9 +459,14 @@ public class GerenciarProdutosFuncionalidade {
         assertNotNull("Produto não foi atualizado", produto);
     }
 
+    @Então("o sistema deve inativar o produto com sucesso")
+    public void oSistemaDeveInativarOProdutoComSucesso() {
+        assertFalse("Produto deveria estar inativo", produto.isAtivo());
+    }
+
     @Então("o produto deve ser inativado com sucesso")
     public void oProdutoDeveSerInativadoComSucesso() {
-        assertFalse("Produto deveria estar inativo", produto.isAtivo());
+        oSistemaDeveInativarOProdutoComSucesso();
     }
 
     @Então("o status do produto deve ser {string}")
@@ -371,11 +483,21 @@ public class GerenciarProdutosFuncionalidade {
         assertNotNull("Deveria ter capturado uma exceção", excecaoCapturada);
     }
 
+    @Então("o sistema deve calcular o ROP corretamente")
+    public void oSistemaDeveCalcularOROPCorretamente() {
+        oROPDeveSerCalculadoCorretamente();
+    }
+
     @Então("o ROP deve ser calculado corretamente")
     public void oROPDeveSerCalculadoCorretamente() {
         Estoque est = estoques.values().stream().findFirst().orElse(null);
         assertNotNull("Estoque não encontrado para validar ROP", est);
         assertNotNull("ROP não foi calculado", est.getROP(produto.getId()));
+    }
+
+    @Então("o valor do ROP deve ser {int} unidades")
+    public void oValorDoROPDeveSerUnidadesInt(int valor) {
+        oValorDoROPDeveSerUnidades(String.valueOf(valor));
     }
 
     @Então("o valor do ROP deve ser {string} unidades")
@@ -385,9 +507,14 @@ public class GerenciarProdutosFuncionalidade {
         assertEquals(Integer.parseInt(valor), est.getROP(produto.getId()).getValorROP());
     }
 
+    @Então("o sistema deve identificar que o produto atingiu o ROP")
+    public void oSistemaDeveIdentificarQueOProdutoAtingiuOROP() {
+        assertTrue("Produto deveria ter atingido o ROP", atingiuROP);
+    }
+
     @Então("o produto deve ter atingido o ROP")
     public void oProdutoDeveTerAtingidoOROP() {
-        assertTrue("Produto deveria ter atingido o ROP", atingiuROP);
+        oSistemaDeveIdentificarQueOProdutoAtingiuOROP();
     }
 
     @Então("deve ser necessário acionar reposição")
@@ -395,8 +522,23 @@ public class GerenciarProdutosFuncionalidade {
         assertTrue("Deveria acionar reposição", atingiuROP);
     }
 
+    @Então("o sistema deve identificar que o produto está acima do ROP")
+    public void oSistemaDeveIdentificarQueOProdutoEstaAcimaDoROP() {
+        assertFalse("Produto não deveria ter atingido o ROP", atingiuROP);
+    }
+
+    @Então("não é necessário acionar reposição")
+    public void naoENecessarioAcionarReposicao() {
+        assertFalse("Não deveria acionar reposição", atingiuROP);
+    }
+
     @Então("o produto não deve ter atingido o ROP")
     public void oProdutoNaoDeveTerAtingidoOROP() {
-        assertFalse("Produto não deveria ter atingido o ROP", atingiuROP);
+        oSistemaDeveIdentificarQueOProdutoEstaAcimaDoROP();
+    }
+
+    @Então("o sistema deve exibir a mensagem {string}")
+    public void oSistemaDeveExibirAMensagem(String mensagemEsperada) {
+        deveExibirAMensagem(mensagemEsperada);
     }
 }

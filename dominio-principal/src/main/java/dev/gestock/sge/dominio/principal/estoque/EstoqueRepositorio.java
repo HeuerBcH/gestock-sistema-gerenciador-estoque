@@ -19,7 +19,7 @@ public interface EstoqueRepositorio {
     Optional<Estoque> buscarPorId(EstoqueId id);
     
     /** Lista todos os estoques de um cliente (H4, R1H4) */
-    List<Estoque> buscarPorClienteId(ClienteId clienteId);
+    List<Estoque> buscarEstoquesPorClienteId(ClienteId clienteId);
     
     /** Verifica se já existe um estoque no endereço para o cliente (R2H1) */
     boolean existePorEndereco(String endereco, ClienteId clienteId);
