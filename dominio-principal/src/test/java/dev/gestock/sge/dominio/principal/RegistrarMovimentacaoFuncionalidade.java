@@ -26,7 +26,6 @@ public class RegistrarMovimentacaoFuncionalidade {
     // H20 — Registrar movimentações de estoque
     // =========================================================
 
-    // ✅ Step renomeado para evitar conflito com GerenciarEstoqueFuncionalidade
     @Dado("que existe um estoque de movimentacao chamado {string}")
     public void queExisteUmEstoqueDeMovimentacaoChamado(String nome) {
         EstoqueId id = repositorio.novoEstoqueId();
@@ -35,21 +34,16 @@ public class RegistrarMovimentacaoFuncionalidade {
         repositorio.salvar(estoque);
     }
 
-    @Dado("que existe um estoque {string}")
-    public void queExisteUmEstoque(String nome) {
+    @Dado("que existe um estoque de movimentacao chamado {string} (alias)")
+    public void queExisteUmEstoqueDeMovimentacaoChamadoAlias(String nome) {
         queExisteUmEstoqueDeMovimentacaoChamado(nome);
     }
 
-    @Dado("existe um produto {string}")
-    public void existeUmProduto(String nome) {
+    @Dado("existe um produto de movimentacao chamado {string}")
+    public void existeUmProdutoDeMovimentacaoChamado(String nome) {
         produtoId = repositorio.novoProdutoId();
         produto = new Produto(produtoId, "PROD-001", nome, "UN", false, 0.0);
         repositorio.salvar(produto);
-    }
-
-    @Dado("existe um produto chamado {string}")
-    public void existeUmProdutoChamado(String nome) {
-        existeUmProduto(nome);
     }
 
     @Quando("o cliente registra uma entrada de {int} unidades do produto")
@@ -131,13 +125,13 @@ public class RegistrarMovimentacaoFuncionalidade {
         }
     }
 
-    @Entao("o sistema deve rejeitar a operacao")
-    public void oSistemaDeveRejeitarAOperacao() {
+    @Entao("o sistema deve rejeitar a operacao de movimentacao")
+    public void oSistemaDeveRejeitarAOperacaoDeMovimentacao() {
         assertNotNull("Excecao deve ter sido capturada", excecaoCapturada);
     }
 
-    @E("deve exibir a mensagem {string}")
-    public void deveExibirAMensagem(String mensagem) {
+    @E("deve exibir a mensagem de movimentacao {string}")
+    public void deveExibirAMensagemDeMovimentacao(String mensagem) {
         assertNotNull("Mensagem de erro deve existir", mensagemErro);
         assertTrue("Mensagem incorreta", mensagemErro.contains(mensagem));
     }
