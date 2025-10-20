@@ -30,7 +30,7 @@ public class Estoque {
     private final ClienteId clienteId;             // FK lógica: o dono deste estoque
     private String nome;                           // Nome de exibição do estoque
     private String endereco;                       // Endereço físico do estoque (R2H1)
-    private int capacidadeMaxima;                  // Capacidade máxima em unidades (R1H3)
+    private int capacidade;                  // Capacidade máxima em unidades (R1H3)
     private boolean ativo;                         // Status ativo/inativo (H2)
 
     // Saldos por produto (mantidos dentro do agregado Estoque)
@@ -47,31 +47,31 @@ public class Estoque {
 
     // ------------------ Construtores ------------------
 
-    public Estoque(EstoqueId id, ClienteId clienteId, String nome, String endereco, int capacidadeMaxima) {
+    public Estoque(EstoqueId id, ClienteId clienteId, String nome, String endereco, int capacidade) {
         notNull(id, "ID do estoque é obrigatório");
         notNull(clienteId, "Cliente do estoque é obrigatório");
         notBlank(nome, "Nome do estoque é obrigatório");
         notBlank(endereco, "Endereço do estoque é obrigatório");
-        isTrue(capacidadeMaxima > 0, "Capacidade deve ser positiva");
+        isTrue(capacidade > 0, "Capacidade deve ser positiva");
         this.id = id;
         this.clienteId = clienteId;
         this.nome = nome;
         this.endereco = endereco;
-        this.capacidadeMaxima = capacidadeMaxima;
+        this.capacidade = capacidade;
         this.ativo = true; // inicia ativo por padrão
     }
 
-    public Estoque(EstoqueId id, ClienteId clienteId, String nome, String endereco, int capacidadeMaxima, boolean ativo) {
+    public Estoque(EstoqueId id, ClienteId clienteId, String nome, String endereco, int capacidade, boolean ativo) {
         notNull(id, "Id do estoque é obrigatório");
         notNull(clienteId, "Cliente do estoque é obrigatório");
         notBlank(nome, "Nome do estoque é obrigatório");
         notBlank(endereco, "Endereço do estoque é obrigatório");
-        isTrue(capacidadeMaxima > 0, "Capacidade deve ser positiva");
+        isTrue(capacidade > 0, "Capacidade deve ser positiva");
         this.id = id;
         this.clienteId = clienteId;
         this.nome = nome;
         this.endereco = endereco;
-        this.capacidadeMaxima = capacidadeMaxima;
+        this.capacidade = capacidade;
         this.ativo = ativo;
     }
 
@@ -89,8 +89,8 @@ public class Estoque {
     public String getEndereco() {
         return endereco;
     }
-    public int getCapacidadeMaxima() {
-        return capacidadeMaxima;
+    public int getCapacidade() {
+        return capacidade;
     }
     public boolean isAtivo() {
         return ativo;
@@ -130,7 +130,7 @@ public class Estoque {
                             novaCapacidade + " < " + ocupacaoAtual
             );
         }
-        this.capacidadeMaxima = novaCapacidade;
+        this.capacidade = novaCapacidade;
     }
 
     /** Calcula a ocupação total do estoque */

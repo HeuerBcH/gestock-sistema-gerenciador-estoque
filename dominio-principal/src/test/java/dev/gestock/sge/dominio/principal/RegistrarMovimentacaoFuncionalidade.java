@@ -3,11 +3,15 @@ package dev.gestock.sge.dominio.principal;
 import dev.gestock.sge.dominio.principal.estoque.*;
 import dev.gestock.sge.dominio.principal.produto.*;
 import dev.gestock.sge.dominio.principal.cliente.ClienteId;
+import dev.gestock.sge.infraestrutura.persistencia.memoria.Repositorio;
+
 import io.cucumber.java.pt.*;
 import java.util.*;
 import static org.junit.Assert.*;
 
 public class RegistrarMovimentacaoFuncionalidade {
+
+    private final Repositorio repositorio = new Repositorio();
 
     private Estoque estoque;
     private Produto produto;
@@ -18,11 +22,16 @@ public class RegistrarMovimentacaoFuncionalidade {
     private String mensagemErro;
     private Movimentacao ultimaMovimentacao;
 
+    // =========================================================
+    // H20 — Registrar movimentações de estoque
+    // =========================================================
+
     @Dado("que existe um estoque {string}")
     public void queExisteUmEstoque(String nome) {
-        EstoqueId id = new EstoqueId(1L);
+        EstoqueId id = repositorio.novoEstoqueId();
         ClienteId clienteId = new ClienteId(1L);
-        estoque = new Estoque(id, clienteId, nome, "Endereço A", 1000);
+        estoque = new Estoque(id, clienteId, nome, "Endereco A", 1000);
+        repositorio.salvar(estoque);
     }
 
     @Dado("que existe um estoque chamado {string}")
@@ -32,8 +41,9 @@ public class RegistrarMovimentacaoFuncionalidade {
 
     @Dado("existe um produto {string}")
     public void existeUmProduto(String nome) {
-        produtoId = new ProdutoId(1L);
+        produtoId = repositorio.novoProdutoId();
         produto = new Produto(produtoId, "PROD-001", nome, "UN", false, 0.0);
+        repositorio.salvar(produto);
     }
 
     @Dado("existe um produto chamado {string}")
@@ -43,159 +53,122 @@ public class RegistrarMovimentacaoFuncionalidade {
 
     @Quando("o cliente registra uma entrada de {int} unidades do produto")
     public void oClienteRegistraUmaEntradaDeUnidadesDoProduto(int quantidade) {
-        euRegistroUmaEntradaDeUnidades(quantidade);
-    }
-
-    @Quando("eu registro uma entrada de {int} unidades")
-    public void euRegistroUmaEntradaDeUnidades(int quantidade) {
         saldoAnterior = estoque.getSaldoFisico(produtoId);
-        estoque.registrarEntrada(produtoId, quantidade, "Sistema", "Entrada manual", Map.of());
+        estoque.registrarEntrada(produtoId, quantidade, "Cliente", "Entrada manual", Map.of());
         ultimaMovimentacao = new Movimentacao(
-            1L, TipoMovimentacao.ENTRADA, produtoId, quantidade, 
-            java.time.LocalDateTime.now(), "Sistema", "Entrada manual", Map.of());
+                1L, TipoMovimentacao.ENTRADA, produtoId, quantidade,
+                java.time.LocalDateTime.now(), "Cliente", "Entrada manual", Map.of());
         movimentacoes.add(ultimaMovimentacao);
     }
 
-    @Então("o saldo do estoque deve aumentar em {int} unidades")
+    @Entao("o saldo do estoque deve aumentar em {int} unidades")
     public void oSaldoDoEstoqueDeveAumentarEmUnidades(int quantidade) {
-        oSaldoDeveAumentarEmUnidades(quantidade);
-    }
-
-    @Então("o saldo deve aumentar em {int} unidades")
-    public void oSaldoDeveAumentarEmUnidades(int quantidade) {
         int saldoNovo = estoque.getSaldoFisico(produtoId);
         assertEquals(saldoAnterior + quantidade, saldoNovo);
     }
 
-    @Então("uma movimentação do tipo ENTRADA deve ser criada")
+    @E("uma movimentação do tipo ENTRADA deve ser criada")
     public void umaMovimentacaoDoTipoENTRADADeveSerCriada() {
-        umaMovimentacaoDeENTRADADeveSerCriada();
-    }
-
-    @Então("uma movimentação de ENTRADA deve ser criada")
-    public void umaMovimentacaoDeENTRADADeveSerCriada() {
         assertNotNull("Movimentação deve ter sido criada", ultimaMovimentacao);
         assertEquals(TipoMovimentacao.ENTRADA, ultimaMovimentacao.getTipo());
     }
 
+    // ---------------------------------------------------------
+    // R2H20 — Saídas indicam motivo
+    // ---------------------------------------------------------
+
     @Dado("que existe um estoque com {int} unidades do produto")
     public void queExisteUmEstoqueComUnidadesDoProduto(int quantidade) {
-        queExisteUmEstoqueComUnidades(quantidade);
-    }
-
-    @Dado("que existe um estoque com {int} unidades")
-    public void queExisteUmEstoqueComUnidades(int quantidade) {
-        EstoqueId id = new EstoqueId(1L);
+        EstoqueId id = repositorio.novoEstoqueId();
         ClienteId clienteId = new ClienteId(1L);
-        estoque = new Estoque(id, clienteId, "Estoque A", "Endereço A", 1000);
-        produtoId = new ProdutoId(1L);
+        estoque = new Estoque(id, clienteId, "Estoque A", "Endereco A", 1000);
+        produtoId = repositorio.novoProdutoId();
         estoque.registrarEntrada(produtoId, quantidade, "Sistema", "Carga inicial", Map.of());
     }
 
     @Quando("o cliente registra uma saída de {int} unidades com motivo {string}")
     public void oClienteRegistraUmaSaidaDeUnidadesComMotivo(int quantidade, String motivo) {
-        euRegistroUmaSaidaDeUnidadesComMotivo(quantidade, motivo);
-    }
-
-    @Quando("eu registro uma saída de {int} unidades com motivo {string}")
-    public void euRegistroUmaSaidaDeUnidadesComMotivo(int quantidade, String motivo) {
         saldoAnterior = estoque.getSaldoFisico(produtoId);
-        estoque.registrarSaida(produtoId, quantidade, "Sistema", motivo);
+        estoque.registrarSaida(produtoId, quantidade, "Cliente", motivo);
         ultimaMovimentacao = new Movimentacao(
-            1L, TipoMovimentacao.SAIDA, produtoId, quantidade, 
-            java.time.LocalDateTime.now(), "Sistema", motivo, Map.of());
+                2L, TipoMovimentacao.SAIDA, produtoId, quantidade,
+                java.time.LocalDateTime.now(), "Cliente", motivo, Map.of());
         movimentacoes.add(ultimaMovimentacao);
     }
 
-    @Então("o saldo do estoque deve diminuir em {int} unidades")
+    @Entao("o saldo do estoque deve diminuir em {int} unidades")
     public void oSaldoDoEstoqueDeveDiminuirEmUnidades(int quantidade) {
-        oSaldoDeveDiminuirEmUnidades(quantidade);
-    }
-
-    @Então("o saldo deve diminuir em {int} unidades")
-    public void oSaldoDeveDiminuirEmUnidades(int quantidade) {
         int saldoNovo = estoque.getSaldoFisico(produtoId);
         assertEquals(saldoAnterior - quantidade, saldoNovo);
     }
 
-    @Então("a movimentação deve conter o motivo {string}")
+    @E("a movimentação deve conter o motivo {string}")
     public void aMovimentacaoDeveConterOMotivo(String motivo) {
         assertEquals(motivo, ultimaMovimentacao.getMotivo());
     }
 
+    // ---------------------------------------------------------
+    // Cenário: saldo insuficiente
+    // ---------------------------------------------------------
+
     @Dado("que existe um estoque com {int} unidades disponíveis do produto")
     public void queExisteUmEstoqueComUnidadesDisponiveisDoProduto(int quantidade) {
-        queExisteUmEstoqueComUnidades(quantidade);
-    }
-
-    @Dado("que existe um estoque com {int} unidades disponíveis")
-    public void queExisteUmEstoqueComUnidadesDisponiveis(int quantidade) {
-        queExisteUmEstoqueComUnidades(quantidade);
+        EstoqueId id = repositorio.novoEstoqueId();
+        ClienteId clienteId = new ClienteId(1L);
+        estoque = new Estoque(id, clienteId, "Estoque A", "Endereco A", 1000);
+        produtoId = repositorio.novoProdutoId();
+        estoque.registrarEntrada(produtoId, quantidade, "Sistema", "Carga inicial", Map.of());
     }
 
     @Quando("o cliente tenta registrar uma saída de {int} unidades")
     public void oClienteTentaRegistrarUmaSaidaDeUnidades(int quantidade) {
-        euTentoRegistrarUmaSaidaDeUnidades(quantidade);
-    }
-
-    @Quando("eu tento registrar uma saída de {int} unidades")
-    public void euTentoRegistrarUmaSaidaDeUnidades(int quantidade) {
         try {
-            estoque.registrarSaida(produtoId, quantidade, "Sistema", "Saída");
+            estoque.registrarSaida(produtoId, quantidade, "Cliente", "Saida teste");
         } catch (Exception e) {
             excecaoCapturada = e;
             mensagemErro = e.getMessage();
         }
     }
 
-    @Então("o sistema deve rejeitar a operação")
+    @Entao("o sistema deve rejeitar a operação")
     public void oSistemaDeveRejeitarAOperacao() {
         assertNotNull("Exceção deve ter sido capturada", excecaoCapturada);
     }
 
-    @Então("deve exibir a mensagem {string}")
+    @E("deve exibir a mensagem {string}")
     public void deveExibirAMensagem(String mensagem) {
         assertNotNull("Mensagem de erro deve existir", mensagemErro);
         assertTrue("Mensagem incorreta", mensagemErro.contains(mensagem));
     }
 
+    // =========================================================
+    // H21 — Visualizar histórico de movimentações
+    // =========================================================
+
     @Dado("que existem {int} movimentações registradas para o produto")
     public void queExistemMovimentacoesRegistradasParaOProduto(int quantidade) {
-        queExistemMovimentacoesRegistradas(quantidade);
-    }
-
-    @Dado("que existem {int} movimentações registradas")
-    public void queExistemMovimentacoesRegistradas(int quantidade) {
-        produtoId = new ProdutoId(1L);
+        produtoId = repositorio.novoProdutoId();
         for (int i = 0; i < quantidade; i++) {
-            TipoMovimentacao tipo = (i % 2 == 0) ? TipoMovimentacao.ENTRADA : TipoMovimentacao.SAIDA;
+            TipoMovimentacao tipo = (i % 2 == 0)
+                    ? TipoMovimentacao.ENTRADA
+                    : TipoMovimentacao.SAIDA;
             movimentacoes.add(new Movimentacao(
-                (long) (i + 1), tipo, produtoId, 10, 
-                java.time.LocalDateTime.now(), "Sistema", "Teste", Map.of()));
+                    (long) (i + 1), tipo, produtoId, 10,
+                    java.time.LocalDateTime.now(), "Sistema", "Teste", Map.of()));
         }
     }
 
     @Quando("o cliente visualiza o histórico do produto")
     public void oClienteVisualizaOHistoricoDoProduto() {
-        euVisualizoOHistoricoDoProduto();
-    }
-
-    @Quando("eu visualizo o histórico do produto")
-    public void euVisualizoOHistoricoDoProduto() {
         assertFalse("Movimentações devem existir", movimentacoes.isEmpty());
     }
 
-    @Então("o sistema deve exibir todas as {int} movimentações")
+    @Entao("o sistema deve exibir todas as {int} movimentações")
     public void oSistemaDeveExibirTodasAsMovimentacoes(int quantidade) {
-        devoVerTodasAsMovimentacoes(quantidade);
-    }
-
-    @Então("devo ver todas as {int} movimentações")
-    public void devoVerTodasAsMovimentacoes(int quantidade) {
         assertEquals(quantidade, movimentacoes.size());
     }
 
-    @Então("cada movimentação deve conter data, tipo, quantidade e responsável")
+    @E("cada movimentação deve conter data, tipo, quantidade e responsável")
     public void cadaMovimentacaoDeveConterDataTipoQuantidadeEResponsavel() {
         for (Movimentacao mov : movimentacoes) {
             assertNotNull("Data deve existir", mov.getDataHora());
