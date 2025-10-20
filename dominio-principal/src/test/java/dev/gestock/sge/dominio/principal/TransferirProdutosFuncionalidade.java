@@ -7,7 +7,6 @@ import dev.gestock.sge.infraestrutura.persistencia.memoria.Repositorio;
 
 import io.cucumber.java.pt.*;
 import java.util.*;
-
 import static org.junit.Assert.*;
 
 public class TransferirProdutosFuncionalidade {
@@ -176,18 +175,18 @@ public class TransferirProdutosFuncionalidade {
         }
     }
 
-    @Entao("o sistema deve rejeitar a operacao de transferencia")
-    public void oSistemaDeveRejeitarOperacaoDeTransferenciaDuplicado() {
+    @Entao("o sistema deve rejeitar a operacao de transferencia duplicada")
+    public void oSistemaDeveRejeitarAOperacaoDeTransferenciaDuplicada() {
         assertNotNull("Excecao esperada", excecaoCapturada);
     }
 
-    @E("deve exibir a mensagem de transferencia {string}")
-    public void deveExibirMensagemDeTransferenciaDuplicado(String mensagem) {
+    @E("deve exibir a mensagem de transferencia duplicada {string}")
+    public void deveExibirAMensagemDeTransferenciaDuplicada(String mensagem) {
         assertTrue(mensagemErro.contains(mensagem));
     }
 
     // =========================================================
-    // Metodos auxiliares
+    // Métodos auxiliares
     // =========================================================
 
     private void registrarTransferencia(Estoque origem, Estoque destino, ProdutoId produtoId, int quantidade) {
