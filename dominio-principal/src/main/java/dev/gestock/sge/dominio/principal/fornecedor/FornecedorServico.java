@@ -5,6 +5,8 @@ import dev.gestock.sge.dominio.principal.produto.ProdutoId;
 import java.util.List;
 import java.util.Optional;
 
+import static org.apache.commons.lang3.Validate.*;
+
 /**
  * Serviço de domínio para regras que envolvem múltiplos fornecedores.
  * Exemplo: seleção da cotação mais vantajosa (R5, R6).
@@ -15,6 +17,15 @@ public class FornecedorServico {
 
     public FornecedorServico(FornecedorRepositorio repositorio) {
         this.repositorio = repositorio;
+    }
+
+    /**
+     * Salva um fornecedor no repositório.
+     * @param fornecedor o fornecedor a ser salvo
+     */
+    public void salvar(Fornecedor fornecedor) {
+        notNull(fornecedor, "Fornecedor é obrigatório");
+        repositorio.salvar(fornecedor);
     }
 
     /**
