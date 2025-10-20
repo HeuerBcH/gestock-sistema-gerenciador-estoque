@@ -31,6 +31,29 @@ public class SelecionarCotacaoFuncionalidade {
         }
     }
 
+    @Dado("que existem as seguintes cotações para o produto {string}:")
+    public void queExistemAsSeguintesCotacoesParaOProduto(String nomeProduto, DataTable dataTable) {
+        queExistemAsSeguintesCotacoesParaUmProduto(dataTable);
+    }
+
+    @Dado("que existem as seguintes cotações:")
+    public void queExistemAsSeguintesCotacoes(DataTable dataTable) {
+        queExistemAsSeguintesCotacoesParaUmProduto(dataTable);
+    }
+
+    @Dado("que o sistema selecionou uma cotação")
+    public void queOSistemaSelecionouUmaCotacao() {
+        FornecedorId id = new FornecedorId(1L);
+        Fornecedor forn = new Fornecedor(id, "Fornecedor A", "12.345.678/0001-90", "contato@fornecedor.com");
+        forn.registrarCotacao(produtoId, 100.0, 10);
+        cotacaoSelecionada = forn.obterCotacaoPorProduto(produtoId).get();
+    }
+
+    @Dado("que o sistema selecionou a melhor cotação para o produto {string}")
+    public void queOSistemaSelecionouAMelhorCotacaoParaOProduto(String nomeProduto) {
+        queOSistemaSelecionouUmaCotacao();
+    }
+
     @Quando("o sistema seleciona a melhor cotação")
     public void oSistemaSelecionaAMelhorCotacao() {
         double menorPreco = Double.MAX_VALUE;
@@ -52,30 +75,22 @@ public class SelecionarCotacaoFuncionalidade {
         }
     }
 
+    @Quando("eu aprovo a cotação")
+    public void euAprovoACotacao() {
+        // Marca como aprovada (simulação)
+        cotacaoAprovada = true;
+    }
+
+    @Quando("o cliente aprova a cotação")
+    public void oClienteAprovaACotacao() {
+        euAprovoACotacao();
+    }
+
     @Então("a cotação do {string} deve ser selecionada")
     public void aCotacaoDoDeveSelecionada(String nomeFornecedor) {
         assertNotNull("Cotação deve ter sido selecionada", cotacaoSelecionada);
         Fornecedor fornEsperado = fornecedores.get(nomeFornecedor);
         assertNotNull("Fornecedor deve existir", fornEsperado);
-    }
-
-    @Dado("que existem as seguintes cotações:")
-    public void queExistemAsSeguintesCotacoes(DataTable dataTable) {
-        queExistemAsSeguintesCotacoesParaUmProduto(dataTable);
-    }
-
-    @Dado("que o sistema selecionou uma cotação")
-    public void queOSistemaSelecionouUmaCotacao() {
-        FornecedorId id = new FornecedorId(1L);
-        Fornecedor forn = new Fornecedor(id, "Fornecedor A", "12.345.678/0001-90", "contato@fornecedor.com");
-        forn.registrarCotacao(produtoId, 100.0, 10);
-        cotacaoSelecionada = forn.obterCotacaoPorProduto(produtoId).get();
-    }
-
-    @Quando("eu aprovo a cotação")
-    public void euAprovoACotacao() {
-        // Marca como aprovada (simulação)
-        cotacaoAprovada = true;
     }
 
     @Então("a cotação deve ser marcada como {string}")
@@ -86,5 +101,10 @@ public class SelecionarCotacaoFuncionalidade {
     @Então("um pedido deve ser gerado com essa cotação")
     public void umPedidoDeveSerGeradoComEssaCotacao() {
         assertNotNull("Cotação deve existir", cotacaoSelecionada);
+    }
+
+    @Então("um pedido deve ser gerado utilizando essa cotação")
+    public void umPedidoDeveSerGeradoUtilizandoEssaCotacao() {
+        umPedidoDeveSerGeradoComEssaCotacao();
     }
 }

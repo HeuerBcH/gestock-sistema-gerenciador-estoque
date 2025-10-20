@@ -30,12 +30,27 @@ public class GerenciarPedidosFuncionalidade {
         fornecedor = new Fornecedor(id, nome, "12.345.678/0001-90", "contato@fornecedor.com");
     }
 
+    @Dado("que existe um fornecedor chamado {string} ativo")
+    public void queExisteUmFornecedorChamadoAtivo(String nome) {
+        queExisteUmFornecedorAtivo(nome);
+    }
+
+    @Dado("existe um produto chamado {string} com cotação válida")
+    public void existeUmProdutoChamadoComCotacaoValida(String nome) {
+        existeUmProdutoComCotacaoValida(nome);
+    }
+
     @Dado("existe um produto {string} com cota\u00e7\u00e3o v\u00e1lida")
     public void existeUmProdutoComCotacaoValida(String nome) {
         ProdutoId id = new ProdutoId(1L);
         produto = new Produto(id, "PROD-001", nome, "UN", false, 0.0);
         fornecedor.registrarCotacao(id, 50.0, 10);
         produtos.put(nome, produto);
+    }
+
+    @Quando("o cliente cria um pedido com {int} unidades do produto")
+    public void oClienteCriaUmPedidoComUnidadesDoProduto(int quantidade) {
+        euCrioUmPedidoComUnidadesDoProduto(quantidade);
     }
 
     @Quando("eu crio um pedido com {int} unidades do produto")
@@ -67,10 +82,25 @@ public class GerenciarPedidosFuncionalidade {
         fornecedor = new Fornecedor(id, nome, "12.345.678/0001-90", "contato@fornecedor.com");
     }
 
+    @Dado("que existe um fornecedor chamado {string}")
+    public void queExisteUmFornecedorChamado(String nome) {
+        queExisteUmFornecedor(nome);
+    }
+
+    @Dado("existe um produto chamado {string} sem cotações")
+    public void existeUmProdutoChamadoSemCotacoes(String nome) {
+        existeUmProdutoSemCotacoes(nome);
+    }
+
     @Dado("existe um produto {string} sem cota\u00e7\u00f5es")
     public void existeUmProdutoSemCotacoes(String nome) {
         ProdutoId id = new ProdutoId(1L);
         produto = new Produto(id, "PROD-001", nome, "UN", false, 0.0);
+    }
+
+    @Quando("o cliente tenta criar um pedido para o produto")
+    public void oClienteTentaCriarUmPedidoParaOProduto() {
+        euTentoCriarUmPedidoParaOProduto();
     }
 
     @Quando("eu tento criar um pedido para o produto")
@@ -95,6 +125,11 @@ public class GerenciarPedidosFuncionalidade {
             produtos.put(nomeProd, p);
             fornecedor.registrarCotacao(id, Double.parseDouble(row.get("preco")), Integer.parseInt(row.get("prazo")));
         }
+    }
+
+    @Quando("o cliente cria um pedido com os seguintes itens:")
+    public void oClienteCriaUmPedidoComOsSeguintesItens(DataTable dataTable) {
+        euCrioUmPedidoComOsSeguintesItens(dataTable);
     }
 
     @Quando("eu crio um pedido com os seguintes itens:")
@@ -135,16 +170,24 @@ public class GerenciarPedidosFuncionalidade {
         fornecedor.registrarCotacao(id, 50.0, 10);
     }
 
+    @Quando("o cliente cria um pedido hoje")
+    public void oClienteCriaUmPedidoHoje() {
+        euCrioUmPedidoHoje();
+    }
+
     @Quando("eu crio um pedido hoje")
     public void euCrioUmPedidoHoje() {
         PedidoId id = new PedidoId(1L);
         pedido = new Pedido(id, clienteId, fornecedor.getId());
         pedido.adicionarItem(new ItemPedido(produto.getId(), 100, BigDecimal.valueOf(50.0)));
+        // Simula cálculo da data prevista de entrega conforme lead time do fornecedor
+        pedido.setDataPrevistaEntrega(pedido.getDataCriacao().plusDays(fornecedor.getLeadTimeMedio().getDias()));
     }
 
-    @Ent\u00e3o("a data prevista de entrega deve ser {string} dias a partir de hoje")
-    public void aDataPrevistaDeEntregaDeveSerDiasAPartirDeHoje(String dias) {
-        assertNotNull(pedido.getDataCriacao());
+    @Ent\u00e3o("a data prevista de entrega deve ser {int} dias a partir de hoje")
+    public void aDataPrevistaDeEntregaDeveSerDiasAPartirDeHoje(int dias) {
+        assertNotNull(pedido.getDataPrevistaEntrega());
+        assertEquals(pedido.getDataCriacao().plusDays(dias), pedido.getDataPrevistaEntrega());
     }
 
     @Dado("que existe um pedido no estado {string}")
@@ -167,6 +210,11 @@ public class GerenciarPedidosFuncionalidade {
         }
     }
 
+    @Quando("o cliente cancela o pedido")
+    public void oClienteCancelaOPedido() {
+        euCanceloOPedido();
+    }
+
     @Quando("eu cancelo o pedido")
     public void euCanceloOPedido() {
         pedido.cancelar();
@@ -177,6 +225,16 @@ public class GerenciarPedidosFuncionalidade {
         assertEquals(StatusPedido.CANCELADO, pedido.getStatus());
     }
 
+    @Quando("o cliente tenta cancelar o pedido")
+    public void oClienteTentaCancelarOPedido() {
+        euTentoCancelarOPedido();
+    }
+
+    @Quando("o cliente tenta cancelar o ped ido")
+    public void oClienteTentaCancelarOPedIdoComEspaco() {
+        euTentoCancelarOPedido();
+    }
+
     @Quando("eu tento cancelar o pedido")
     public void euTentoCancelarOPedido() {
         try {
@@ -185,6 +243,11 @@ public class GerenciarPedidosFuncionalidade {
             excecaoCapturada = e;
             mensagemErro = e.getMessage();
         }
+    }
+
+    @Quando("o cliente confirma o recebimento do pedido")
+    public void oClienteConfirmaORecebimentoDoPedido() {
+        euConfirmoORecebimentoDoPedido();
     }
 
     @Quando("eu confirmo o recebimento do pedido")
@@ -229,6 +292,11 @@ public class GerenciarPedidosFuncionalidade {
         assertTrue("Saldo deve ter aumentado", movimentacaoGerada);
     }
 
+    @Quando("o cliente tenta confirmar o recebimento")
+    public void oClienteTentaConfirmarORecebimento() {
+        euTentoConfirmarORecebimento();
+    }
+
     @Quando("eu tento confirmar o recebimento")
     public void euTentoConfirmarORecebimento() {
         try {
@@ -248,6 +316,11 @@ public class GerenciarPedidosFuncionalidade {
         pedido.adicionarItem(new ItemPedido(prodId, 100, BigDecimal.valueOf(50.0)));
     }
 
+    @Quando("o cliente envia o pedido")
+    public void oClienteEnviaOPedido() {
+        euEnvioOPedido();
+    }
+
     @Quando("eu envio o pedido")
     public void euEnvioOPedido() {
         pedido.enviar();
@@ -256,6 +329,11 @@ public class GerenciarPedidosFuncionalidade {
     @Ent\u00e3o("o pedido deve ser enviado com sucesso")
     public void oPedidoDeveSerEnviadoComSucesso() {
         assertEquals(StatusPedido.ENVIADO, pedido.getStatus());
+    }
+
+    @Quando("o cliente conclui o pedido")
+    public void oClienteConcluiOPedido() {
+        euConcluoOPedido();
     }
 
     @Quando("eu concluo o pedido")
@@ -282,6 +360,11 @@ public class GerenciarPedidosFuncionalidade {
             BigDecimal preco = new BigDecimal(row.get("precoUnitario"));
             pedido.adicionarItem(new ItemPedido(prodId, qtd, preco));
         }
+    }
+
+    @Quando("o custo total do pedido é calculado")
+    public void oCustoTotalDoPedidoECalculado() {
+        euCalculoOCustoTotal();
     }
 
     @Quando("eu calculo o custo total")

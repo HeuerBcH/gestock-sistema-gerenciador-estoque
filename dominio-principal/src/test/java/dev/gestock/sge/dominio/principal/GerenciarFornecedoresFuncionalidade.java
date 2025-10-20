@@ -21,7 +21,20 @@ public class GerenciarFornecedoresFuncionalidade {
     private boolean temPedidosPendentes = false;
     private ProdutoId produtoAtual;
 
+    // ========== GIVEN (Dado) - Cadastro ==========
+
+    @Dado("que não existe um fornecedor cadastrado com o CNPJ {string}")
+    public void queNaoExisteUmFornecedorCadastradoComOCNPJ(String cnpj) {
+        // Verifica que não existe fornecedor com esse CNPJ
+        // Não faz nada - apenas garante que o contexto está limpo
+    }
+
     // ========== WHEN (Quando) - Cadastro ==========
+
+    @Quando("o cliente cadastra um fornecedor com nome {string}, CNPJ {string} e contato {string}")
+    public void oClienteCadastraUmFornecedorComNomeCNPJEContato(String nome, String cnpj, String contato) {
+        euCadastroUmFornecedorComNomeCNPJEContato(nome, cnpj, contato);
+    }
 
     @Quando("eu cadastro um fornecedor com nome {string}, CNPJ {string} e contato {string}")
     public void euCadastroUmFornecedorComNomeCNPJEContato(String nome, String cnpj, String contato) {
@@ -33,6 +46,11 @@ public class GerenciarFornecedoresFuncionalidade {
             excecaoCapturada = e;
             mensagemErro = e.getMessage();
         }
+    }
+
+    @Quando("o cliente cadastra um fornecedor com nome {string}, CNPJ {string}, contato {string} e lead time de {string} dias")
+    public void oClienteCadastraUmFornecedorComNomeCNPJContatoELeadTimeDeDias(String nome, String cnpj, String contato, String leadTime) {
+        euCadastroUmFornecedorComNomeCNPJContatoELeadTimeDeDias(nome, cnpj, contato, leadTime);
     }
 
     @Quando("eu cadastro um fornecedor com nome {string}, CNPJ {string}, contato {string} e lead time de {string} dias")
@@ -61,6 +79,11 @@ public class GerenciarFornecedoresFuncionalidade {
         }
     }
 
+    @Dado("existe um produto chamado {string} com id {string}")
+    public void existeUmProdutoChamadoComId(String nome, String id) {
+        existeUmProdutoComId(nome, id);
+    }
+
     @Dado("existe um produto {string} com id {string}")
     public void existeUmProdutoComId(String nome, String id) {
         ProdutoId produtoId = new ProdutoId(Long.parseLong(id));
@@ -78,11 +101,31 @@ public class GerenciarFornecedoresFuncionalidade {
         }
     }
 
+    @Dado("que existe um fornecedor chamado {string} com contato {string}")
+    public void queExisteUmFornecedorChamadoComContato(String nome, String contato) {
+        queExisteUmFornecedorComContato(nome, contato);
+    }
+
     @Dado("que existe um fornecedor {string} com contato {string}")
     public void queExisteUmFornecedorComContato(String nome, String contato) {
         FornecedorId id = new FornecedorId((long) contadorFornecedores++);
         fornecedor = new Fornecedor(id, nome, "12.345.678/0001-90", contato);
         fornecedores.put(nome, fornecedor);
+    }
+
+    @Dado("que existe um fornecedor chamado {string} com lead time de {int} dias")
+    public void queExisteUmFornecedorChamadoComLeadTimeDeDias(String nome, int leadTime) {
+        queExisteUmFornecedorComLeadTimeDeDias(nome, String.valueOf(leadTime));
+    }
+
+    @Dado("o fornecedor possui histórico de entregas de {int}, {int}, {int}, {int} e {int} dias")
+    public void oFornecedorPossuiHistoricoDeEntregasDeDias(int d1, int d2, int d3, int d4, int d5) {
+        historicoEntregas.clear();
+        historicoEntregas.add(d1);
+        historicoEntregas.add(d2);
+        historicoEntregas.add(d3);
+        historicoEntregas.add(d4);
+        historicoEntregas.add(d5);
     }
 
     @Dado("que existe um fornecedor {string} com lead time de {string} dias")
@@ -91,6 +134,14 @@ public class GerenciarFornecedoresFuncionalidade {
         LeadTime lt = new LeadTime(Integer.parseInt(leadTime));
         fornecedor = new Fornecedor(id, nome, "12.345.678/0001-90", "contato@fornecedor.com", lt);
         fornecedores.put(nome, fornecedor);
+    }
+
+    @Dado("que existe um fornecedor chamado {string} sem histórico de entregas")
+    public void queExisteUmFornecedorChamadoSemHistoricoDeEntregas(String nome) {
+        FornecedorId id = new FornecedorId((long) contadorFornecedores++);
+        fornecedor = new Fornecedor(id, nome, "12.345.678/0001-90", "contato@fornecedor.com");
+        fornecedores.put(nome, fornecedor);
+        historicoEntregas.clear();
     }
 
     @Dado("o fornecedor possui hist\u00f3rico de entregas: {string} dias")
@@ -126,6 +177,11 @@ public class GerenciarFornecedoresFuncionalidade {
         fornecedores.put(nome, fornecedor);
     }
 
+    @Dado("o fornecedor possui cotação para o produto {string}")
+    public void oFornecedorPossuiCotacaoParaOProduto(String produtoId) {
+        oFornecedorTemCotacaoParaOProduto(produtoId);
+    }
+
     @Dado("o fornecedor tem cotação para o produto {string}")
     public void oFornecedorTemCotacaoParaOProduto(String produtoId) {
         ProdutoId pid = new ProdutoId(Long.parseLong(produtoId));
@@ -133,6 +189,61 @@ public class GerenciarFornecedoresFuncionalidade {
     }
 
     // ========== WHEN (Quando) - Operações ==========
+
+    @Quando("o cliente registra uma cotação de {string} reais com prazo de {string} dias para o produto {string}")
+    public void oClienteRegistraUmaCotacaoDeReaisComPrazoDeDiasParaOProduto(String preco, String prazo, String produtoId) {
+        euRegistroUmaCotacaoDeReaisComPrazoDeDiasParaOProduto(preco, prazo, produtoId);
+    }
+
+    @Quando("o cliente registra as seguintes cotações:")
+    public void oClienteRegistraAsSeguintesCotacoes(DataTable dataTable) {
+        euRegistroAsSeguintesCotacoes(dataTable);
+    }
+
+    @Quando("o cliente tenta registrar uma cotação para o produto {string} com prazo {int} dias")
+    public void oClienteTentaRegistrarUmaCotacaoParaOProdutoComPrazoDias(String nomeProduto, int prazo) {
+        euTentoRegistrarUmaCotacaoComPrazoDias(String.valueOf(prazo));
+    }
+
+    @Quando("o cliente tenta registrar uma cotação para o produto {string} com preço {int} reais")
+    public void oClienteTentaRegistrarUmaCotacaoParaOProdutoComPrecoReais(String nomeProduto, int preco) {
+        euTentoRegistrarUmaCotacaoComPrecoReais(String.valueOf(preco));
+    }
+
+    @Quando("o cliente atualiza os dados do fornecedor para nome {string} e contato {string}")
+    public void oClienteAtualizaOsDadosDoFornecedorParaNomeEContato(String nome, String contato) {
+        euAtualizoONomeParaEContatoPara(nome, contato);
+    }
+
+    @Quando("o lead timedo forncedor é recalibrado com base no histórico de entregas")
+    public void oLeadTimeDoFornecedorERecalibradoComBaseNoHistoricoDeEntregas() {
+        euRecalibroOLeadTimeComBaseNoHistorico();
+    }
+
+    @Quando("o cliente tenta recalibrar o lead time")
+    public void oClienteTentaRecalibrarOLeadTime() {
+        euTentoRecalibroOLeadTimeSemHistorico();
+    }
+
+    @Quando("o cliente inativa o fornecedor {string}")
+    public void oClienteInativaOFornecedor(String nome) {
+        euInativoOFornecedor(nome);
+    }
+
+    @Quando("o cliente tenta inativar o fornecedor {string}")
+    public void oClienteTentaInativarOFornecedor(String nome) {
+        euTentoInativarOFornecedor(nome);
+    }
+
+    @Quando("o cliente reativa o fornecedor {string}")
+    public void oClienteReativaOFornecedor(String nome) {
+        euReativoOFornecedor(nome);
+    }
+
+    @Quando("o cliente remove a cotação do produto {string}")
+    public void oClienteRemoveACotacaoDoProduto(String produtoId) {
+        euRemovoACotacaoDoProduto(produtoId);
+    }
 
     @Quando("eu registro uma cotação de {string} reais com prazo de {string} dias para o produto {string}")
     @Quando("eu registro uma cota\u00e7\u00e3o de {string} reais com prazo de {string} dias para o produto {string}")
@@ -251,6 +362,11 @@ public class GerenciarFornecedoresFuncionalidade {
         assertNotNull("Fornecedor n\u00e3o foi cadastrado", fornecedor);
     }
 
+    @Então("o fornecedor deve estar ativo na listagem")
+    public void oFornecedorDeveEstarAtivoNaListagem() {
+        oFornecedorDeveEstarAtivo();
+    }
+
     @Ent\u00e3o("o fornecedor deve estar ativo")
     public void oFornecedorDeveEstarAtivo() {
         assertTrue("Fornecedor deveria estar ativo", fornecedor.isAtivo());
@@ -292,6 +408,16 @@ public class GerenciarFornecedoresFuncionalidade {
     public void deveExibirAMensagem(String mensagemEsperada) {
         assertNotNull("Mensagem de erro n\u00e3o foi capturada", mensagemErro);
         assertTrue("Mensagem incorreta: " + mensagemErro, mensagemErro.contains(mensagemEsperada));
+    }
+
+    @Então("o nome do fornecedor deve ser {string}")
+    public void oNomeDoFornecedorDeveSer(String nome) {
+        oNomeDeveSer(nome);
+    }
+
+    @Então("o contato do fornecedor deve ser {string}")
+    public void oContatoDoFornecedorDeveSer(String contato) {
+        oContatoDeveSer(contato);
     }
 
     @Ent\u00e3o("os dados do fornecedor devem ser atualizados")
@@ -344,5 +470,10 @@ public class GerenciarFornecedoresFuncionalidade {
         ProdutoId pid = new ProdutoId(Long.parseLong(produtoId));
         assertFalse("Fornecedor não deveria ter cotação para o produto", 
                     fornecedor.obterCotacaoPorProduto(pid).isPresent());
+    }
+
+    @Então("o fornecedor não deve possuir cotação para o produto {string}")
+    public void oFornecedorNaoDevePossuirCotacaoParaOProduto(String produtoId) {
+        oFornecedorNaoDeveTerCotacaoParaOProduto(produtoId);
     }
 }

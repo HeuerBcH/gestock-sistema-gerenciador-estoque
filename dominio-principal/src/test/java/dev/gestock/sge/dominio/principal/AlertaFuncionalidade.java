@@ -73,9 +73,19 @@ public class AlertaFuncionalidade {
         ropEsperado = 100;
     }
 
+    @Quando("o cliente visualiza o alerta")
+    public void oClienteVisualizaOAlerta() {
+        euVisualizoOAlerta();
+    }
+
     @Quando("eu visualizo o alerta")
     public void euVisualizoOAlerta() {
         assertNotNull("Alerta deve existir", alerta);
+    }
+
+    @Então("o sistema deve exibir o nome do produto")
+    public void oSistemaDeveExibirONomeDoProduto() {
+        devoVerONomeDoProduto();
     }
 
     @Então("devo ver o nome do produto")
@@ -83,9 +93,19 @@ public class AlertaFuncionalidade {
         assertNotNull("Produto ID deve existir", alerta.getProdutoId());
     }
 
+    @Então("o sistema deve exibir o estoque afetado")
+    public void oSistemaDeveExibirOEstoqueAfetado() {
+        devoVerOEstoqueAfetado();
+    }
+
     @Então("devo ver o estoque afetado")
     public void devoVerOEstoqueAfetado() {
         assertTrue("Saldo deve ser menor que ROP", saldoAtualAlerta < ropEsperado);
+    }
+
+    @Então("o sitema deve exibir o fornecedor com menor cotação")
+    public void oSitemaDeveExibirOFornecedorComMenorCotacao() {
+        devoVerOFornecedorComMenorCotacao();
     }
 
     @Então("devo ver o fornecedor com menor cotação")
@@ -104,9 +124,19 @@ public class AlertaFuncionalidade {
         }
     }
 
+    @Quando("o cliente visualiza a lista de alertas")
+    public void oClienteVisualizaAListaDeAlertas() {
+        euVisualizoAListaDeAlertas();
+    }
+
     @Quando("eu visualizo a lista de alertas")
     public void euVisualizoAListaDeAlertas() {
         assertFalse("Lista de alertas não deve estar vazia", alertas.isEmpty());
+    }
+
+    @Então("o sistema deve exibir {int} alertas")
+    public void oSistemaDeveExibirAlertas(int quantidade) {
+        devoVerAlertas(quantidade);
     }
 
     @Então("devo ver {int} alertas")
@@ -125,9 +155,19 @@ public class AlertaFuncionalidade {
         ropEsperado = 100;
     }
 
+    @Dado("um pedido foi recebido para suprir o estoque do produto")
+    public void umPedidoFoiRecebidoParaSuprirOEstoqueDoProduto() {
+        umPedidoFoiRecebidoParaEsseProduto();
+    }
+
     @Dado("um pedido foi recebido para esse produto")
     public void umPedidoFoiRecebidoParaEsseProduto() {
         saldoAtual = 150; // Saldo aumentou
+    }
+
+    @Quando("o sistema atualiza o estoque")
+    public void oSistemaAtualizaOEstoque() {
+        oSistemaAtualizaOsAlertas();
     }
 
     @Quando("o sistema atualiza os alertas")

@@ -85,7 +85,7 @@ public class EstoqueServico {
      */
     public List<Estoque> pesquisarPorCliente(ClienteId clienteId) {
         notNull(clienteId, "Cliente é obrigatório");
-        List<Estoque> estoques = estoqueRepositorio.buscarPorClienteId(clienteId);
+        List<Estoque> estoques = estoqueRepositorio.buscarEstoquesPorClienteId(clienteId);
         
         // R1H4: Validar se há estoques cadastrados
         if (estoques.isEmpty()) {

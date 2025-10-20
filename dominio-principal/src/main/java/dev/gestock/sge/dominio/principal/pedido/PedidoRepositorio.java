@@ -24,7 +24,7 @@ public interface PedidoRepositorio {
     List<Pedido> listarTodos();
 
     /** Remove um pedido do sistema (H12) */
-    void remover(Pedido pedido);
+    void cancelar(Pedido pedido);
 
     /** Busca pedidos por status (H12 - para validar cancelamento) */
     List<Pedido> buscarPorStatus(StatusPedido status);
@@ -33,7 +33,7 @@ public interface PedidoRepositorio {
     List<Pedido> buscarPorFornecedorId(FornecedorId fornecedorId);
 
     /** Busca pedidos de um cliente específico */
-    List<Pedido> buscarPorClienteId(ClienteId clienteId);
+    List<Pedido> buscarPedidosPorClienteId(ClienteId clienteId);
     
     /** Verifica se existem pedidos pendentes para um fornecedor (R1H7) */
     boolean existePedidoPendenteParaFornecedor(FornecedorId fornecedorId);
