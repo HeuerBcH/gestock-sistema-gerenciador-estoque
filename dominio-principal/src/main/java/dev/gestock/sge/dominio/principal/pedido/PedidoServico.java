@@ -15,17 +15,17 @@ import java.util.Optional;
 import static org.apache.commons.lang3.Validate.*;
 
 /**
- * Serviço de domínio: PedidoServico
+ * Serviço de domínio para gerenciamento de pedidos.
  *
- * Responsável por orquestrar a criação de pedidos,
- * aplicando as regras de negócio que envolvem múltiplos agregados:
- *
- * - R5: Seleção automática da melhor cotação (menor preço).
- * - R6: Desempate por menor prazo (lead time).
- * - R7: Validação de quantidade mínima e dados obrigatórios.
- * - R2H11: Define data prevista de entrega com base no lead time do fornecedor.
- * - R24/R25: Reserva/liberação de estoque vinculado a pedidos pendentes.
- * - R26: Cálculo do custo total do pedido.
+ * Suporta:
+ * - H11-H13: Gerenciar Pedidos (criar, cancelar, confirmar recebimento)
+ * - H24-H25: Reservar Estoque Para Pedidos Pendentes
+ * 
+ * Validações de regras de negócio:
+ * - R1H11, R2H11: Criação de pedido com cotação válida e data prevista
+ * - R1H12: Cancelamento (validado no agregado)
+ * - R1H13: Confirmar recebimento gera entrada automática
+ * - R1H24, R2H24, R1H25, R2H25: Reserva e liberação de estoque
  */
 public class PedidoServico {
 
@@ -90,22 +90,52 @@ public class PedidoServico {
         return pedido;
     }
 
-    /* Cancela o pedido e libera a reserva associada (R1H25) */
+    /* Cancela o pedido (H12) e libera a reserva associada (R1H25, R2H25) */
     public void cancelarComLiberacao(Pedido pedido, Estoque estoque, ProdutoId produtoId, int quantidade) {
         notNull(pedido, "Pedido é obrigatório");
         notNull(estoque, "Estoque é obrigatório");
         notNull(produtoId, "Produto é obrigatório");
         isTrue(quantidade > 0, "Quantidade deve ser > 0");
 
-        pedido.cancelar();
-        estoque.liberarReserva(produtoId, quantidade);
+        pedido.cancelar(); // R1H12 validado no agregado
+        estoque.liberarReserva(produtoId, quantidade); // R1H25
+        if (estoqueRepositorio != null) {
+            estoqueRepositorio.salvar(estoque);
+        }
+        pedidoRepositorio.cancelar(pedido);
+    }
+
+    /**
+     * Confirma o recebimento de um pedido (H13).
+     * Valida:
+     * - R1H13: Gera movimentação de entrada automaticamente no estoque
+     */
+    public void confirmarRecebimento(Pedido pedido, Estoque estoque, String responsavel) {
+        notNull(pedido, "Pedido é obrigatório");
+        notNull(estoque, "Estoque é obrigatório");
+        notBlank(responsavel, "Responsável é obrigatório");
+
+        // Confirma recebimento no pedido
+        pedido.registrarRecebimento();
+
+        // R1H13: Gera movimentação de entrada para cada item do pedido
+        for (ItemPedido item : pedido.getItens()) {
+            estoque.registrarEntrada(
+                item.getProdutoId(),
+                item.getQuantidade(),
+                responsavel,
+                "Recebimento de pedido " + pedido.getId(),
+                java.util.Map.of("pedidoId", pedido.getId().toString())
+            );
+        }
+
         if (estoqueRepositorio != null) {
             estoqueRepositorio.salvar(estoque);
         }
         pedidoRepositorio.salvar(pedido);
     }
 
-    /* (R14) Atualiza automaticamente o lead time do fornecedor */
+    /* Atualiza automaticamente o lead time do fornecedor (R1H6) */
     public void recalibrarLeadTime(Fornecedor fornecedor, ProdutoId produtoId, int... diasEntrega) {
         notNull(fornecedor, "Fornecedor é obrigatório");
         notNull(produtoId, "Produto é obrigatório");
