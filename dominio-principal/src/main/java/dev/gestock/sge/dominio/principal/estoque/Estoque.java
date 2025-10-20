@@ -4,6 +4,7 @@ import static org.apache.commons.lang3.Validate.*;
 
 import dev.gestock.sge.dominio.principal.cliente.ClienteId;
 import dev.gestock.sge.dominio.principal.produto.ProdutoId;
+import dev.gestock.sge.dominio.principal.produto.ROP;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -34,6 +35,9 @@ public class Estoque {
 
     // Saldos por produto (mantidos dentro do agregado Estoque)
     private final Map<ProdutoId, SaldoProduto> saldos = new HashMap<>();
+
+    // Ponto de Ressuprimento por produto neste estoque
+    private final Map<ProdutoId, ROP> rops = new HashMap<>();
 
     // Log de movimentações (auditoria de domínio)
     private final List<Movimentacao> movimentacoes = new ArrayList<>();
@@ -71,7 +75,7 @@ public class Estoque {
         this.ativo = ativo;
     }
 
-    // ------------------ Getters básicos ------------------
+    // Getters básicos
 
     public EstoqueId getId() {
         return id;
@@ -149,7 +153,7 @@ public class Estoque {
         return List.copyOf(reservas);
     }
 
-    // ------------------ Consultas de saldo ------------------
+    // Consultas de saldo
 
     public int getSaldoFisico(ProdutoId produtoId) {
         return saldos.getOrDefault(produtoId, SaldoProduto.zero()).fisico();
@@ -165,7 +169,35 @@ public class Estoque {
         return sp.disponivel();
     }
 
-    // ------------------ Operações de domínio ------------------
+    // ROP por produto neste estoque
+
+    /** Define ou recalcula o ROP para um produto específico neste estoque. */
+    public void definirROP(ProdutoId produtoId, double consumoMedio, int leadTimeDias, int estoqueSeguranca) {
+        notNull(produtoId, "Produto é obrigatório");
+        ROP novo = new ROP(consumoMedio, leadTimeDias, estoqueSeguranca);
+        rops.put(produtoId, novo);
+    }
+
+    /** Obtém o ROP do produto neste estoque (ou null se não definido). */
+    public ROP getROP(ProdutoId produtoId) {
+        return rops.get(produtoId);
+    }
+
+    /** Verifica se o saldo físico atual do produto neste estoque atingiu ou ficou abaixo do ROP. */
+    public boolean atingiuROP(ProdutoId produtoId) {
+        ROP r = rops.get(produtoId);
+        if (r == null) return false;
+        return getSaldoFisico(produtoId) <= r.getValorROP();
+    }
+
+    /** Versão de verificação com saldo informado explicitamente (suporte a testes). */
+    public boolean atingiuROP(ProdutoId produtoId, int saldoAtual) {
+        ROP r = rops.get(produtoId);
+        if (r == null) return false;
+        return saldoAtual <= r.getValorROP();
+    }
+
+    // Operações de domínio
 
     /**
      * ENTRADA de mercadorias (R8).

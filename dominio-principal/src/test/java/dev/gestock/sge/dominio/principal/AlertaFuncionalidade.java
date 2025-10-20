@@ -3,6 +3,8 @@ package dev.gestock.sge.dominio.principal;
 import dev.gestock.sge.dominio.principal.alerta.*;
 import dev.gestock.sge.dominio.principal.estoque.EstoqueId;
 import dev.gestock.sge.dominio.principal.produto.*;
+import dev.gestock.sge.dominio.principal.estoque.Estoque;
+import dev.gestock.sge.dominio.principal.cliente.ClienteId;
 import io.cucumber.java.pt.*;
 import java.util.*;
 import static org.junit.Assert.*;
@@ -16,14 +18,18 @@ public class AlertaFuncionalidade {
     private boolean alertaGerado = false;
     private int saldoAtualAlerta = 0;
     private int ropEsperado = 0;
+    private Estoque estoque;
 
     @Dado("que existe um produto com ROP de {string} unidades")
     public void queExisteUmProdutoComROPDeUnidades(String rop) {
         ProdutoId id = new ProdutoId(1L);
         // Ajustar construtor para incluir preço/custo padrão (0.0)
         produto = new Produto(id, "PROD-001", "Produto A", "UN", false, 0.0);
-        produto.definirROP(10, 7, 20);
-        ropEsperado = produto.getRop().getValorROP();
+        if (estoque == null) {
+            estoque = new Estoque(new EstoqueId(1L), new ClienteId(1L), "Estoque A", "Endereco X", 1000);
+        }
+        estoque.definirROP(produto.getId(), 10, 7, 20);
+        ropEsperado = estoque.getROP(produto.getId()).getValorROP();
     }
 
     @Dado("o saldo atual é {string} unidades")
@@ -33,7 +39,7 @@ public class AlertaFuncionalidade {
 
     @Quando("o sistema verifica o estoque")
     public void oSistemaVerificaOEstoque() {
-        alertaGerado = produto.atingiuROP(saldoAtual);
+        alertaGerado = estoque != null && estoque.atingiuROP(produto.getId(), saldoAtual);
         if (alertaGerado) {
             AlertaId alertaId = new AlertaId(1L);
             EstoqueId estoqueId = new EstoqueId(1L);
