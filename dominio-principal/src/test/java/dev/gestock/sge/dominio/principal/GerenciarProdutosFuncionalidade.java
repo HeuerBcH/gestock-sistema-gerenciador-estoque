@@ -36,7 +36,7 @@ public class GerenciarProdutosFuncionalidade {
     public void euCadastroUmProdutoComCodigoNomeUnidadeENaoPerecivel(String codigo, String nome, String unidade) {
         try {
             ProdutoId id = new ProdutoId((long) contadorProdutos++);
-            produto = new Produto(id, codigo, nome, unidade, false);
+            produto = new Produto(id, codigo, nome, unidade, false, 0.0);
             produtos.put(nome, produto);
             codigosProdutos.put(codigo, nome);
         } catch (Exception e) {
@@ -49,7 +49,7 @@ public class GerenciarProdutosFuncionalidade {
     public void euCadastroUmProdutoComCodigoNomeUnidadeEPerecivel(String codigo, String nome, String unidade) {
         try {
             ProdutoId id = new ProdutoId((long) contadorProdutos++);
-            produto = new Produto(id, codigo, nome, unidade, true);
+            produto = new Produto(id, codigo, nome, unidade, true, 0.0);
             produtos.put(nome, produto);
             codigosProdutos.put(codigo, nome);
         } catch (Exception e) {
@@ -65,7 +65,7 @@ public class GerenciarProdutosFuncionalidade {
                 throw new IllegalArgumentException("Código do produto já existe");
             }
             ProdutoId id = new ProdutoId((long) contadorProdutos++);
-            produto = new Produto(id, codigo, "Novo Produto", "UN", false);
+            produto = new Produto(id, codigo, "Novo Produto", "UN", false, 0.0);
         } catch (Exception e) {
             excecaoCapturada = e;
             mensagemErro = e.getMessage();
@@ -90,7 +90,7 @@ public class GerenciarProdutosFuncionalidade {
     @Quando("eu cadastro um produto {string} vinculado ao estoque {string}")
     public void euCadastroUmProdutoVinculadoAoEstoque(String nomeProduto, String nomeEstoque) {
         ProdutoId id = new ProdutoId((long) contadorProdutos++);
-        produto = new Produto(id, "PROD-X", nomeProduto, "UN", false);
+        produto = new Produto(id, "PROD-X", nomeProduto, "UN", false, 0.0);
         produtos.put(nomeProduto, produto);
     }
 
@@ -163,7 +163,7 @@ public class GerenciarProdutosFuncionalidade {
     @Dado("que existe um produto com código {string}")
     public void queExisteUmProdutoComCodigo(String codigo) {
         ProdutoId id = new ProdutoId((long) contadorProdutos++);
-        produto = new Produto(id, codigo, "Produto Existente", "UN", false);
+        produto = new Produto(id, codigo, "Produto Existente", "UN", false, 0.0);
         produtos.put("Produto Existente", produto);
         codigosProdutos.put(codigo, "Produto Existente");
     }
@@ -171,7 +171,7 @@ public class GerenciarProdutosFuncionalidade {
     @Dado("que existe um produto {string} com id {string}")
     public void queExisteUmProdutoComId(String nome, String id) {
         ProdutoId prodId = new ProdutoId(Long.parseLong(id));
-        produto = new Produto(prodId, "PROD-" + id, nome, "UN", false);
+        produto = new Produto(prodId, "PROD-" + id, nome, "UN", false, 0.0);
         produtos.put(nome, produto);
     }
 
@@ -198,14 +198,14 @@ public class GerenciarProdutosFuncionalidade {
     @Dado("que existe um produto {string} com unidade {string}")
     public void queExisteUmProdutoComUnidade(String nome, String unidade) {
         ProdutoId id = new ProdutoId((long) contadorProdutos++);
-        produto = new Produto(id, "PROD-X", nome, unidade, false);
+        produto = new Produto(id, "PROD-X", nome, unidade, false, 0.0);
         produtos.put(nome, produto);
     }
 
     @Dado("que existe um produto {string} com cotações registradas")
     public void queExisteUmProdutoComCotacoesRegistradas(String nome) {
         ProdutoId id = new ProdutoId((long) contadorProdutos++);
-        produto = new Produto(id, "PROD-X", nome, "UN", false);
+        produto = new Produto(id, "PROD-X", nome, "UN", false, 0.0);
         produtos.put(nome, produto);
         numeroCotacoesExistentes = 2; // Simula cotações existentes
     }
@@ -213,7 +213,7 @@ public class GerenciarProdutosFuncionalidade {
     @Dado("que existe um produto {string} sem saldo em estoque")
     public void queExisteUmProdutoSemSaldoEmEstoque(String nome) {
         ProdutoId id = new ProdutoId((long) contadorProdutos++);
-        produto = new Produto(id, "PROD-X", nome, "UN", false);
+        produto = new Produto(id, "PROD-X", nome, "UN", false, 0.0);
         produtos.put(nome, produto);
         temSaldoPositivo = false;
     }
@@ -226,7 +226,7 @@ public class GerenciarProdutosFuncionalidade {
     @Dado("que existe um produto {string} com saldo de {string} unidades")
     public void queExisteUmProdutoComSaldoDeUnidades(String nome, String saldo) {
         ProdutoId id = new ProdutoId((long) contadorProdutos++);
-        produto = new Produto(id, "PROD-X", nome, "UN", false);
+        produto = new Produto(id, "PROD-X", nome, "UN", false, 0.0);
         produtos.put(nome, produto);
         temSaldoPositivo = Integer.parseInt(saldo) > 0;
     }
@@ -239,7 +239,7 @@ public class GerenciarProdutosFuncionalidade {
     @Dado("que existe um produto {string} inativo")
     public void queExisteUmProdutoInativo(String nome) {
         ProdutoId id = new ProdutoId((long) contadorProdutos++);
-        produto = new Produto(id, "PROD-X", nome, "UN", false);
+        produto = new Produto(id, "PROD-X", nome, "UN", false, 0.0);
         produto.inativar();
         produtos.put(nome, produto);
     }
@@ -247,14 +247,14 @@ public class GerenciarProdutosFuncionalidade {
     @Dado("que existe um produto {string}")
     public void queExisteUmProduto(String nome) {
         ProdutoId id = new ProdutoId((long) contadorProdutos++);
-        produto = new Produto(id, "PROD-X", nome, "UN", false);
+        produto = new Produto(id, "PROD-X", nome, "UN", false, 0.0);
         produtos.put(nome, produto);
     }
 
     @Dado("que existe um produto {string} com ROP de {string} unidades")
     public void queExisteUmProdutoComROPDeUnidades(String nome, String rop) {
         ProdutoId id = new ProdutoId((long) contadorProdutos++);
-        produto = new Produto(id, "PROD-X", nome, "UN", false);
+        produto = new Produto(id, "PROD-X", nome, "UN", false, 0.0);
         produto.definirROP(10, 7, 20); // Define ROP que resulta em 90
         produtos.put(nome, produto);
     }

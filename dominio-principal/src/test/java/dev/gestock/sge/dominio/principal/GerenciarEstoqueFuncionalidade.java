@@ -1,5 +1,7 @@
 package dev.gestock.sge.dominio.principal;
 
+// TIP: execute os testes com "mvn test" (não use "mvn run")
+
 import dev.gestock.sge.dominio.principal.cliente.ClienteId;
 import dev.gestock.sge.dominio.principal.estoque.Estoque;
 import dev.gestock.sge.dominio.principal.estoque.EstoqueId;

@@ -20,7 +20,8 @@ public class AlertaFuncionalidade {
     @Dado("que existe um produto com ROP de {string} unidades")
     public void queExisteUmProdutoComROPDeUnidades(String rop) {
         ProdutoId id = new ProdutoId(1L);
-        produto = new Produto(id, "PROD-001", "Produto A", "UN", false);
+        // Ajustar construtor para incluir preço/custo padrão (0.0)
+        produto = new Produto(id, "PROD-001", "Produto A", "UN", false, 0.0);
         produto.definirROP(10, 7, 20);
         ropEsperado = produto.getRop().getValorROP();
     }
