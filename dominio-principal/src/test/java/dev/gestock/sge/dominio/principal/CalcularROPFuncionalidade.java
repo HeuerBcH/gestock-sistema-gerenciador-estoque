@@ -3,6 +3,8 @@ package dev.gestock.sge.dominio.principal;
 // TIP: execute os testes com "mvn test" (não use "mvn run")
 
 import dev.gestock.sge.dominio.principal.produto.*;
+import dev.gestock.sge.dominio.principal.estoque.*;
+import dev.gestock.sge.dominio.principal.cliente.ClienteId;
 import io.cucumber.java.pt.*;
 import static org.junit.Assert.*;
 
@@ -13,6 +15,7 @@ public class CalcularROPFuncionalidade {
     private int leadTime;
     private int estoqueSeguranca;
     private ROP rop;
+    private Estoque estoque;
 
     @Dado("o consumo médio diário é {string} unidades")
     public void oConsumoMedioDiarioEUnidades(String consumo) {
@@ -43,6 +46,9 @@ public class CalcularROPFuncionalidade {
     public void queExisteUmProduto(String nome) {
         ProdutoId id = new ProdutoId(1L);
         produto = new Produto(id, "PROD-001", nome, "UN", false, 0.0);
+        if (estoque == null) {
+            estoque = new Estoque(new EstoqueId(1L), new ClienteId(1L), "Estoque A", "Endereco X", 1000);
+        }
     }
 
     @Dado("o histórico de consumo dos últimos {int} dias")
@@ -64,12 +70,15 @@ public class CalcularROPFuncionalidade {
     public void queExisteUmProdutoComROPCalculado(String nome) {
         ProdutoId id = new ProdutoId(1L);
         produto = new Produto(id, "PROD-001", nome, "UN", false, 0.0);
-        produto.definirROP(10, 7, 20);
+        if (estoque == null) {
+            estoque = new Estoque(new EstoqueId(1L), new ClienteId(1L), "Estoque A", "Endereco X", 1000);
+        }
+        estoque.definirROP(produto.getId(), 10, 7, 20);
     }
 
     @Quando("eu visualizo o ROP do produto")
     public void euVisualizoOROPDoProduto() {
-        rop = produto.getRop();
+        rop = estoque.getROP(produto.getId());
     }
 
     @Então("devo ver o valor do ROP")

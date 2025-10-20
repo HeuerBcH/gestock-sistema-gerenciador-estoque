@@ -149,13 +149,26 @@ public class GerenciarProdutosFuncionalidade {
         double consumoMedio = Double.parseDouble(consumo);
         int lead = Integer.parseInt(leadTime);
         int seg = Integer.parseInt(seguranca);
-        produto.definirROP(consumoMedio, lead, seg);
+        // usa um estoque existente ou cria um padrão
+        Estoque est = estoques.values().stream().findFirst().orElseGet(() -> {
+            EstoqueId id = new EstoqueId((long) contadorEstoques++);
+            Estoque novo = new Estoque(id, new ClienteId(1L), "Estoque Padrão", "Endereco X", 1000);
+            estoques.put("Estoque Padrão", novo);
+            return novo;
+        });
+        est.definirROP(produto.getId(), consumoMedio, lead, seg);
     }
 
     @Quando("o saldo atual é {string} unidades")
     public void oSaldoAtualEUnidades(String saldo) {
         saldoAtual = Integer.parseInt(saldo);
-        atingiuROP = produto.atingiuROP(saldoAtual);
+        Estoque est = estoques.values().stream().findFirst().orElseGet(() -> {
+            EstoqueId id = new EstoqueId((long) contadorEstoques++);
+            Estoque novo = new Estoque(id, new ClienteId(1L), "Estoque Padrão", "Endereco X", 1000);
+            estoques.put("Estoque Padrão", novo);
+            return novo;
+        });
+        atingiuROP = est.atingiuROP(produto.getId(), saldoAtual);
     }
 
     // ========== GIVEN (Dado) ==========
@@ -255,7 +268,13 @@ public class GerenciarProdutosFuncionalidade {
     public void queExisteUmProdutoComROPDeUnidades(String nome, String rop) {
         ProdutoId id = new ProdutoId((long) contadorProdutos++);
         produto = new Produto(id, "PROD-X", nome, "UN", false, 0.0);
-        produto.definirROP(10, 7, 20); // Define ROP que resulta em 90
+        Estoque est = estoques.values().stream().findFirst().orElseGet(() -> {
+            EstoqueId eId = new EstoqueId((long) contadorEstoques++);
+            Estoque novo = new Estoque(eId, new ClienteId(1L), "Estoque Padrão", "Endereco X", 1000);
+            estoques.put("Estoque Padrão", novo);
+            return novo;
+        });
+        est.definirROP(produto.getId(), 10, 7, 20); // Define ROP que resulta em 90
         produtos.put(nome, produto);
     }
 
@@ -273,7 +292,13 @@ public class GerenciarProdutosFuncionalidade {
 
     @Então("o ROP deve estar nulo inicialmente")
     public void oROPDeveEstarNuloInicialmente() {
-        assertNull("ROP deveria estar nulo", produto.getRop());
+        Estoque est = estoques.values().stream().findFirst().orElse(null);
+        if (est == null) {
+            // sem estoque, então por definição não há ROP associado
+            assertTrue(true);
+        } else {
+            assertNull("ROP deveria estar nulo", est.getROP(produto.getId()));
+        }
     }
 
     @Então("o produto deve ser marcado como perecível")
@@ -348,12 +373,16 @@ public class GerenciarProdutosFuncionalidade {
 
     @Então("o ROP deve ser calculado corretamente")
     public void oROPDeveSerCalculadoCorretamente() {
-        assertNotNull("ROP não foi calculado", produto.getRop());
+        Estoque est = estoques.values().stream().findFirst().orElse(null);
+        assertNotNull("Estoque não encontrado para validar ROP", est);
+        assertNotNull("ROP não foi calculado", est.getROP(produto.getId()));
     }
 
     @Então("o valor do ROP deve ser {string} unidades")
     public void oValorDoROPDeveSerUnidades(String valor) {
-        assertEquals(Integer.parseInt(valor), produto.getRop().getValorROP());
+        Estoque est = estoques.values().stream().findFirst().orElse(null);
+        assertNotNull("Estoque não encontrado para validar ROP", est);
+        assertEquals(Integer.parseInt(valor), est.getROP(produto.getId()).getValorROP());
     }
 
     @Então("o produto deve ter atingido o ROP")
