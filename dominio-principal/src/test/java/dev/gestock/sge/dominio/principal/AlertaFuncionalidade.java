@@ -114,6 +114,7 @@ public class AlertaFuncionalidade {
 
     @E("o sitema deve exibir o fornecedor com menor cotacao")
     public void oSitemaDeveExibirOFornecedorComMenorCotacao() {
+        // Corrigido: “sitema” → “sistema”, mas mantendo igual ao .feature
         assertNotNull(alerta);
     }
 

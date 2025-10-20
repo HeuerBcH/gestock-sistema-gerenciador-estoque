@@ -1,14 +1,13 @@
 # language: pt
 Funcionalidade: Registrar Movimentacoes de Estoque
 
-
   # H20: Registrar movimentacoes
   # R1H20: Entradas geradas automaticamente apos recebimento
   Cenario: Registrar entrada manual
-    Dado que existe um estoque chamado "Estoque A"
+    Dado que existe um estoque de movimentacao chamado "Estoque A"
     E existe um produto chamado "Produto X"
     Quando o cliente registra uma entrada de 100 unidades do produto
-    Entao o saldo do estoque deve aumentar em 100 unidades
+    Entao o saldo do estoque apos a movimentacao deve aumentar em 100 unidades
     E uma movimentacao do tipo ENTRADA deve ser criada
 
   # R2H20: Saidas indicam motivo

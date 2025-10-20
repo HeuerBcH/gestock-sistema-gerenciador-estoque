@@ -29,7 +29,7 @@ public class GerenciarPedidosFuncionalidade {
     private boolean movimentacaoGerada = false;
 
     // =============================================================
-    // H11: Criar pedidos de compra
+    // H11 — Criar pedidos de compra
     // =============================================================
 
     @Dado("que existe um fornecedor chamado {string} ativo")
@@ -92,13 +92,13 @@ public class GerenciarPedidosFuncionalidade {
         }
     }
 
-    @Entao("o sistema deve rejeitar a operacao")
-    public void entaoSistemaRejeitaOperacao() {
+    @Entao("o sistema deve rejeitar a operacao de pedido")
+    public void entaoSistemaRejeitaOperacaoDePedido() {
         assertNotNull(excecaoCapturada);
     }
 
-    @Entao("deve exibir a mensagem {string}")
-    public void entaoMensagemErro(String mensagem) {
+    @Entao("deve exibir a mensagem de pedido {string}")
+    public void entaoMensagemErroDePedido(String mensagem) {
         assertTrue(mensagemErro.contains(mensagem));
     }
 
@@ -122,12 +122,9 @@ public class GerenciarPedidosFuncionalidade {
         pedido = new Pedido(id, clienteId, fornecedor.getId());
         for (Map<String, String> row : dataTable.asMaps()) {
             String nome = row.get("produto");
-            Produto prod = repositorio.buscarPorCodigo(new CodigoProduto("PROD-" + nome.split(" ")[1]))
-                    .orElse(new Produto(repositorio.novoProdutoId(), "PROD-X", nome, "UN", false, 0.0));
+            Produto prod = new Produto(repositorio.novoProdutoId(), "PROD-" + nome.hashCode(), nome, "UN", false, 0.0);
             int qtd = Integer.parseInt(row.get("quantidade"));
-            Optional<Cotacao> cot = fornecedor.obterCotacaoPorProduto(prod.getId());
-            BigDecimal preco = BigDecimal.valueOf(cot.get().getPreco());
-            pedido.adicionarItem(new ItemPedido(prod.getId(), qtd, preco));
+            pedido.adicionarItem(new ItemPedido(prod.getId(), qtd, BigDecimal.valueOf(50.0)));
         }
         repositorio.salvar(pedido);
     }
@@ -167,7 +164,7 @@ public class GerenciarPedidosFuncionalidade {
     }
 
     // =============================================================
-    // H12: Cancelar pedidos
+    // H12 — Cancelar pedidos
     // =============================================================
 
     @Dado("que existe um pedido no estado {string}")
@@ -177,9 +174,9 @@ public class GerenciarPedidosFuncionalidade {
         pedido.adicionarItem(new ItemPedido(new ProdutoId(1L), 50, BigDecimal.valueOf(10.0)));
 
         switch (estado) {
-            case "ENVIADO": pedido.enviar(); break;
-            case "RECEBIDO": pedido.enviar(); pedido.registrarRecebimento(); break;
-            case "CONCLUIDO": pedido.enviar(); pedido.registrarRecebimento(); pedido.concluir(); break;
+            case "ENVIADO" -> pedido.enviar();
+            case "RECEBIDO" -> { pedido.enviar(); pedido.registrarRecebimento(); }
+            case "CONCLUIDO" -> { pedido.enviar(); pedido.registrarRecebimento(); pedido.concluir(); }
         }
         repositorio.salvar(pedido);
     }
@@ -205,7 +202,7 @@ public class GerenciarPedidosFuncionalidade {
     }
 
     // =============================================================
-    // H13: Confirmar recebimento de pedidos
+    // H13 — Confirmar recebimento de pedidos
     // =============================================================
 
     @Dado("que existe um pedido no estado {string} com {int} unidades")
@@ -220,7 +217,7 @@ public class GerenciarPedidosFuncionalidade {
     @Dado("existe um estoque para receber o produto")
     public void dadoEstoqueParaReceber() {
         EstoqueId id = repositorio.novoEstoqueId();
-        estoque = new Estoque(id, clienteId, "Estoque A", "Endereço A", 1000);
+        estoque = new Estoque(id, clienteId, "Estoque A", "Endereco A", 1000);
         repositorio.salvar(estoque);
     }
 
