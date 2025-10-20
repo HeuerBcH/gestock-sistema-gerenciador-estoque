@@ -21,14 +21,12 @@ public class GerenciarProdutosFuncionalidade {
     private Exception excecaoCapturada;
     private String mensagemErro;
 
-    // Coleções auxiliares por cenário (referências locais, não são mocks)
     private final Map<String, Fornecedor> fornecedoresPorNome = new HashMap<>();
     private final List<Fornecedor> fornecedoresCriadosNoCenario = new ArrayList<>();
-
     private boolean atingiuROP = false;
 
     // =============================================================
-    // H8: Cadastrar produtos
+    // H8 — Cadastrar produtos
     // =============================================================
 
     @Dado("que o cliente informa codigo {string}, nome {string}, unidade {string} e indica que nao e perecivel")
@@ -69,9 +67,6 @@ public class GerenciarProdutosFuncionalidade {
 
     @Entao("o ROP deve estar nulo inicialmente")
     public void entaoRopNuloInicialmente() {
-        // Como o ROP é definido por Estoque, e até aqui nenhum estoque o definiu, consideramos nulo.
-        // Se algum estoque for usado neste cenário, garantimos que não há ROP definido para este produto.
-        // (Nenhum estoque foi criado/definido neste cenário, então a condição de "nulo" é verdadeira.)
         assertTrue(true);
     }
 
@@ -81,7 +76,7 @@ public class GerenciarProdutosFuncionalidade {
     }
 
     // -------------------------------------------------------------
-    // R1H8: Codigo unico
+    // R1H8 — Código único
     // -------------------------------------------------------------
 
     @Dado("que existe um produto cadastrado com codigo {string}")
@@ -115,10 +110,10 @@ public class GerenciarProdutosFuncionalidade {
     }
 
     // -------------------------------------------------------------
-    // R2H8: Produto fornecido por multiplos fornecedores
+    // R2H8 — Produto fornecido por múltiplos fornecedores
     // -------------------------------------------------------------
 
-    @Dado("que existe um produto chamado {string} com id {string}")
+    @Dado("que existe um produto chamado {string} para gerenciamento com id {string}")
     public void dadoProdutoComId(String nome, String id) {
         ProdutoId pid = new ProdutoId(Long.parseLong(id));
         produto = new Produto(pid, "PROD-" + id, nome, "UN", false, 0.0);
@@ -163,7 +158,7 @@ public class GerenciarProdutosFuncionalidade {
     }
 
     // -------------------------------------------------------------
-    // R3H8: Produto vinculado a pelo menos um estoque
+    // R3H8 — Produto vinculado a pelo menos um estoque
     // -------------------------------------------------------------
 
     @Dado("que existe um estoque ativo chamado {string}")
@@ -178,8 +173,6 @@ public class GerenciarProdutosFuncionalidade {
         ProdutoId id = repositorio.novoProdutoId();
         produto = new Produto(id, "PROD-X", nomeProduto, "UN", false, 0.0);
         repositorio.salvar(produto);
-        // Caso exista mecanismo explícito de vínculo, ele iria aqui.
-        // Como o domínio não expõe, validaremos pela existência de ambos.
     }
 
     @Entao("o produto deve estar vinculado ao estoque {string}")
@@ -189,176 +182,13 @@ public class GerenciarProdutosFuncionalidade {
     }
 
     // =============================================================
-    // H9: Editar produtos
+    // H14 — Definir e calcular ROP
     // =============================================================
 
-    @Dado("que existe um produto chamado {string} com unidade {string}")
-    public void dadoProdutoParaEdicao(String nome, String unidade) {
+    @Dado("que existe um produto chamado {string} para gerenciamento")
+    public void dadoExisteProdutoParaGerenciamento(String nome) {
         ProdutoId pid = repositorio.novoProdutoId();
-        produto = new Produto(pid, "PROD-EDIT", nome, unidade, false, 0.0);
-        repositorio.salvar(produto);
-    }
-
-    @Quando("o cliente atualiza o nome para {string} e a unidade para {string}")
-    public void quandoAtualizaProduto(String novoNome, String novaUnidade) {
-        produto.atualizar(novoNome, novaUnidade);
-        repositorio.salvar(produto);
-    }
-
-    @Entao("o sistema deve atualizar os dados do produto")
-    public void entaoAtualizacaoOk() {
-        assertNotNull(produto);
-    }
-
-    @Entao("o nome deve ser {string}")
-    public void entaoNomeAtual(String esperado) {
-        assertEquals(esperado, produto.getNome());
-    }
-
-    @Entao("a unidade deve ser {string}")
-    public void entaoUnidadeAtual(String esperado) {
-        assertEquals(esperado, produto.getUnidadeMedida());
-    }
-
-    // -------------------------------------------------------------
-    // R1H9: Alteracoes nao afetam cotacoes existentes
-    // -------------------------------------------------------------
-
-    @Dado("que existe um produto chamado {string} com cotacoes registradas")
-    public void dadoProdutoComCotacoes(String nome) {
-        ProdutoId pid = repositorio.novoProdutoId();
-        produto = new Produto(pid, "PROD-COT", nome, "UN", false, 0.0);
-        repositorio.salvar(produto);
-
-        FornecedorId fid = repositorio.novoFornecedorId();
-        Fornecedor forn = new Fornecedor(fid, "Fornecedor Teste", "11.111.111/0001-11", "teste@forn.com");
-        forn.registrarCotacao(produto.getId(), 50.0, 5);
-        repositorio.salvar(forn);
-
-        fornecedoresCriadosNoCenario.clear();
-        fornecedoresCriadosNoCenario.add(forn);
-    }
-
-    @Quando("o cliente atualiza as especificacoes do produto")
-    public void quandoAtualizaEspecificacoes() {
-        produto.atualizar("Produto Atualizado", "KG");
-        repositorio.salvar(produto);
-    }
-
-    @Entao("o sistema deve manter as cotacoes existentes inalteradas")
-    public void entaoCotacoesMantidas() {
-        Fornecedor f = fornecedoresCriadosNoCenario.get(0);
-        assertTrue(f.obterCotacaoPorProduto(produto.getId()).isPresent());
-    }
-
-    @Entao("o produto deve estar atualizado")
-    public void entaoProdutoAtualizado() {
-        assertNotNull(produto);
-    }
-
-    // =============================================================
-    // H10: Inativar produtos
-    // =============================================================
-
-    @Dado("que existe um produto chamado {string} sem saldo em estoque")
-    public void dadoProdutoSemSaldo(String nome) {
-        ProdutoId pid = repositorio.novoProdutoId();
-        produto = new Produto(pid, "PROD-INAT", nome, "UN", false, 0.0);
-        repositorio.salvar(produto);
-    }
-
-    @Dado("nao existem pedidos em andamento para o produto")
-    public void dadoSemPedidosEmAndamento() {
-        // Sem integração com pedidos aqui; assumimos condição atendida.
-        assertTrue(true);
-    }
-
-    @Quando("o cliente solicita a inativacao do produto {string}")
-    public void quandoSolicitaInativacao(String nome) {
-        try {
-            produto.inativar();
-            repositorio.inativar(produto);
-        } catch (Exception e) {
-            excecaoCapturada = e;
-            mensagemErro = e.getMessage();
-        }
-    }
-
-    @Entao("o sistema deve inativar o produto com sucesso")
-    public void entaoInativadoComSucesso() {
-        assertFalse(produto.isAtivo());
-    }
-
-    @Entao("o status do produto deve ser {string}")
-    public void entaoStatusProduto(String status) {
-        if ("inativo".equalsIgnoreCase(status)) {
-            assertFalse(produto.isAtivo());
-        } else {
-            assertTrue(produto.isAtivo());
-        }
-    }
-
-    // -------------------------------------------------------------
-    // R1H10: Nao inativar produto com saldo positivo
-    // -------------------------------------------------------------
-
-    @Dado("que existe um produto chamado {string} com saldo de {int} unidades")
-    public void dadoProdutoComSaldo(String nome, int saldo) {
-        ProdutoId pid = repositorio.novoProdutoId();
-        produto = new Produto(pid, "PROD-SAL", nome, "UN", false, 0.0);
-        repositorio.salvar(produto);
-        // Sem modelagem de saldo por produto neste contexto; simulamos a regra pela mensagem.
-        if (saldo > 0) {
-            mensagemErro = "Produto com saldo positivo nao pode ser inativado";
-        }
-    }
-
-    @Entao("o sistema deve rejeitar a operacao")
-    public void entaoRejeitaOperacao() {
-        assertNotNull(mensagemErro);
-    }
-
-    // -------------------------------------------------------------
-    // R1H10: Nao inativar produto com pedidos em andamento
-    // -------------------------------------------------------------
-
-    @Dado("existem pedidos em andamento para o produto")
-    public void dadoPedidosEmAndamento() {
-        mensagemErro = "Produto com pedidos em andamento nao pode ser inativado";
-    }
-
-    // -------------------------------------------------------------
-    // R2H10: Bloquear novas cotacoes apos inativacao
-    // -------------------------------------------------------------
-
-    @Dado("que existe um produto chamado {string} inativo")
-    public void dadoProdutoInativo(String nome) {
-        ProdutoId pid = repositorio.novoProdutoId();
-        produto = new Produto(pid, "PROD-INATIVO", nome, "UN", false, 0.0);
-        produto.inativar();
-        repositorio.salvar(produto);
-    }
-
-    @Quando("o cliente tenta registrar uma nova cotacao para o produto")
-    public void quandoTentaRegistrarNovaCotacao() {
-        try {
-            if (!produto.isAtivo()) {
-                throw new IllegalStateException("Produto inativo nao pode receber novas cotacoes");
-            }
-        } catch (Exception e) {
-            excecaoCapturada = e;
-            mensagemErro = e.getMessage();
-        }
-    }
-
-    // =============================================================
-    // H14: Definir e calcular ROP
-    // =============================================================
-
-    @Dado("que existe um produto chamado {string}")
-    public void dadoExisteProdutoSimples(String nome) {
-        ProdutoId pid = repositorio.novoProdutoId();
-        produto = new Produto(pid, "PROD-ROP", nome, "UN", false, 0.0);
+        produto = new Produto(pid, "PROD-GER", nome, "UN", false, 0.0);
         repositorio.salvar(produto);
     }
 
@@ -388,7 +218,6 @@ public class GerenciarProdutosFuncionalidade {
         estoque = new Estoque(eid, new ClienteId(1L), "Estoque ROP", "Endereco X", 1000);
         repositorio.salvar(produto);
         repositorio.salvar(estoque);
-        // Define ROP que resulte no valor desejado (ex.: 10*7 + 20 = 90)
         estoque.definirROP(produto.getId(), 10, 7, 20);
         assertEquals(ropEsperado, estoque.getROP(produto.getId()).getValorROP());
     }

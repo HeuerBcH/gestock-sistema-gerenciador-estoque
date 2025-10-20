@@ -28,7 +28,7 @@ public class CalcularROPFuncionalidade {
         produto = new Produto(produtoId, "PROD-001", nome, "UN", false, 0.0);
 
         EstoqueId estoqueId = repositorio.novoEstoqueId();
-        estoque = new Estoque(estoqueId, new ClienteId(1L), "Estoque A", "Endereco X", 1000);
+        estoque = new Estoque(estoqueId, new ClienteId(1L), "Estoque A", "Endereço X", 1000);
 
         repositorio.salvar(produto);
         repositorio.salvar(estoque);
@@ -91,7 +91,7 @@ public class CalcularROPFuncionalidade {
         produto = new Produto(produtoId, "PROD-002", nome, "UN", false, 0.0);
 
         EstoqueId estoqueId = repositorio.novoEstoqueId();
-        estoque = new Estoque(estoqueId, new ClienteId(1L), "Estoque B", "Endereco Y", 1000);
+        estoque = new Estoque(estoqueId, new ClienteId(1L), "Estoque B", "Endereço Y", 1000);
         estoque.definirROP(produto.getId(), 10, 7, 20);
 
         repositorio.salvar(produto);
@@ -105,12 +105,12 @@ public class CalcularROPFuncionalidade {
 
     @Entao("o sistema deve exibir o valor do ROP")
     public void oSistemaDeveExibirOValorDoROP() {
-        assertNotNull("ROP nao deve ser nulo", rop);
+        assertNotNull("ROP não deve ser nulo", rop);
     }
 
     @E("o sistema deve exibir o consumo medio utilizado no calculo")
     public void oSistemaDeveExibirOConsumoMedioUtilizadoNoCalculo() {
-        assertTrue("Consumo medio deve ser maior que zero", rop.getConsumoMedio() > 0);
+        assertTrue("Consumo médio deve ser maior que zero", rop.getConsumoMedio() > 0);
     }
 
     // =========================================================

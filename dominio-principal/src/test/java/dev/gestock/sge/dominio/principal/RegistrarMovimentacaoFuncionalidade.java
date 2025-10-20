@@ -26,17 +26,18 @@ public class RegistrarMovimentacaoFuncionalidade {
     // H20 — Registrar movimentações de estoque
     // =========================================================
 
-    @Dado("que existe um estoque {string}")
-    public void queExisteUmEstoque(String nome) {
+    // ✅ Step renomeado para evitar conflito com GerenciarEstoqueFuncionalidade
+    @Dado("que existe um estoque de movimentacao chamado {string}")
+    public void queExisteUmEstoqueDeMovimentacaoChamado(String nome) {
         EstoqueId id = repositorio.novoEstoqueId();
         ClienteId clienteId = new ClienteId(1L);
         estoque = new Estoque(id, clienteId, nome, "Endereco A", 1000);
         repositorio.salvar(estoque);
     }
 
-    @Dado("que existe um estoque chamado {string}")
-    public void queExisteUmEstoqueChamado(String nome) {
-        queExisteUmEstoque(nome);
+    @Dado("que existe um estoque {string}")
+    public void queExisteUmEstoque(String nome) {
+        queExisteUmEstoqueDeMovimentacaoChamado(nome);
     }
 
     @Dado("existe um produto {string}")
@@ -61,15 +62,15 @@ public class RegistrarMovimentacaoFuncionalidade {
         movimentacoes.add(ultimaMovimentacao);
     }
 
-    @Entao("o saldo do estoque deve aumentar em {int} unidades")
-    public void oSaldoDoEstoqueDeveAumentarEmUnidades(int quantidade) {
+    @Entao("o saldo do estoque apos a movimentacao deve aumentar em {int} unidades")
+    public void oSaldoDoEstoqueAposMovimentacaoAumenta(int quantidade) {
         int saldoNovo = estoque.getSaldoFisico(produtoId);
         assertEquals(saldoAnterior + quantidade, saldoNovo);
     }
 
-    @E("uma movimentação do tipo ENTRADA deve ser criada")
+    @E("uma movimentacao do tipo ENTRADA deve ser criada")
     public void umaMovimentacaoDoTipoENTRADADeveSerCriada() {
-        assertNotNull("Movimentação deve ter sido criada", ultimaMovimentacao);
+        assertNotNull("Movimentacao deve ter sido criada", ultimaMovimentacao);
         assertEquals(TipoMovimentacao.ENTRADA, ultimaMovimentacao.getTipo());
     }
 
@@ -102,7 +103,7 @@ public class RegistrarMovimentacaoFuncionalidade {
         assertEquals(saldoAnterior - quantidade, saldoNovo);
     }
 
-    @E("a movimentação deve conter o motivo {string}")
+    @E("a movimentacao deve conter o motivo {string}")
     public void aMovimentacaoDeveConterOMotivo(String motivo) {
         assertEquals(motivo, ultimaMovimentacao.getMotivo());
     }
@@ -111,7 +112,7 @@ public class RegistrarMovimentacaoFuncionalidade {
     // Cenário: saldo insuficiente
     // ---------------------------------------------------------
 
-    @Dado("que existe um estoque com {int} unidades disponíveis do produto")
+    @Dado("que existe um estoque com {int} unidades disponiveis do produto")
     public void queExisteUmEstoqueComUnidadesDisponiveisDoProduto(int quantidade) {
         EstoqueId id = repositorio.novoEstoqueId();
         ClienteId clienteId = new ClienteId(1L);
@@ -120,7 +121,7 @@ public class RegistrarMovimentacaoFuncionalidade {
         estoque.registrarEntrada(produtoId, quantidade, "Sistema", "Carga inicial", Map.of());
     }
 
-    @Quando("o cliente tenta registrar uma saída de {int} unidades")
+    @Quando("o cliente tenta registrar uma saida de {int} unidades")
     public void oClienteTentaRegistrarUmaSaidaDeUnidades(int quantidade) {
         try {
             estoque.registrarSaida(produtoId, quantidade, "Cliente", "Saida teste");
@@ -130,9 +131,9 @@ public class RegistrarMovimentacaoFuncionalidade {
         }
     }
 
-    @Entao("o sistema deve rejeitar a operação")
+    @Entao("o sistema deve rejeitar a operacao")
     public void oSistemaDeveRejeitarAOperacao() {
-        assertNotNull("Exceção deve ter sido capturada", excecaoCapturada);
+        assertNotNull("Excecao deve ter sido capturada", excecaoCapturada);
     }
 
     @E("deve exibir a mensagem {string}")
@@ -142,10 +143,10 @@ public class RegistrarMovimentacaoFuncionalidade {
     }
 
     // =========================================================
-    // H21 — Visualizar histórico de movimentações
+    // H21 — Visualizar historico de movimentacoes
     // =========================================================
 
-    @Dado("que existem {int} movimentações registradas para o produto")
+    @Dado("que existem {int} movimentacoes registradas para o produto")
     public void queExistemMovimentacoesRegistradasParaOProduto(int quantidade) {
         produtoId = repositorio.novoProdutoId();
         for (int i = 0; i < quantidade; i++) {
@@ -158,23 +159,23 @@ public class RegistrarMovimentacaoFuncionalidade {
         }
     }
 
-    @Quando("o cliente visualiza o histórico do produto")
+    @Quando("o cliente visualiza o historico do produto")
     public void oClienteVisualizaOHistoricoDoProduto() {
-        assertFalse("Movimentações devem existir", movimentacoes.isEmpty());
+        assertFalse("Movimentacoes devem existir", movimentacoes.isEmpty());
     }
 
-    @Entao("o sistema deve exibir todas as {int} movimentações")
+    @Entao("o sistema deve exibir todas as {int} movimentacoes")
     public void oSistemaDeveExibirTodasAsMovimentacoes(int quantidade) {
         assertEquals(quantidade, movimentacoes.size());
     }
 
-    @E("cada movimentação deve conter data, tipo, quantidade e responsável")
+    @E("cada movimentacao deve conter data, tipo, quantidade e responsavel")
     public void cadaMovimentacaoDeveConterDataTipoQuantidadeEResponsavel() {
         for (Movimentacao mov : movimentacoes) {
             assertNotNull("Data deve existir", mov.getDataHora());
             assertNotNull("Tipo deve existir", mov.getTipo());
             assertTrue("Quantidade deve ser maior que zero", mov.getQuantidade() > 0);
-            assertNotNull("Responsável deve existir", mov.getResponsavel());
+            assertNotNull("Responsavel deve existir", mov.getResponsavel());
         }
     }
 }

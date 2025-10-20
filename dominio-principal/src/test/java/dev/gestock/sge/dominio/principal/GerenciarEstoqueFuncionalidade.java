@@ -1,7 +1,5 @@
 package dev.gestock.sge.dominio.principal;
 
-// TIP: execute os testes com "mvn test" (não use "mvn run")
-
 import dev.gestock.sge.dominio.principal.cliente.ClienteId;
 import dev.gestock.sge.dominio.principal.estoque.*;
 import dev.gestock.sge.dominio.principal.produto.ProdutoId;
@@ -202,58 +200,6 @@ public class GerenciarEstoqueFuncionalidade {
         }
     }
 
-    @Quando("o cliente altera o nome para {string}")
-    public void oClienteAlteraONomePara(String novoNome) {
-        estoqueAtual.renomear(novoNome);
-    }
-
-    @Quando("o cliente altera a capacidade para {int}")
-    public void oClienteAlteraACapacidadePara(int novaCapacidade) {
-        estoqueAtual.alterarCapacidade(novaCapacidade);
-    }
-
-    @Quando("o cliente tenta alterar a capacidade para {int}")
-    public void oClienteTentaAlterarACapacidadePara(int novaCapacidade) {
-        try {
-            estoqueAtual.alterarCapacidade(novaCapacidade);
-        } catch (Exception e) {
-            excecaoCapturada = e;
-            mensagemErro = e.getMessage();
-        }
-    }
-
-    @Quando("o cliente pesquisa por estoques com nome contendo {string}")
-    public void oClientePesquisaPorEstoquesComNomeContendo(String termo) {
-        resultadosPesquisa.clear();
-        for (Estoque e : estoques.values()) {
-            if (e.getNome().toLowerCase().contains(termo.toLowerCase())) {
-                resultadosPesquisa.add(e);
-            }
-        }
-    }
-
-    @Quando("o cliente tenta pesquisar estoques")
-    public void oClienteTentaPesquisarEstoques() {
-        if (estoques.isEmpty()) {
-            mensagemErro = "Nenhum estoque cadastrado";
-        }
-    }
-
-    @Quando("o cliente pesquisa por estoques com endereco contendo {string}")
-    public void oClientePesquisaPorEstoquesComEnderecoContendo(String termo) {
-        resultadosPesquisa.clear();
-        for (Estoque e : estoques.values()) {
-            if (e.getEndereco().toLowerCase().contains(termo.toLowerCase())) {
-                resultadosPesquisa.add(e);
-            }
-        }
-    }
-
-    @Quando("o cliente visualiza os detalhes do estoque")
-    public void oClienteVisualizaOsDetalhesDoEstoque() {
-        assertNotNull(estoqueAtual);
-    }
-
     // ================================================================
     // ENTAO
     // ================================================================
@@ -268,28 +214,13 @@ public class GerenciarEstoqueFuncionalidade {
         assertTrue(estoque.isAtivo());
     }
 
-    @Entao("o estoque deve estar visivel na listagem de estoques")
-    public void oEstoqueDeveEstarVisivelNaListagemDeEstoques() {
-        assertTrue(estoques.containsValue(estoque));
-    }
-
-    @Entao("o estoque deve pertencer ao cliente com id {string}")
-    public void oEstoqueDevePertencerAoClienteComId(String id) {
-        assertEquals(Long.parseLong(id), estoque.getClienteId().getId().longValue());
-    }
-
-    @Entao("devem existir {int} estoques cadastrados para o cliente")
-    public void devemExistirEstoquesCadastradosParaOCliente(int quantidade) {
-        assertEquals(quantidade, estoques.size());
-    }
-
-    @Entao("o sistema deve rejeitar o cadastro")
-    public void oSistemaDeveRejeitarOCadastro() {
+    @Entao("o sistema deve rejeitar o cadastro de estoque")
+    public void oSistemaDeveRejeitarOCadastroDeEstoque() {
         assertNotNull(excecaoCapturada);
     }
 
-    @Entao("deve exibir a mensagem {string}")
-    public void deveExibirAMensagem(String mensagem) {
+    @Entao("deve exibir a mensagem de estoque {string}")
+    public void deveExibirAMensagemDeEstoque(String mensagem) {
         assertEquals(mensagem, mensagemErro);
     }
 
@@ -302,59 +233,5 @@ public class GerenciarEstoqueFuncionalidade {
     public void oStatusDoEstoqueDeveSer(String status) {
         boolean esperadoAtivo = status.equalsIgnoreCase("ativo");
         assertEquals(esperadoAtivo, estoqueAtual.isAtivo());
-    }
-
-    @Entao("o sistema deve rejeitar a operacao")
-    public void oSistemaDeveRejeitarAOperacao() {
-        assertNotNull(excecaoCapturada);
-    }
-
-    @Entao("o nome do estoque deve ser atualizado")
-    public void oNomeDoEstoqueDeveSerAtualizado() {
-        assertNotNull(estoqueAtual.getNome());
-    }
-
-    @Entao("a capacidade deve ser atualizada com sucesso")
-    public void aCapacidadeDeveSerAtualizadaComSucesso() {
-        assertTrue(estoqueAtual.getCapacidade() > 0);
-    }
-
-    @Entao("o sistema deve exibir {int} estoques")
-    public void oSistemaDeveExibirEstoques(int quantidade) {
-        assertEquals(quantidade, resultadosPesquisa.size());
-    }
-
-    @Entao("os resultados devem incluir {string} e {string}")
-    public void osResultadosDevemIncluirEE(String nome1, String nome2) {
-        List<String> nomes = new ArrayList<>();
-        for (Estoque e : resultadosPesquisa) nomes.add(e.getNome());
-        assertTrue(nomes.contains(nome1));
-        assertTrue(nomes.contains(nome2));
-    }
-
-    @Entao("o sistema deve informar {string}")
-    public void oSistemaDeveInformar(String mensagem) {
-        assertEquals(mensagem, mensagemErro);
-    }
-
-    @Entao("o sistema deve exibir o nome {string}")
-    public void oSistemaDeveExibirONome(String nome) {
-        assertEquals(nome, estoqueAtual.getNome());
-    }
-
-    @Entao("o sistema deve exibir o endereco {string}")
-    public void oSistemaDeveExibirOEndereco(String endereco) {
-        assertEquals(endereco, estoqueAtual.getEndereco());
-    }
-
-    @Entao("o sistema deve exibir a capacidade {int}")
-    public void oSistemaDeveExibirACapacidade(int capacidade) {
-        assertEquals(capacidade, estoqueAtual.getCapacidade());
-    }
-
-    @Entao("o sistema deve exibir o status {string}")
-    public void oSistemaDeveExibirOStatus(String status) {
-        boolean ativoEsperado = status.equalsIgnoreCase("ativo");
-        assertEquals(ativoEsperado, estoqueAtual.isAtivo());
     }
 }

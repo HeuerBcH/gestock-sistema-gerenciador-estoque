@@ -10,11 +10,11 @@ Funcionalidade: Gerenciar Fornecedores
     E o fornecedor deve estar ativo na listagem
     E o lead time inicial deve ser 0 dias
 
-Cenario: Cadastrar fornecedor com lead time especifico
-  Dado que nao existe um fornecedor cadastrado com o CNPJ "98.765.432/0001-10"
-  Quando o cliente cadastra um fornecedor com nome "Fornecedor B", CNPJ "98.765.432/0001-10", contato "contato@b.com" e lead time de "7" dias
-  Entao o fornecedor deve ser cadastrado com sucesso
-  E o lead time deve ser "7" dias
+  Cenario: Cadastrar fornecedor com lead time especifico
+    Dado que nao existe um fornecedor cadastrado com o CNPJ "98.765.432/0001-10"
+    Quando o cliente cadastra um fornecedor com nome "Fornecedor B", CNPJ "98.765.432/0001-10", contato "contato@b.com" e lead time de "7" dias
+    Entao o fornecedor deve ser cadastrado com sucesso
+    E o lead time deve ser "7" dias
 
   # R1H5: Cada fornecedor deve possuir uma cotacao vinculada a um produto
   Cenario: Registrar cotacao para um produto
@@ -41,15 +41,15 @@ Cenario: Cadastrar fornecedor com lead time especifico
     Dado que existe um fornecedor chamado "Fornecedor A"
     E existe um produto chamado "Produto X" com id "01"
     Quando o cliente tenta registrar uma cotacao para o produto "Produto X" com prazo -5 dias
-    Entao o sistema deve rejeitar a operacao
-    E deve exibir a mensagem "Prazo deve ser positivo"
+    Entao o sistema deve rejeitar a operacao de fornecedor
+    E deve exibir a mensagem de fornecedor "Prazo deve ser positivo"
 
   Cenario: Tentar registrar cotacao com preco invalido
     Dado que existe um fornecedor chamado "Fornecedor A"
     E existe um produto chamado "Produto X" com id "01"
     Quando o cliente tenta registrar uma cotacao para o produto "Produto X" com preco 0 reais
-    Entao o sistema deve rejeitar a operacao
-    E deve exibir a mensagem "Preco deve ser positivo"
+    Entao o sistema deve rejeitar a operacao de fornecedor
+    E deve exibir a mensagem de fornecedor "Preco deve ser positivo"
 
   # H6: Como cliente, desejo atualizar informacoes de fornecedores
   Cenario: Atualizar dados cadastrais do fornecedor
@@ -69,8 +69,8 @@ Cenario: Cadastrar fornecedor com lead time especifico
   Cenario: Tentar recalibrar lead time sem historico de entregas
     Dado que existe um fornecedor chamado "Fornecedor A" sem historico de entregas
     Quando o cliente tenta recalibrar o lead time
-    Entao o sistema deve rejeitar a operacao
-    E deve exibir a mensagem "Historico insuficiente para recalibrar lead time"
+    Entao o sistema deve rejeitar a operacao de fornecedor
+    E deve exibir a mensagem de fornecedor "Historico insuficiente para recalibrar lead time"
 
   # H7: Como cliente, desejo inativar fornecedores que nao pretendo mais utilizar
   Cenario: Inativar fornecedor sem pedidos pendentes
@@ -83,8 +83,8 @@ Cenario: Cadastrar fornecedor com lead time especifico
   Cenario: Tentar inativar fornecedor com pedidos pendentes
     Dado que existe um fornecedor chamado "Fornecedor A" com pedidos pendentes
     Quando o cliente tenta inativar o fornecedor "Fornecedor A"
-    Entao o sistema deve rejeitar a operacao
-    E deve exibir a mensagem "Fornecedor com pedidos pendentes nao pode ser inativado"
+    Entao o sistema deve rejeitar a operacao de fornecedor
+    E deve exibir a mensagem de fornecedor "Fornecedor com pedidos pendentes nao pode ser inativado"
 
   Cenario: Reativar fornecedor inativo
     Dado que existe um fornecedor chamado "Fornecedor A" inativo

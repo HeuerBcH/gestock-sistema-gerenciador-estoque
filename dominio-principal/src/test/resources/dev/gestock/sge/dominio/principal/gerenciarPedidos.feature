@@ -1,7 +1,6 @@
 # language: pt
 Funcionalidade: Gerenciar Pedidos
 
-
   # H11: Criar pedidos de compra
   Cenario: Criar pedido de compra com sucesso
     Dado que existe um fornecedor chamado "Fornecedor A" ativo
@@ -16,8 +15,8 @@ Funcionalidade: Gerenciar Pedidos
     Dado que existe um fornecedor chamado "Fornecedor A"
     E existe um produto chamado "Produto X" sem cotacoes
     Quando o cliente tenta criar um pedido para o produto
-    Entao o sistema deve rejeitar a operacao
-    E deve exibir a mensagem "Nenhuma cotacao encontrada para o produto"
+    Entao o sistema deve rejeitar a operacao de pedido
+    E deve exibir a mensagem de pedido "Nenhuma cotacao encontrada para o produto"
 
   Cenario: Criar pedido com multiplos itens
     Dado que existe um fornecedor chamado "Fornecedor A"
@@ -56,14 +55,14 @@ Funcionalidade: Gerenciar Pedidos
   Cenario: Tentar cancelar pedido concluido
     Dado que existe um pedido no estado "CONCLUIDO"
     Quando o cliente tenta cancelar o pedido
-    Entao o sistema deve rejeitar a operacao
-    E deve exibir a mensagem "Pedido CONCLUIDO nao pode ser cancelado"
+    Entao o sistema deve rejeitar a operacao de pedido
+    E deve exibir a mensagem de pedido "Pedido CONCLUIDO nao pode ser cancelado"
 
-    Cenario: Tentar cancelar pedido EM TRANSPORTE
+  Cenario: Tentar cancelar pedido EM TRANSPORTE
     Dado que existe um pedido no estado "EM TRANSPORTE"
     Quando o cliente tenta cancelar o pedido
-    Entao o sistema deve rejeitar a operacao
-    E deve exibir a mensagem "Pedido EM TRANSPORTE nao pode ser cancelado"
+    Entao o sistema deve rejeitar a operacao de pedido
+    E deve exibir a mensagem de pedido "Pedido EM TRANSPORTE nao pode ser cancelado"
 
   # H13: Confirmar recebimento de pedidos
   Cenario: Confirmar recebimento de pedido enviado
@@ -83,8 +82,8 @@ Funcionalidade: Gerenciar Pedidos
   Cenario: Tentar confirmar recebimento de pedido nao enviado
     Dado que existe um pedido no estado "CRIADO"
     Quando o cliente tenta confirmar o recebimento
-    Entao o sistema deve rejeitar a operacao
-    E deve exibir a mensagem "Somente pedidos ENVIADO podem ser recebidos"
+    Entao o sistema deve rejeitar a operacao de pedido
+    E deve exibir a mensagem de pedido "Somente pedidos ENVIADO podem ser recebidos"
 
   Cenario: Enviar pedido criado
     Dado que existe um pedido no estado "CRIADO" com itens

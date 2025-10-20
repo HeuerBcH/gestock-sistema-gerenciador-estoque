@@ -1,7 +1,6 @@
 # language: pt
 Funcionalidade: Reservar Estoque para Pedidos Pendentes
 
-
   # H24: Reservar automaticamente ao gerar pedido
   # R1H24: Sistema reserva ao gerar pedido
   Cenario: Reservar estoque ao criar pedido
@@ -16,8 +15,8 @@ Funcionalidade: Reservar Estoque para Pedidos Pendentes
     Dado que existe um estoque chamado "Estoque A" com 100 unidades fisicas
     E 80 unidades estao reservadas
     Quando o cliente tenta registrar uma saida de 30 unidades do produto
-    Entao o sistema deve rejeitar a operacao
-    E deve exibir a mensagem "Saldo disponivel insuficiente"
+    Entao o sistema deve rejeitar a operacao de reserva
+    E deve exibir a mensagem de reserva "Saldo disponivel insuficiente"
 
   # H25: Liberar reserva ao cancelar pedido
   # R1H25: Reservas liberadas automaticamente
