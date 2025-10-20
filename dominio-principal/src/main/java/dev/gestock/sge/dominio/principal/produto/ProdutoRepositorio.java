@@ -22,5 +22,5 @@ public interface ProdutoRepositorio {
     boolean codigoExiste(CodigoProduto codigo);
     
     /** Remove um produto do sistema (H10) */
-    void excluir(Produto produto);
+    void inativar(Produto produto);
 }
