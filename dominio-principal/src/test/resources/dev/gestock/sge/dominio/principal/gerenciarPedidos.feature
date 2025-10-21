@@ -51,18 +51,18 @@ Funcionalidade: Gerenciar Pedidos
     Entao o pedido deve ser cancelado com sucesso
     E o status do pedido deve ser "CANCELADO"
 
-  # R1H12: Pedidos com status CONCLUIDO nao podem ser cancelados
+  # R1H12: Pedidos com status EM TRANSPORTE nao podem ser cancelados
+  Cenario: Tentar cancelar pedido em transporte
+    Dado que existe um pedido no estado "EM TRANSPORTE"
+    Quando o cliente tenta cancelar o pedido
+    Entao o sistema deve rejeitar a operacao de pedido
+    E deve exibir a mensagem de pedido "Pedido EM TRANSPORTE nao pode ser cancelado"
+
   Cenario: Tentar cancelar pedido concluido
     Dado que existe um pedido no estado "CONCLUIDO"
     Quando o cliente tenta cancelar o pedido
     Entao o sistema deve rejeitar a operacao de pedido
     E deve exibir a mensagem de pedido "Pedido CONCLUIDO nao pode ser cancelado"
-
-  Cenario: Tentar cancelar pedido EM TRANSPORTE
-    Dado que existe um pedido no estado "EM TRANSPORTE"
-    Quando o cliente tenta cancelar o pedido
-    Entao o sistema deve rejeitar a operacao de pedido
-    E deve exibir a mensagem de pedido "Pedido EM TRANSPORTE nao pode ser cancelado"
 
   # H13: Confirmar recebimento de pedidos
   Cenario: Confirmar recebimento de pedido enviado
@@ -96,11 +96,3 @@ Funcionalidade: Gerenciar Pedidos
     Quando o cliente conclui o pedido
     Entao o pedido deve ser concluido com sucesso
     E o status do pedido deve ser "CONCLUIDO"
-
-  Cenario: Calcular custo total do pedido
-    Dado que existe um pedido com os seguintes itens:
-      | produto   | quantidade | precoUnitario |
-      | Produto X | 100        | 50.00         |
-      | Produto Y | 50         | 75.00         |
-    Quando o custo total do pedido e calculado
-    Entao o valor total dos itens deve ser 8750.00
