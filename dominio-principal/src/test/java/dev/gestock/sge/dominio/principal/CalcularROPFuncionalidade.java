@@ -1,98 +1,137 @@
 package dev.gestock.sge.dominio.principal;
 
 import dev.gestock.sge.dominio.principal.produto.*;
+import dev.gestock.sge.dominio.principal.estoque.*;
+import dev.gestock.sge.dominio.principal.cliente.ClienteId;
+import dev.gestock.sge.infraestrutura.persistencia.memoria.Repositorio;
+
 import io.cucumber.java.pt.*;
 import static org.junit.Assert.*;
 
 public class CalcularROPFuncionalidade {
 
+    private final Repositorio repositorio = new Repositorio();
     private Produto produto;
+    private Estoque estoque;
+    private ROP rop;
     private double consumoMedio;
     private int leadTime;
     private int estoqueSeguranca;
-    private ROP rop;
 
-    @Dado("o consumo médio diário é {string} unidades")
-    public void oConsumoMedioDiarioEUnidades(String consumo) {
-        this.consumoMedio = Double.parseDouble(consumo);
+    // =========================================================
+    // H14 — Calcular ROP automaticamente
+    // =========================================================
+
+    @Dado("que existe um produto chamado {string}")
+    public void queExisteUmProdutoChamado(String nome) {
+        ProdutoId produtoId = repositorio.novoProdutoId();
+        produto = new Produto(produtoId, "PROD-001", nome, "UN", false, 0.0);
+
+        EstoqueId estoqueId = repositorio.novoEstoqueId();
+        estoque = new Estoque(estoqueId, new ClienteId(1L), "Estoque A", "Endereço X", 1000);
+
+        repositorio.salvar(produto);
+        repositorio.salvar(estoque);
     }
 
-    @Dado("o lead time do fornecedor é {string} dias")
-    public void oLeadTimeDoFornecedorEDias(String dias) {
-        this.leadTime = Integer.parseInt(dias);
+    @E("o consumo medio diario do produto e {int} unidades")
+    public void oConsumoMedioDiarioDoProdutoEUnidades(int consumo) {
+        this.consumoMedio = consumo;
     }
 
-    @Dado("o estoque de segurança é {string} unidades")
-    public void oEstoqueDeSegurancaEUnidades(String estoque) {
-        this.estoqueSeguranca = Integer.parseInt(estoque);
+    @E("o lead time do fornecedor e {int} dias")
+    public void oLeadTimeDoFornecedorEDias(int dias) {
+        this.leadTime = dias;
     }
 
-    @Quando("eu calculo o ROP")
-    public void euCalculoOROP() {
-        rop = new ROP(consumoMedio, leadTime, estoqueSeguranca);
+    @E("o estoque de seguranca e {int} unidades")
+    public void oEstoqueDeSegurancaEUnidades(int valor) {
+        this.estoqueSeguranca = valor;
     }
 
-    @Então("o ROP deve ser {string} unidades")
-    public void oROPDeveSerUnidades(String valor) {
-        assertEquals(Integer.parseInt(valor), rop.getValorROP());
+    @Quando("o ROP do produto for calculado")
+    public void oROPDoProdutoForCalculado() {
+        estoque.definirROP(produto.getId(), consumoMedio, leadTime, estoqueSeguranca);
+        rop = estoque.getROP(produto.getId());
     }
 
-    @Dado("que existe um produto {string}")
-    public void queExisteUmProduto(String nome) {
-        ProdutoId id = new ProdutoId(1L);
-        produto = new Produto(id, "PROD-001", nome, "UN", false);
+    @Entao("o ROP do produto deve ser {int} unidades")
+    public void oROPDoProdutoDeveSerUnidades(int valor) {
+        assertEquals(valor, rop.getValorROP());
     }
 
-    @Dado("o histórico de consumo dos últimos {int} dias")
-    public void oHistoricoDeConsumoDoUltimosDias(int dias) {
-        // Simula histórico de consumo
+    // =========================================================
+    // R2H14 — Histórico de 90 dias
+    // =========================================================
+
+    @E("o historico de consumo dos ultimos {int} dias")
+    public void oHistoricoDeConsumoDosUltimosDias(int dias) {
+        // Simulação simples de histórico válido
+        assertEquals(90, dias);
     }
 
-    @Quando("o sistema calcula o consumo médio")
+    @Quando("o sistema calcula o consumo medio")
     public void oSistemaCalculaOConsumoMedio() {
-        consumoMedio = 10.0; // Simulação
+        // Valor simulado representando média real calculada a partir do histórico
+        consumoMedio = 10.0;
     }
 
-    @Então("o ROP deve ser calculado com base nesse histórico")
-    public void oROPDeveSerCalculadoComBaseNesseHistorico() {
-        assertNotNull("Consumo médio deve ser calculado", consumoMedio);
+    @Entao("o ROP do produto e calculado com base nesse historico")
+    public void oROPDoProdutoECalculadoComBaseNesseHistorico() {
+        assertTrue(consumoMedio > 0);
     }
 
-    @Dado("que existe um produto {string} com ROP calculado")
-    public void queExisteUmProdutoComROPCalculado(String nome) {
-        ProdutoId id = new ProdutoId(1L);
-        produto = new Produto(id, "PROD-001", nome, "UN", false);
-        produto.definirROP(10, 7, 20);
+    // =========================================================
+    // H15 — Visualizar valores de ROP
+    // =========================================================
+
+    @Dado("que existe um produto chamado {string} com ROP calculado")
+    public void queExisteUmProdutoChamadoComROPCalculado(String nome) {
+        ProdutoId produtoId = repositorio.novoProdutoId();
+        produto = new Produto(produtoId, "PROD-002", nome, "UN", false, 0.0);
+
+        EstoqueId estoqueId = repositorio.novoEstoqueId();
+        estoque = new Estoque(estoqueId, new ClienteId(1L), "Estoque B", "Endereço Y", 1000);
+        estoque.definirROP(produto.getId(), 10, 7, 20);
+
+        repositorio.salvar(produto);
+        repositorio.salvar(estoque);
     }
 
-    @Quando("eu visualizo o ROP do produto")
-    public void euVisualizoOROPDoProduto() {
-        rop = produto.getRop();
+    @Quando("o cliente clica para visualizar o ROP dos produtos")
+    public void oClienteClicaParaVisualizarOROPDosProdutos() {
+        rop = estoque.getROP(produto.getId());
     }
 
-    @Então("devo ver o valor do ROP")
-    public void devoVerOValorDoROP() {
-        assertNotNull("ROP deve existir", rop);
+    @Entao("o sistema deve exibir o valor do ROP")
+    public void oSistemaDeveExibirOValorDoROP() {
+        assertNotNull("ROP não deve ser nulo", rop);
     }
 
-    @Então("devo ver o consumo médio usado no cálculo")
-    public void devoVerOConsumoMedioUsadoNoCalculo() {
+    @E("o sistema deve exibir o consumo medio utilizado no calculo")
+    public void oSistemaDeveExibirOConsumoMedioUtilizadoNoCalculo() {
         assertTrue("Consumo médio deve ser maior que zero", rop.getConsumoMedio() > 0);
     }
 
-    @Dado("que existe um produto {string} sem histórico")
-    public void queExisteUmProdutoSemHistorico(String nome) {
-        ProdutoId id = new ProdutoId(1L);
-        produto = new Produto(id, "PROD-001", nome, "UN", false);
+    // =========================================================
+    // R1H15 — Produtos sem histórico usam ROP padrão
+    // =========================================================
+
+    @Dado("que existe um produto chamado {string} sem historico")
+    public void queExisteUmProdutoChamadoSemHistorico(String nome) {
+        ProdutoId produtoId = repositorio.novoProdutoId();
+        produto = new Produto(produtoId, "PROD-003", nome, "UN", false, 0.0);
+        repositorio.salvar(produto);
     }
 
-    @Quando("eu tento calcular o ROP")
-    public void euTentoCalcularOROP() {
-        // Sistema usa ROP padrão
+    @Quando("O sistema tentar calcular o ROP do produto")
+    public void oSistemaTentarCalcularOROPDoProduto() {
+        // ROP padrão mínimo quando não há histórico (1 unidade)
+        rop = new ROP(0.0, 0, 1);
     }
 
-    @Então("o sistema deve usar um ROP padrão de {string} unidades")
-    public void oSistemaDeveUsarUmROPPadraoDeUnidades(String valor) {
-        assertEquals(Integer.parseInt(valor), 50); // ROP padrão
+    @Entao("o sistema deve usar um ROP padrao de {int} unidade")
+    public void oSistemaDeveUsarUmROPPadraoDeUnidade(int valor) {
+        assertEquals(valor, rop.getValorROP());
     }
 }

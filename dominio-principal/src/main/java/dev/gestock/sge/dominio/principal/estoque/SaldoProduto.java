@@ -1,13 +1,11 @@
 package dev.gestock.sge.dominio.principal.estoque;
 
-/**
- * Value Object: Saldo de um produto dentro do Estoque.
- * - fisico: quantidade existente no estoque.
- * - reservado: quantidade comprometida (pedidos em andamento).
- * - disponível = fisico - reservado (R15).
- *
- * Todas as operações retornam NOVAS instâncias (imutabilidade lógica).
- */
+/* Value Object: Saldo de um produto dentro do Estoque.
+   fisico: quantidade existente no estoque.
+   reservado: quantidade comprometida (pedidos em andamento).
+   disponível = fisico - reservado (R15).
+
+   Todas as operações retornam NOVAS instâncias (imutabilidade lógica) */
 public record SaldoProduto(int fisico, int reservado) {
 
     public static SaldoProduto zero() {

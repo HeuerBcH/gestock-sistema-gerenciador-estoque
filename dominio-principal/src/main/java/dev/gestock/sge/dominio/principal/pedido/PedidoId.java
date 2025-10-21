@@ -2,7 +2,7 @@ package dev.gestock.sge.dominio.principal.pedido;
 
 import java.util.Objects;
 
-/** VO: Identificador imutável do Pedido (Long). */
+/* ValueObject: Identificador do Pedido (Long). */
 public class PedidoId {
     private final Long id;
 

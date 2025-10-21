@@ -1,11 +1,9 @@
 package dev.gestock.sge.dominio.principal.fornecedor;
 
-/**
- * Value Object: Lead Time
- *
- * Representa o tempo médio de entrega de um fornecedor (R14).
- * Calculado automaticamente com base em histórico de entregas.
- */
+/* Value Object: Lead Time
+
+ Representa o tempo médio de entrega de um fornecedor (R14).
+ Calculado automaticamente com base em histórico de entregas. */
 public class LeadTime {
 
     private final int dias;

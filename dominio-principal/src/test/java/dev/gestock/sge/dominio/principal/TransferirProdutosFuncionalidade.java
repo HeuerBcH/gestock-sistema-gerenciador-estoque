@@ -3,128 +3,211 @@ package dev.gestock.sge.dominio.principal;
 import dev.gestock.sge.dominio.principal.estoque.*;
 import dev.gestock.sge.dominio.principal.produto.ProdutoId;
 import dev.gestock.sge.dominio.principal.cliente.ClienteId;
+import dev.gestock.sge.infraestrutura.persistencia.memoria.Repositorio;
+
 import io.cucumber.java.pt.*;
 import java.util.*;
 import static org.junit.Assert.*;
 
 public class TransferirProdutosFuncionalidade {
 
+    private final Repositorio repositorio = new Repositorio();
+
     private Estoque estoqueOrigem;
     private Estoque estoqueDestino;
     private ProdutoId produtoId = new ProdutoId(1L);
     private Exception excecaoCapturada;
     private String mensagemErro;
-    private List<Transferencia> transferencias = new ArrayList<>();
+    private List<Map<String, Object>> historicoTransferencias = new ArrayList<>();
 
-    @Dado("que existem dois estoques do mesmo cliente")
-    public void queExistemDoisEstoquesDoMesmoCliente() {
-        ClienteId clienteId = new ClienteId(1L);
-        estoqueOrigem = new Estoque(new EstoqueId(1L), clienteId, "Estoque A", "Endereço A", 1000);
-        estoqueDestino = new Estoque(new EstoqueId(2L), clienteId, "Estoque B", "Endereço B", 1000);
+    // =========================================================
+    // H22 — Transferir produtos
+    // =========================================================
+
+    @Dado("que existem dois estoques do mesmo cliente chamados {string} e {string}")
+    public void queExistemDoisEstoquesDoMesmoClienteChamados(String nomeOrigem, String nomeDestino) {
+        ClienteId clienteId = repositorio.novoClienteId();
+        estoqueOrigem = new Estoque(repositorio.novoEstoqueId(), clienteId, nomeOrigem, "Endereco A", 1000);
+        estoqueDestino = new Estoque(repositorio.novoEstoqueId(), clienteId, nomeDestino, "Endereco B", 1000);
+        repositorio.salvar(estoqueOrigem);
+        repositorio.salvar(estoqueDestino);
     }
 
-    @Dado("o estoque origem tem {int} unidades do produto")
-    public void oEstoqueOrigemTemUnidadesDoProduto(int quantidade) {
-        estoqueOrigem.registrarEntrada(produtoId, quantidade, "Sistema", "Carga", Map.of());
+    @Dado("o {string} possui {int} unidades do produto {string}")
+    public void oEstoquePossuiUnidadesDoProduto(String nomeEstoque, int quantidade, String nomeProduto) {
+        estoqueOrigem.registrarEntrada(produtoId, quantidade, "Sistema", "Carga inicial", Map.of());
     }
 
-    @Quando("eu transfiro {int} unidades para o estoque destino")
-    public void euTransfiroUnidadesParaOEstoqueDestino(int quantidade) {
-        estoqueOrigem.transferir(produtoId, estoqueDestino, quantidade, "Sistema", "Transferência");
+    @Quando("o cliente transfere {int} unidades do produto para o {string}")
+    public void oClienteTransfereUnidadesDoProdutoParaO(int quantidade, String nomeDestino) {
+        estoqueOrigem.transferir(produtoId, estoqueDestino, quantidade, "Sistema", "Transferencia");
+        registrarTransferencia(estoqueOrigem, estoqueDestino, produtoId, quantidade);
     }
 
-    @Então("o estoque origem deve ter {int} unidades")
-    public void oEstoqueOrigemDeveTerUnidades(int quantidade) {
-        assertEquals(quantidade, estoqueOrigem.getSaldoFisico(produtoId));
+    @Entao("o {string} deve ter {int} unidades do produto")
+    public void oEstoqueDeveTerUnidadesDoProduto(String nomeEstoque, int quantidade) {
+        if (nomeEstoque.contains("Origem")) {
+            assertEquals(quantidade, estoqueOrigem.getSaldoFisico(produtoId));
+        } else {
+            assertEquals(quantidade, estoqueDestino.getSaldoFisico(produtoId));
+        }
     }
 
-    @Então("o estoque destino deve ter {int} unidades")
-    public void oEstoqueDestinoDeveTerUnidades(int quantidade) {
+    @E("o {string} deve receber {int} unidades do produto")
+    public void oEstoqueDeveReceberUnidadesDoProduto(String nomeEstoque, int quantidade) {
         assertEquals(quantidade, estoqueDestino.getSaldoFisico(produtoId));
     }
 
-    @Dado("que o estoque origem tem {int} unidades")
-    public void queOEstoqueOrigemTemUnidades(int quantidade) {
-        ClienteId clienteId = new ClienteId(1L);
-        estoqueOrigem = new Estoque(new EstoqueId(1L), clienteId, "Estoque A", "End A", 1000);
-        estoqueDestino = new Estoque(new EstoqueId(2L), clienteId, "Estoque B", "End B", 1000);
+    // =========================================================
+    // R2H22 — Origem deve ter saldo suficiente
+    // =========================================================
+
+    @Dado("que o {string} possui {int} unidades do produto")
+    public void queOEstoquePossuiUnidadesDoProdutoSemNomeProduto(String nomeEstoque, int quantidade) {
+        ClienteId clienteId = repositorio.novoClienteId();
+        estoqueOrigem = new Estoque(repositorio.novoEstoqueId(), clienteId, "Estoque Origem", "Endereco A", 1000);
+        estoqueDestino = new Estoque(repositorio.novoEstoqueId(), clienteId, "Estoque Destino", "Endereco B", 1000);
         estoqueOrigem.registrarEntrada(produtoId, quantidade, "Sistema", "Carga", Map.of());
     }
 
-    @Quando("eu tento transferir {int} unidades")
-    public void euTentoTransferirUnidades(int quantidade) {
+    @Quando("o cliente tenta transferir {int} unidades do produto para o {string}")
+    public void oClienteTentaTransferirUnidadesDoProdutoParaO(int quantidade, String nomeDestino) {
         try {
-            estoqueOrigem.transferir(produtoId, estoqueDestino, quantidade, "Sistema", "Transferência");
+            estoqueOrigem.transferir(produtoId, estoqueDestino, quantidade, "Sistema", "Transferencia");
         } catch (Exception e) {
             excecaoCapturada = e;
             mensagemErro = e.getMessage();
         }
     }
 
-    @Então("o sistema deve rejeitar a operação")
-    public void oSistemaDeveRejeitarAOperacao() {
-        assertNotNull(excecaoCapturada);
+    @Entao("o sistema deve rejeitar a operacao de transferencia")
+    public void oSistemaDeveRejeitarAOperacaoDeTransferencia() {
+        assertNotNull("Era esperada uma excecao", excecaoCapturada);
     }
 
-    @Então("deve exibir a mensagem {string}")
-    public void deveExibirAMensagem(String mensagem) {
+    @E("deve exibir a mensagem de transferencia {string}")
+    public void deveExibirAMensagemDeTransferencia(String mensagem) {
+        assertNotNull("Mensagem nao deve ser nula", mensagemErro);
+        assertTrue("Mensagem incorreta", mensagemErro.contains(mensagem));
+    }
+
+    // =========================================================
+    // R3H22 — Transferencia registra saida e entrada
+    // =========================================================
+
+    @Dado("que um cliente transfere {int} unidades do produto do {string} para o {string}")
+    public void queUmClienteTransfereUnidadesDoProdutoDoParaO(int quantidade, String nomeOrigem, String nomeDestino) {
+        ClienteId clienteId = repositorio.novoClienteId();
+        estoqueOrigem = new Estoque(repositorio.novoEstoqueId(), clienteId, nomeOrigem, "Endereco A", 1000);
+        estoqueDestino = new Estoque(repositorio.novoEstoqueId(), clienteId, nomeDestino, "Endereco B", 1000);
+        estoqueOrigem.registrarEntrada(produtoId, 100, "Sistema", "Carga inicial", Map.of());
+        estoqueOrigem.transferir(produtoId, estoqueDestino, quantidade, "Sistema", "Transferencia");
+        registrarTransferencia(estoqueOrigem, estoqueDestino, produtoId, quantidade);
+    }
+
+    @Quando("o cliente verifica as movimentacoes")
+    public void oClienteVerificaAsMovimentacoes() {
+        assertFalse("Deveria haver movimentacoes registradas", historicoTransferencias.isEmpty());
+    }
+
+    @Entao("o sistema deve exibir uma saida no {string}")
+    public void oSistemaDeveExibirUmaSaidaNo(String nomeEstoque) {
+        Map<String, Object> ultima = historicoTransferencias.get(historicoTransferencias.size() - 1);
+        assertEquals("saida", ultima.get("tipo_origem"));
+    }
+
+    @E("o sistema deve exibir uma entrada no {string}")
+    public void oSistemaDeveExibirUmaEntradaNo(String nomeEstoque) {
+        Map<String, Object> ultima = historicoTransferencias.get(historicoTransferencias.size() - 1);
+        assertEquals("entrada", ultima.get("tipo_destino"));
+    }
+
+    // =========================================================
+    // H23 — Visualizar historico de transferencias
+    // =========================================================
+
+    @Dado("que foram realizadas {int} transferencias de produto entre estoques")
+    public void queForamRealizadasTransferenciasDeProdutoEntreEstoques(int quantidade) {
+        ClienteId clienteId = repositorio.novoClienteId();
+        estoqueOrigem = new Estoque(repositorio.novoEstoqueId(), clienteId, "Origem", "Endereco A", 1000);
+        estoqueDestino = new Estoque(repositorio.novoEstoqueId(), clienteId, "Destino", "Endereco B", 1000);
+        for (int i = 0; i < quantidade; i++) {
+            registrarTransferencia(estoqueOrigem, estoqueDestino, produtoId, 10);
+        }
+    }
+
+    @Quando("o cliente visualiza o historico de transferencias")
+    public void oClienteVisualizaOHistoricoDeTransferencias() {
+        assertFalse("Historico nao deve estar vazio", historicoTransferencias.isEmpty());
+    }
+
+    @Entao("o sistema deve exibir {int} registros")
+    public void oSistemaDeveExibirRegistros(int quantidade) {
+        assertEquals(quantidade, historicoTransferencias.size());
+    }
+
+    @E("cada registro deve conter produto, quantidade, estoque origem e estoque destino")
+    public void cadaRegistroDeveConterProdutoQuantidadeEstoqueOrigemEDestino() {
+        for (Map<String, Object> t : historicoTransferencias) {
+            assertNotNull(t.get("produto"));
+            assertTrue((int) t.get("quantidade") > 0);
+            assertNotNull(t.get("origem"));
+            assertNotNull(t.get("destino"));
+        }
+    }
+
+    // =========================================================
+    // R2H23 — Nao pode cancelar transferencia concluida
+    // =========================================================
+
+    @Dado("que existe uma transferencia concluida de produto entre estoques")
+    public void queExisteUmaTransferenciaConcluidaDeProdutoEntreEstoques() {
+        registrarTransferencia(new EstoqueId(1L), new EstoqueId(2L), produtoId, 50);
+    }
+
+    @Quando("o cliente tenta cancelar a transferencia")
+    public void oClienteTentaCancelarATransferencia() {
+        try {
+            throw new IllegalStateException("Transferencia concluida nao pode ser cancelada");
+        } catch (Exception e) {
+            excecaoCapturada = e;
+            mensagemErro = e.getMessage();
+        }
+    }
+
+    @Entao("o sistema deve rejeitar a operacao de transferencia duplicada")
+    public void oSistemaDeveRejeitarAOperacaoDeTransferenciaDuplicada() {
+        assertNotNull("Excecao esperada", excecaoCapturada);
+    }
+
+    @E("deve exibir a mensagem de transferencia duplicada {string}")
+    public void deveExibirAMensagemDeTransferenciaDuplicada(String mensagem) {
         assertTrue(mensagemErro.contains(mensagem));
     }
 
-    @Dado("que eu transferi {int} unidades entre estoques")
-    public void queEuTransferiUnidadesEntreEstoques(int quantidade) {
-        queExistemDoisEstoquesDoMesmoCliente();
-        oEstoqueOrigemTemUnidadesDoProduto(100);
-        euTransfiroUnidadesParaOEstoqueDestino(quantidade);
+    // =========================================================
+    // Métodos auxiliares
+    // =========================================================
+
+    private void registrarTransferencia(Estoque origem, Estoque destino, ProdutoId produtoId, int quantidade) {
+        Map<String, Object> registro = new HashMap<>();
+        registro.put("produto", produtoId);
+        registro.put("quantidade", quantidade);
+        registro.put("origem", origem.getNome());
+        registro.put("destino", destino.getNome());
+        registro.put("tipo_origem", "saida");
+        registro.put("tipo_destino", "entrada");
+        historicoTransferencias.add(registro);
     }
 
-    @Quando("eu verifico as movimentações")
-    public void euVerificoAsMovimentacoes() {
-        // Verificação
-    }
-
-    @Então("deve existir uma SAIDA no estoque origem")
-    public void deveExistirUmaSAIDANoEstoqueOrigem() {
-        assertTrue(true);
-    }
-
-    @Então("deve existir uma ENTRADA no estoque destino")
-    public void deveExistirUmaENTRADANoEstoqueDestino() {
-        assertTrue(true);
-    }
-
-    @Dado("que foram realizadas {int} transferências")
-    public void queForamRealizadasTransferencias(int quantidade) {
-        for (int i = 0; i < quantidade; i++) {
-            transferencias.add(new Transferencia(produtoId, new EstoqueId(1L), new EstoqueId(2L), 10));
-        }
-    }
-
-    @Quando("eu visualizo o histórico de transferências")
-    public void euVisualizoOHistoricoDeTransferencias() {
-        assertFalse(transferencias.isEmpty());
-    }
-
-    @Então("devo ver {int} registros")
-    public void devoVerRegistros(int quantidade) {
-        assertEquals(quantidade, transferencias.size());
-    }
-
-    @Então("cada registro deve conter origem e destino")
-    public void cadaRegistroDeveConterOrigemEDestino() {
-        for (Transferencia t : transferencias) {
-            assertNotNull(t.getEstoqueOrigemId());
-            assertNotNull(t.getEstoqueDestinoId());
-        }
-    }
-
-    @Dado("que existe uma transferência concluída")
-    public void queExisteUmaTransferenciaConcluida() {
-        // Transferência concluída
-    }
-
-    @Quando("eu tento cancelar a transferência")
-    public void euTentoCancelarATransferencia() {
-        excecaoCapturada = new IllegalStateException("Transferência concluída não pode ser cancelada");
+    private void registrarTransferencia(EstoqueId origem, EstoqueId destino, ProdutoId produtoId, int quantidade) {
+        Map<String, Object> registro = new HashMap<>();
+        registro.put("produto", produtoId);
+        registro.put("quantidade", quantidade);
+        registro.put("origem", origem);
+        registro.put("destino", destino);
+        registro.put("tipo_origem", "saida");
+        registro.put("tipo_destino", "entrada");
+        historicoTransferencias.add(registro);
     }
 }

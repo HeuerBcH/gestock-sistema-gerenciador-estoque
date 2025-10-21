@@ -2,10 +2,7 @@ package dev.gestock.sge.dominio.principal.produto;
 
 import static org.apache.commons.lang3.Validate.notBlank;
 
-/**
- * Value Object: Código do produto.
- * Garante unicidade e validade sintática (R29).
- */
+/* Value Object: Código do produto. Garante unicidade e validade sintática (R29) */
 public class CodigoProduto {
     private final String valor;
 
