@@ -22,6 +22,7 @@ Funcionalidade: Selecionar Cotacao Mais Vantajosa
     Quando o sistema seleciona a melhor cotacao
     Entao a cotacao do "Fornecedor B" deve ser selecionada
 
+  # R1H18: Ignorar fornecedor inativo
   Cenario: Ignorar fornecedor inativo
     Dado que existem as seguintes cotacoes para o produto "Produto X":
       | fornecedor   | preco | prazo | ativo |
@@ -31,7 +32,7 @@ Funcionalidade: Selecionar Cotacao Mais Vantajosa
     Entao a cotacao do "Fornecedor A" deve ser selecionada
 
   # H19: Revisar e aprovar cotacao
-  # R1H19: Cotacao aprovada e registrada
+  # R1H19: Cotacao aprovada e registrada como selecionada
   Cenario: Aprovar cotacao selecionada
     Dado que o sistema selecionou a melhor cotacao para o produto "Produto X"
     Quando o cliente aprova a cotacao
