@@ -24,8 +24,12 @@
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <!-- Útil em multi-módulos para evitar problemas de module path -->
+                    <useModulePath>false</useModulePath>
+                </configuration>
 			</plugin>
       			
 			<plugin>
