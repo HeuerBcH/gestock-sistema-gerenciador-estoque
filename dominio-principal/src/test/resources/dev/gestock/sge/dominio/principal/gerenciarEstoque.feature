@@ -55,3 +55,25 @@ Funcionalidade: Gerenciar Estoques
     Quando o cliente tenta inativar o estoque "Estoque A"
     Entao o sistema deve impedir a operacao
     E deve exibir a mensagem de estoque "Estoque com pedido em andamento nao pode ser inativado"
+
+  # H3: Editar parametros de estoque
+  # R1H3: Nao pode reduzir capacidade se estiver cheia
+  Cenario: Tentar reduzir capacidade de estoque cheio
+    Dado que existe um estoque chamado "Estoque B" com capacidade 1000
+    E o estoque esta com 1000 unidades armazenadas
+    Quando o cliente tenta alterar a capacidade do estoque para 800
+    Entao o sistema deve impedir a alteracao
+    E deve exibir a mensagem de estoque "Nao e possivel reduzir capacidade de estoque cheio"
+
+  # H4: Pesquisar e visualizar estoques
+  # R1H4: Nao deve ser possivel pesquisar sem estoques cadastrados
+  Cenario: Tentar pesquisar estoques sem cadastros
+    Dado que nao existem estoques cadastrados
+    Quando o cliente realiza uma pesquisa de estoques
+    Entao o sistema deve exibir a mensagem "Nenhum estoque cadastrado"
+
+  # R2H4: Pesquisa por multiplos parametros
+  Cenario: Pesquisar estoque por nome e endereco
+    Dado que existem estoques cadastrados
+    Quando o cliente pesquisa pelo nome "Estoque Central" e endereco "Rua A, 123"
+    Entao o sistema deve exibir o estoque correspondente
