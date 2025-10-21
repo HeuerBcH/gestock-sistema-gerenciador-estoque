@@ -1,7 +1,6 @@
 # language: pt
 Funcionalidade: Emitir Alertas de Estoque Baixo
 
-
   # H16: Ser notificado ao atingir ROP
   # R1H16: Alerta gerado automaticamente ao atingir ROP
   Cenario: Gerar alerta ao atingir ROP
@@ -25,10 +24,11 @@ Funcionalidade: Emitir Alertas de Estoque Baixo
   # R2H16: Alerta indica produto, estoque e fornecedor sugerido
   Cenario: Alerta contem informacoes completas
     Dado que existe um alerta gerado para um produto
+    E o fornecedor sugerido possui cotacao valida e ativa
     Quando o cliente visualiza o alerta
-    Entao  o sistema deve exibir o nome do produto
+    Entao o sistema deve exibir o nome do produto
     E o sistema deve exibir o estoque afetado
-    E o sitema deve exibir o fornecedor com menor cotacao
+    E o sistema deve exibir o fornecedor com menor cotacao
 
   # H17: Visualizar lista de alertas ativos
   Cenario: Listar todos os alertas ativos

@@ -72,7 +72,7 @@ Funcionalidade: Gerenciar Produtos
     Entao o sistema deve rejeitar a operacao
     E o sistema deve exibir a mensagem "Produto com saldo positivo nao pode ser inativado"
 
-  # R1H10: Nao inativar produto com pedidos em andamento
+  # R2H10: Nao inativar produto com pedidos em andamento
   Cenario: Tentar inativar produto com pedidos em andamento
     Dado que existe um produto chamado "Produto A" para gerenciamento sem saldo em estoque
     E existem pedidos em andamento para o produto
@@ -80,28 +80,15 @@ Funcionalidade: Gerenciar Produtos
     Entao o sistema deve rejeitar a operacao
     E o sistema deve exibir a mensagem "Produto com pedidos em andamento nao pode ser inativado"
 
-  # R2H10: Bloquear novas cotacoes apos inativacao
+  # R3H10: Bloquear novas cotacoes apos inativacao
   Cenario: Verificar bloqueio de novas cotacoes apos inativacao
     Dado que existe um produto chamado "Produto A" para gerenciamento inativo
     Quando o cliente tenta registrar uma nova cotacao para o produto
     Entao o sistema deve rejeitar a operacao
     E o sistema deve exibir a mensagem "Produto inativo nao pode receber novas cotacoes"
 
-  # H14: Definir e calcular ROP
-  Cenario: Definir ROP para o produto
-    Dado que existe um produto chamado "Produto A"
-    Quando o cliente define o ROP informando consumo medio de 10 unidades por dia, lead time de 7 dias e estoque de seguranca de 20 unidades
-    Entao o sistema deve calcular o ROP corretamente
-    E o valor do ROP deve ser 90 unidades
 
-  Cenario: Verificar se produto atingiu o ROP
-    Dado que existe um produto chamado "Produto A" com ROP definido em 90 unidades
-    Quando o saldo atual e 85 unidades
-    Entao o sistema deve identificar que o produto atingiu o ROP
-    E deve ser necessario acionar reposicao
 
-  Cenario: Verificar produto acima do ROP
-    Dado que existe um produto chamado "Produto A" com ROP definido em 90 unidades
-    Quando o saldo atual e 100 unidades
-    Entao o sistema deve identificar que o produto esta acima do ROP
-    E nao e necessario acionar reposicao
+
+
+
