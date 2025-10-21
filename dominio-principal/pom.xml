@@ -12,6 +12,12 @@
     </parent>
 
     <artifactId>sge-dominio-principal</artifactId>
+    
+    <properties>
+        <cucumber.version>7.14.0</cucumber.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+    </properties>
 
     <build>
         <plugins>
