@@ -1,15 +1,17 @@
 package dev.gestock.sge.dominio.principal;
 
-import io.cucumber.junit.Cucumber;
-import io.cucumber.junit.CucumberOptions;
-import org.junit.runner.RunWith;
+import org.junit.platform.suite.api.ConfigurationParameter;
+import org.junit.platform.suite.api.IncludeEngines;
+import org.junit.platform.suite.api.SelectClasspathResource;
+import org.junit.platform.suite.api.Suite;
 
-@RunWith(Cucumber.class)
-@CucumberOptions(
-        features = "src/test/resources/dev/gestock/sge/dominio/principal",
-        glue = "dev.gestock.sge.dominio.principal",
-        plugin = {"pretty", "html:target/cucumber-reports.html"},
-        monochrome = true
-)
+import static io.cucumber.junit.platform.engine.Constants.GLUE_PROPERTY_NAME;
+import static io.cucumber.junit.platform.engine.Constants.PLUGIN_PROPERTY_NAME;
+
+@Suite
+@IncludeEngines("cucumber")
+@SelectClasspathResource("dev/gestock/sge/dominio/principal")
+@ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "dev.gestock.sge.dominio.principal")
+@ConfigurationParameter(key = PLUGIN_PROPERTY_NAME, value = "pretty, summary")
 public class RunCucumberTest {
 }
