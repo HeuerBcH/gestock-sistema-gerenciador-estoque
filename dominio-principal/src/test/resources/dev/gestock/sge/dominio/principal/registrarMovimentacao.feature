@@ -1,35 +1,32 @@
 # language: pt
-Funcionalidade: Registrar Movimentações de Estoque
-  Como cliente
-  Desejo registrar movimentações de entrada e saída
-  Para manter o saldo atualizado
+Funcionalidade: Registrar Movimentacoes de Estoque
 
-  # H20: Registrar movimentações
-  # R1H20: Entradas geradas automaticamente após recebimento
-  Cenário: Registrar entrada manual
-    Dado que existe um estoque "Estoque A"
-    E existe um produto "Produto X"
-    Quando eu registro uma entrada de 100 unidades
-    Então o saldo deve aumentar em 100 unidades
-    E uma movimentação de ENTRADA deve ser criada
+  # H20: Registrar movimentacoes
+  # R1H20: Entradas geradas automaticamente apos recebimento
+  Cenario: Registrar entrada manual
+    Dado que existe um estoque de movimentacao chamado "Estoque A"
+    E existe um produto chamado "Produto X"
+    Quando o cliente registra uma entrada de 100 unidades do produto
+    Entao o saldo do estoque apos a movimentacao deve aumentar em 100 unidades
+    E uma movimentacao do tipo ENTRADA deve ser criada
 
-  # R2H20: Saídas indicam motivo
-  Cenário: Registrar saída com motivo
-    Dado que existe um estoque com 200 unidades
-    Quando eu registro uma saída de 50 unidades com motivo "Venda"
-    Então o saldo deve diminuir em 50 unidades
-    E a movimentação deve conter o motivo "Venda"
+  # R2H20: Saidas indicam motivo
+  Cenario: Registrar saida com motivo
+    Dado que existe um estoque com 200 unidades do produto
+    Quando o cliente registra uma saida de 50 unidades com motivo "Venda"
+    Entao o saldo do estoque deve diminuir em 50 unidades
+    E a movimentacao deve conter o motivo "Venda"
 
-  Cenário: Tentar registrar saída com saldo insuficiente
-    Dado que existe um estoque com 30 unidades disponíveis
-    Quando eu tento registrar uma saída de 50 unidades
-    Então o sistema deve rejeitar a operação
-    E deve exibir a mensagem "Saldo disponível insuficiente"
+  Cenario: Tentar registrar saida com saldo insuficiente
+    Dado que existe um estoque com 30 unidades disponiveis do produto
+    Quando o cliente tenta registrar uma saida de 50 unidades
+    Entao o sistema deve rejeitar a operacao
+    E deve exibir a mensagem "Saldo disponivel insuficiente"
 
-  # H21: Visualizar histórico
-  # R1H21: Histórico mantido por 12 meses
-  Cenário: Visualizar histórico completo
-    Dado que existem 10 movimentações registradas
-    Quando eu visualizo o histórico do produto
-    Então devo ver todas as 10 movimentações
-    E cada movimentação deve conter data, tipo, quantidade e responsável
+  # H21: Visualizar historico
+  # R1H21: Historico mantido por 12 meses
+  Cenario: Visualizar historico completo
+    Dado que existem 10 movimentacoes registradas para o produto
+    Quando o cliente visualiza o historico do produto
+    Entao o sistema deve exibir todas as 10 movimentacoes
+    E cada movimentacao deve conter data, tipo, quantidade e responsavel

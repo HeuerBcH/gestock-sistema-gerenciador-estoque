@@ -3,10 +3,8 @@ package dev.gestock.sge.dominio.principal.estoque;
 import dev.gestock.sge.dominio.principal.produto.ProdutoId;
 import java.time.LocalDateTime;
 
-/**
- * Entidade de auditoria para transferências entre estoques.
- * Mantém registro completo de origem, destino e produto transferido.
- */
+/* Entidade de auditoria para transferências entre estoques.
+   Mantém registro completo de origem, destino e produto transferido. */
 public class Transferencia {
 
     private final Long id;
@@ -18,9 +16,9 @@ public class Transferencia {
     private final String responsavel;
     private final String motivo;
 
-    public Transferencia(Long id, ProdutoId produtoId, EstoqueId estoqueOrigemId, 
-                        EstoqueId estoqueDestinoId, int quantidade, LocalDateTime dataHora,
-                        String responsavel, String motivo) {
+    public Transferencia(Long id, ProdutoId produtoId, EstoqueId estoqueOrigemId,
+                         EstoqueId estoqueDestinoId, int quantidade, LocalDateTime dataHora,
+                         String responsavel, String motivo) {
         this.id = id;
         this.produtoId = produtoId;
         this.estoqueOrigemId = estoqueOrigemId;
@@ -32,10 +30,10 @@ public class Transferencia {
     }
 
     // Construtor simplificado para testes
-    public Transferencia(ProdutoId produtoId, EstoqueId estoqueOrigemId, 
-                        EstoqueId estoqueDestinoId, int quantidade) {
-        this(1L, produtoId, estoqueOrigemId, estoqueDestinoId, quantidade, 
-             LocalDateTime.now(), "Sistema", "Transferência");
+    public Transferencia(ProdutoId produtoId, EstoqueId estoqueOrigemId,
+                         EstoqueId estoqueDestinoId, int quantidade) {
+        this(1L, produtoId, estoqueOrigemId, estoqueDestinoId, quantidade,
+                LocalDateTime.now(), "Sistema", "Transferência");
     }
 
     // Getters

@@ -1,106 +1,107 @@
 # language: pt
 Funcionalidade: Gerenciar Produtos
-  Como cliente
-  Desejo gerenciar produtos
-  Para manter controle dos itens em estoque
 
-  # H8: Como cliente, desejo cadastrar produtos com suas especificações e unidades de medida
-  Cenário: Cadastrar produto com sucesso
-    Quando eu cadastro um produto com código "PROD-001", nome "Produto A", unidade "UN" e não perecível
-    Então o produto deve ser cadastrado com sucesso
+  # H8: Cadastrar produtos
+  Cenario: Cadastrar produto com sucesso
+    Dado que o cliente informa codigo "PROD-001", nome "Produto A", unidade "UN" e indica que nao e perecivel
+    Quando o cliente confirma o cadastro do produto
+    Entao o sistema deve cadastrar o produto com sucesso
     E o produto deve estar ativo
     E o ROP deve estar nulo inicialmente
 
-  Cenário: Cadastrar produto perecível
-    Quando eu cadastro um produto com código "PROD-002", nome "Produto B", unidade "KG" e perecível
-    Então o produto deve ser cadastrado com sucesso
-    E o produto deve ser marcado como perecível
+  Cenario: Cadastrar produto perecivel
+    Dado que o cliente informa codigo "PROD-002", nome "Produto B", unidade "KG" e indica que e perecivel
+    Quando o cliente confirma o cadastro do produto
+    Entao o sistema deve cadastrar o produto com sucesso
+    E o produto deve ser marcado como perecivel
 
-  # R1H8: Cada produto deve possuir um código único dentro do catálogo do cliente
-  Cenário: Tentar cadastrar produto com código duplicado
-    Dado que existe um produto com código "PROD-001"
-    Quando eu tento cadastrar outro produto com código "PROD-001"
-    Então o sistema deve rejeitar o cadastro
-    E deve exibir a mensagem "Código do produto já existe"
+  # R1H8: Codigo unico
+  Cenario: Tentar cadastrar produto com codigo duplicado
+    Dado que existe um produto cadastrado com codigo "PROD-001"
+    Quando o cliente tenta cadastrar outro produto com o mesmo codigo "PROD-001"
+    Entao o sistema deve rejeitar o cadastro
+    E o sistema deve exibir a mensagem "Codigo do produto ja existe"
 
-  # R2H8: Um produto pode ser fornecido por diferentes fornecedores via Cotação
-  Cenário: Vincular produto a múltiplos fornecedores
-    Dado que existe um produto "Produto A" com id "prod-001"
-    E existem os seguintes fornecedores:
-      | nome         | cnpj              |
-      | Fornecedor A | 11.111.111/0001-11|
-      | Fornecedor B | 22.222.222/0001-22|
-    Quando os fornecedores registram cotações para o produto:
-      | fornecedor   | preco | prazo |
-      | Fornecedor A | 100.00| 10    |
-      | Fornecedor B | 95.00 | 15    |
-    Então o produto deve ter cotações de 2 fornecedores
+  # R2H8: Produto fornecido por multiplos fornecedores
+  Cenario: Vincular produto a multiplos fornecedores
+    Dado que existe um produto chamado "Produto A" para gerenciamento com id "01"
+    E existem os seguintes fornecedores cadastrados:
+      | nome         | cnpj               |
+      | Fornecedor A | 11.111.111/0001-11 |
+      | Fornecedor B | 22.222.222/0001-22 |
+    Quando os fornecedores registram cotacoes para o produto:
+      | fornecedor   | preco  | prazo |
+      | Fornecedor A | 100.00 | 10    |
+      | Fornecedor B | 95.00  | 15    |
+    Entao o produto deve possuir cotacoes de dois fornecedores
 
-  # R3H8: Todo produto deve estar vinculado a pelo menos um estoque ativo
-  Cenário: Cadastrar produto vinculado a estoque
-    Dado que existe um estoque ativo "Estoque Central"
-    Quando eu cadastro um produto "Produto C" vinculado ao estoque "Estoque Central"
-    Então o produto deve ser cadastrado com sucesso
+  # R3H8: Produto vinculado a pelo menos um estoque
+  Cenario: Cadastrar produto vinculado a estoque
+    Dado que existe um estoque ativo chamado "Estoque Central"
+    Quando o cliente cadastra um produto chamado "Produto C" vinculado ao estoque "Estoque Central"
+    Entao o sistema deve cadastrar o produto com sucesso
     E o produto deve estar vinculado ao estoque "Estoque Central"
 
-  # H9: Como cliente, desejo editar informações dos produtos cadastrados
-  Cenário: Atualizar nome e unidade de medida do produto
-    Dado que existe um produto "Produto A" com unidade "UN"
-    Quando eu atualizo o nome para "Produto A Atualizado" e unidade para "CX"
-    Então os dados do produto devem ser atualizados
+  # H9: Editar produtos
+  Cenario: Atualizar nome e unidade de medida do produto
+    Dado que existe um produto chamado "Produto A" para gerenciamento com unidade "UN"
+    Quando o cliente atualiza o nome para "Produto A Atualizado" e a unidade para "CX"
+    Entao o sistema deve atualizar os dados do produto
     E o nome deve ser "Produto A Atualizado"
     E a unidade deve ser "CX"
 
-  # R1H9: Alterações de especificações não afetam cotações existentes
-  Cenário: Atualizar produto que possui cotações
-    Dado que existe um produto "Produto A" com cotações registradas
-    Quando eu atualizo as especificações do produto
-    Então as cotações existentes devem permanecer inalteradas
+  # R1H9: Alteracoes nao afetam cotacoes existentes
+  Cenario: Atualizar produto que possui cotacoes registradas
+    Dado que existe um produto chamado "Produto A" para gerenciamento com cotacoes registradas
+    Quando o cliente atualiza as especificacoes do produto
+    Entao o sistema deve manter as cotacoes existentes inalteradas
     E o produto deve estar atualizado
 
-  # H10: Como cliente, desejo inativar produtos que não utilizo mais
-  Cenário: Inativar produto sem saldo e sem pedidos
-    Dado que existe um produto "Produto A" sem saldo em estoque
-    E não existem pedidos em andamento para o produto
-    Quando eu inativo o produto "Produto A"
-    Então o produto deve ser inativado com sucesso
+  # H10: Inativar produtos
+  Cenario: Inativar produto sem saldo e sem pedidos
+    Dado que existe um produto chamado "Produto A" para gerenciamento sem saldo em estoque
+    E nao existem pedidos em andamento para o produto
+    Quando o cliente solicita a inativacao do produto "Produto A"
+    Entao o sistema deve inativar o produto com sucesso
     E o status do produto deve ser "inativo"
 
-  # R1H10: Um produto não pode ser inativado se houver saldo positivo
-  Cenário: Tentar inativar produto com saldo positivo
-    Dado que existe um produto "Produto A" com saldo de "50" unidades
-    Quando eu tento inativar o produto "Produto A"
-    Então o sistema deve rejeitar a operação
-    E deve exibir a mensagem "Produto com saldo positivo não pode ser inativado"
+  # R1H10: Nao inativar produto com saldo positivo
+  Cenario: Tentar inativar produto com saldo positivo
+    Dado que existe um produto chamado "Produto A" para gerenciamento com saldo de 50 unidades
+    Quando o cliente solicita a inativacao do produto "Produto A"
+    Entao o sistema deve rejeitar a operacao
+    E o sistema deve exibir a mensagem "Produto com saldo positivo nao pode ser inativado"
 
-  # R1H10: Um produto não pode ser inativado se houver pedidos em andamento
-  Cenário: Tentar inativar produto com pedidos em andamento
-    Dado que existe um produto "Produto A" sem saldo em estoque
+  # R1H10: Nao inativar produto com pedidos em andamento
+  Cenario: Tentar inativar produto com pedidos em andamento
+    Dado que existe um produto chamado "Produto A" para gerenciamento sem saldo em estoque
     E existem pedidos em andamento para o produto
-    Quando eu tento inativar o produto "Produto A"
-    Então o sistema deve rejeitar a operação
-    E deve exibir a mensagem "Produto com pedidos em andamento não pode ser inativado"
+    Quando o cliente solicita a inativacao do produto "Produto A"
+    Entao o sistema deve rejeitar a operacao
+    E o sistema deve exibir a mensagem "Produto com pedidos em andamento nao pode ser inativado"
 
-  # R2H10: Ao inativar um produto, novas cotações e pedidos devem ser bloqueados
-  Cenário: Verificar bloqueio de novas cotações após inativação
-    Dado que existe um produto "Produto A" inativo
-    Quando eu tento registrar uma nova cotação para o produto
-    Então o sistema deve rejeitar a operação
-    E deve exibir a mensagem "Produto inativo não pode receber novas cotações"
+  # R2H10: Bloquear novas cotacoes apos inativacao
+  Cenario: Verificar bloqueio de novas cotacoes apos inativacao
+    Dado que existe um produto chamado "Produto A" para gerenciamento inativo
+    Quando o cliente tenta registrar uma nova cotacao para o produto
+    Entao o sistema deve rejeitar a operacao
+    E o sistema deve exibir a mensagem "Produto inativo nao pode receber novas cotacoes"
 
-  Cenário: Definir ROP para o produto
-    Dado que existe um produto "Produto A"
-    Quando eu defino o ROP com consumo médio "10", lead time "7" dias e estoque de segurança "20"
-    Então o ROP deve ser calculado corretamente
-    E o valor do ROP deve ser "90" unidades
+  # H14: Definir e calcular ROP
+  Cenario: Definir ROP para o produto
+    Dado que existe um produto chamado "Produto A"
+    Quando o cliente define o ROP informando consumo medio de 10 unidades por dia, lead time de 7 dias e estoque de seguranca de 20 unidades
+    Entao o sistema deve calcular o ROP corretamente
+    E o valor do ROP deve ser 90 unidades
 
-  Cenário: Verificar se produto atingiu o ROP
-    Dado que existe um produto "Produto A" com ROP de "90" unidades
-    Quando o saldo atual é "85" unidades
-    Então o produto deve ter atingido o ROP
-    E deve ser necessário acionar reposição
+  Cenario: Verificar se produto atingiu o ROP
+    Dado que existe um produto chamado "Produto A" com ROP definido em 90 unidades
+    Quando o saldo atual e 85 unidades
+    Entao o sistema deve identificar que o produto atingiu o ROP
+    E deve ser necessario acionar reposicao
 
-  Cenário: Verificar produto acima do ROP
-    Dado que existe um produto "Produto A" com ROP de "90" unidades
-    Quando o saldo atual é "100" unidades
-    Então o produto não deve ter atingido o ROP
+  Cenario: Verificar produto acima do ROP
+    Dado que existe um produto chamado "Produto A" com ROP definido em 90 unidades
+    Quando o saldo atual e 100 unidades
+    Entao o sistema deve identificar que o produto esta acima do ROP
+    E nao e necessario acionar reposicao

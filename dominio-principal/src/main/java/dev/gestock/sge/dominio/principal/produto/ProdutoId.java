@@ -2,7 +2,7 @@ package dev.gestock.sge.dominio.principal.produto;
 
 import java.util.Objects;
 
-/** Value Object: Identidade imutável do Produto */
+/* Value Object: Identidade imutável do Produto */
 public class ProdutoId {
 
     private final Long id;

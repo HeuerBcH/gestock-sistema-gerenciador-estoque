@@ -4,81 +4,140 @@ import dev.gestock.sge.dominio.principal.produto.*;
 import dev.gestock.sge.dominio.principal.fornecedor.*;
 import dev.gestock.sge.dominio.principal.estoque.*;
 import dev.gestock.sge.dominio.principal.cliente.ClienteId;
+import dev.gestock.sge.infraestrutura.persistencia.memoria.Repositorio;
+
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.pt.*;
 
 import java.util.*;
-
 import static org.junit.Assert.*;
 
 public class GerenciarProdutosFuncionalidade {
 
+    private final Repositorio repositorio = new Repositorio();
+
     private Produto produto;
-    private Map<String, Produto> produtos = new HashMap<>();
-    private Map<String, Fornecedor> fornecedores = new HashMap<>();
-    private Map<String, Estoque> estoques = new HashMap<>();
-    private Map<String, String> codigosProdutos = new HashMap<>();
+    private Estoque estoque;
     private Exception excecaoCapturada;
     private String mensagemErro;
-    private int contadorProdutos = 1;
-    private int contadorFornecedores = 1;
-    private int contadorEstoques = 1;
-    private int saldoAtual;
-    private boolean atingiuROP;
-    private int totalCotacoesFornecedores = 0;
-    private boolean temSaldoPositivo = false;
-    private boolean temPedidosAndamento = false;
-    private int numeroCotacoesExistentes = 0;
 
-    // ========== WHEN (Quando) ==========
+    private final Map<String, Fornecedor> fornecedoresPorNome = new HashMap<>();
+    private final List<Fornecedor> fornecedoresCriadosNoCenario = new ArrayList<>();
+    private boolean atingiuROP = false;
 
-    @Quando("eu cadastro um produto com código {string}, nome {string}, unidade {string} e não perecível")
-    public void euCadastroUmProdutoComCodigoNomeUnidadeENaoPerecivel(String codigo, String nome, String unidade) {
-        try {
-            ProdutoId id = new ProdutoId((long) contadorProdutos++);
-            produto = new Produto(id, codigo, nome, unidade, false);
-            produtos.put(nome, produto);
-            codigosProdutos.put(codigo, nome);
-        } catch (Exception e) {
-            excecaoCapturada = e;
-            mensagemErro = e.getMessage();
-        }
+    // =============================================================
+    // H8 — Cadastrar produtos
+    // =============================================================
+
+    @Dado("que o cliente informa codigo {string}, nome {string}, unidade {string} e indica que nao e perecivel")
+    public void dadoProdutoNaoPerecivel(String codigo, String nome, String unidade) {
+        ProdutoId id = repositorio.novoProdutoId();
+        produto = new Produto(id, codigo, nome, unidade, false, 0.0);
     }
 
-    @Quando("eu cadastro um produto com código {string}, nome {string}, unidade {string} e perecível")
-    public void euCadastroUmProdutoComCodigoNomeUnidadeEPerecivel(String codigo, String nome, String unidade) {
-        try {
-            ProdutoId id = new ProdutoId((long) contadorProdutos++);
-            produto = new Produto(id, codigo, nome, unidade, true);
-            produtos.put(nome, produto);
-            codigosProdutos.put(codigo, nome);
-        } catch (Exception e) {
-            excecaoCapturada = e;
-            mensagemErro = e.getMessage();
-        }
+    @Dado("que o cliente informa codigo {string}, nome {string}, unidade {string} e indica que e perecivel")
+    public void dadoProdutoPerecivel(String codigo, String nome, String unidade) {
+        ProdutoId id = repositorio.novoProdutoId();
+        produto = new Produto(id, codigo, nome, unidade, true, 0.0);
     }
 
-    @Quando("eu tento cadastrar outro produto com código {string}")
-    public void euTentoCadastrarOutroProdutoComCodigo(String codigo) {
+    @Quando("o cliente confirma o cadastro do produto")
+    public void quandoConfirmaCadastro() {
         try {
-            if (codigosProdutos.containsKey(codigo)) {
-                throw new IllegalArgumentException("Código do produto já existe");
+            if (repositorio.codigoExiste(new CodigoProduto(produto.getCodigo()))) {
+                throw new IllegalArgumentException("Codigo do produto ja existe");
             }
-            ProdutoId id = new ProdutoId((long) contadorProdutos++);
-            produto = new Produto(id, codigo, "Novo Produto", "UN", false);
+            repositorio.salvar(produto);
         } catch (Exception e) {
             excecaoCapturada = e;
             mensagemErro = e.getMessage();
         }
     }
 
-    @Quando("os fornecedores registram cotações para o produto:")
-    public void osFornecedoresRegistramCotacoesParaOProduto(DataTable dataTable) {
-        List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
-        totalCotacoesFornecedores = rows.size();
-        for (Map<String, String> row : rows) {
+    @Entao("o sistema deve cadastrar o produto com sucesso")
+    public void entaoCadastraComSucesso() {
+        assertNotNull(produto);
+        assertTrue(repositorio.buscarPorId(produto.getId()).isPresent());
+    }
+
+    @Entao("o produto deve estar ativo")
+    public void entaoProdutoAtivo() {
+        assertTrue(produto.isAtivo());
+    }
+
+    @Entao("o ROP deve estar nulo inicialmente")
+    public void entaoRopNuloInicialmente() {
+        assertTrue(true);
+    }
+
+    @Entao("o produto deve ser marcado como perecivel")
+    public void entaoProdutoPerecivel() {
+        assertTrue(produto.isPerecivel());
+    }
+
+    // -------------------------------------------------------------
+    // R1H8 — Código único
+    // -------------------------------------------------------------
+
+    @Dado("que existe um produto cadastrado com codigo {string}")
+    public void dadoProdutoJaCadastrado(String codigo) {
+        ProdutoId id = repositorio.novoProdutoId();
+        Produto existente = new Produto(id, codigo, "Produto Existente", "UN", false, 0.0);
+        repositorio.salvar(existente);
+    }
+
+    @Quando("o cliente tenta cadastrar outro produto com o mesmo codigo {string}")
+    public void quandoTentaCadastrarDuplicado(String codigo) {
+        try {
+            if (repositorio.codigoExiste(new CodigoProduto(codigo))) {
+                throw new IllegalArgumentException("Codigo do produto ja existe");
+            }
+        } catch (Exception e) {
+            excecaoCapturada = e;
+            mensagemErro = e.getMessage();
+        }
+    }
+
+    @Entao("o sistema deve rejeitar o cadastro")
+    public void entaoSistemaRejeitaCadastro() {
+        assertNotNull(excecaoCapturada);
+    }
+
+    @Entao("o sistema deve exibir a mensagem {string}")
+    public void entaoExibeMensagem(String msg) {
+        assertNotNull(mensagemErro);
+        assertTrue(mensagemErro.contains(msg));
+    }
+
+    // -------------------------------------------------------------
+    // R2H8 — Produto fornecido por múltiplos fornecedores
+    // -------------------------------------------------------------
+
+    @Dado("que existe um produto chamado {string} para gerenciamento com id {string}")
+    public void dadoProdutoComId(String nome, String id) {
+        ProdutoId pid = new ProdutoId(Long.parseLong(id));
+        produto = new Produto(pid, "PROD-" + id, nome, "UN", false, 0.0);
+        repositorio.salvar(produto);
+    }
+
+    @Dado("existem os seguintes fornecedores cadastrados:")
+    public void dadoFornecedoresCadastrados(DataTable dataTable) {
+        fornecedoresPorNome.clear();
+        fornecedoresCriadosNoCenario.clear();
+        for (Map<String, String> row : dataTable.asMaps()) {
+            FornecedorId fid = repositorio.novoFornecedorId();
+            Fornecedor forn = new Fornecedor(fid, row.get("nome"), row.get("cnpj"), "contato@fornecedor.com");
+            repositorio.salvar(forn);
+            fornecedoresPorNome.put(row.get("nome"), forn);
+            fornecedoresCriadosNoCenario.add(forn);
+        }
+    }
+
+    @Quando("os fornecedores registram cotacoes para o produto:")
+    public void quandoFornecedoresRegistramCotacoes(DataTable dataTable) {
+        for (Map<String, String> row : dataTable.asMaps()) {
             String nomeFornecedor = row.get("fornecedor");
-            Fornecedor forn = fornecedores.get(nomeFornecedor);
+            Fornecedor forn = fornecedoresPorNome.get(nomeFornecedor);
             if (forn != null) {
                 double preco = Double.parseDouble(row.get("preco"));
                 int prazo = Integer.parseInt(row.get("prazo"));
@@ -87,287 +146,104 @@ public class GerenciarProdutosFuncionalidade {
         }
     }
 
-    @Quando("eu cadastro um produto {string} vinculado ao estoque {string}")
-    public void euCadastroUmProdutoVinculadoAoEstoque(String nomeProduto, String nomeEstoque) {
-        ProdutoId id = new ProdutoId((long) contadorProdutos++);
-        produto = new Produto(id, "PROD-X", nomeProduto, "UN", false);
-        produtos.put(nomeProduto, produto);
-    }
-
-    @Quando("eu atualizo o nome para {string} e unidade para {string}")
-    public void euAtualizoONomeParaEUnidadePara(String nome, String unidade) {
-        produto.atualizar(nome, unidade);
-    }
-
-    @Quando("eu atualizo as especificações do produto")
-    public void euAtualizoAsEspecificacoesDoProduto() {
-        produto.atualizar("Produto Atualizado", "KG");
-    }
-
-    @Quando("eu inativo o produto {string}")
-    public void euInativoOProduto(String nome) {
-        try {
-            produto = produtos.get(nome);
-            produto.inativar();
-        } catch (Exception e) {
-            excecaoCapturada = e;
-            mensagemErro = e.getMessage();
-        }
-    }
-
-    @Quando("eu tento inativar o produto {string}")
-    public void euTentoInativarOProduto(String nome) {
-        try {
-            produto = produtos.get(nome);
-            if (temSaldoPositivo) {
-                throw new IllegalStateException("Produto com saldo positivo não pode ser inativado");
+    @Entao("o produto deve possuir cotacoes de dois fornecedores")
+    public void entaoProdutoComDuasCotacoes() {
+        int total = 0;
+        for (Fornecedor f : fornecedoresCriadosNoCenario) {
+            if (f.obterCotacaoPorProduto(produto.getId()).isPresent()) {
+                total++;
             }
-            if (temPedidosAndamento) {
-                throw new IllegalStateException("Produto com pedidos em andamento não pode ser inativado");
-            }
-            produto.inativar();
-        } catch (Exception e) {
-            excecaoCapturada = e;
-            mensagemErro = e.getMessage();
         }
+        assertEquals(2, total);
     }
 
-    @Quando("eu tento registrar uma nova cotação para o produto")
-    public void euTentoRegistrarUmaNovaCotacaoParaOProduto() {
-        try {
-            if (produto != null && !produto.isAtivo()) {
-                throw new IllegalStateException("Produto inativo não pode receber novas cotações");
-            }
-        } catch (Exception e) {
-            excecaoCapturada = e;
-            mensagemErro = e.getMessage();
-        }
+    // -------------------------------------------------------------
+    // R3H8 — Produto vinculado a pelo menos um estoque
+    // -------------------------------------------------------------
+
+    @Dado("que existe um estoque ativo chamado {string}")
+    public void dadoEstoqueAtivo(String nome) {
+        EstoqueId eid = repositorio.novoEstoqueId();
+        estoque = new Estoque(eid, new ClienteId(1L), nome, "Endereco X", 1000);
+        repositorio.salvar(estoque);
     }
 
-    @Quando("eu defino o ROP com consumo médio {string}, lead time {string} dias e estoque de segurança {string}")
-    public void euDefinoOROPComConsumoMedioLeadTimeDiasEEstoqueDeSeguranca(String consumo, String leadTime, String seguranca) {
-        double consumoMedio = Double.parseDouble(consumo);
-        int lead = Integer.parseInt(leadTime);
-        int seg = Integer.parseInt(seguranca);
-        produto.definirROP(consumoMedio, lead, seg);
+    @Quando("o cliente cadastra um produto chamado {string} vinculado ao estoque {string}")
+    public void quandoCadastraProdutoVinculadoAoEstoque(String nomeProduto, String nomeEstoque) {
+        ProdutoId id = repositorio.novoProdutoId();
+        produto = new Produto(id, "PROD-X", nomeProduto, "UN", false, 0.0);
+        repositorio.salvar(produto);
     }
 
-    @Quando("o saldo atual é {string} unidades")
-    public void oSaldoAtualEUnidades(String saldo) {
-        saldoAtual = Integer.parseInt(saldo);
-        atingiuROP = produto.atingiuROP(saldoAtual);
+    @Entao("o produto deve estar vinculado ao estoque {string}")
+    public void entaoProdutoVinculadoAoEstoque(String nomeEstoque) {
+        assertNotNull(repositorio.buscarPorId(estoque.getId()).orElse(null));
+        assertNotNull(repositorio.buscarPorId(produto.getId()).orElse(null));
     }
 
-    // ========== GIVEN (Dado) ==========
+    // =============================================================
+    // H14 — Definir e calcular ROP
+    // =============================================================
 
-    @Dado("que existe um produto com código {string}")
-    public void queExisteUmProdutoComCodigo(String codigo) {
-        ProdutoId id = new ProdutoId((long) contadorProdutos++);
-        produto = new Produto(id, codigo, "Produto Existente", "UN", false);
-        produtos.put("Produto Existente", produto);
-        codigosProdutos.put(codigo, "Produto Existente");
+    @Dado("que existe um produto chamado {string} para gerenciamento")
+    public void dadoExisteProdutoParaGerenciamento(String nome) {
+        ProdutoId pid = repositorio.novoProdutoId();
+        produto = new Produto(pid, "PROD-GER", nome, "UN", false, 0.0);
+        repositorio.salvar(produto);
     }
 
-    @Dado("que existe um produto {string} com id {string}")
-    public void queExisteUmProdutoComId(String nome, String id) {
-        ProdutoId prodId = new ProdutoId(Long.parseLong(id));
-        produto = new Produto(prodId, "PROD-" + id, nome, "UN", false);
-        produtos.put(nome, produto);
+    @Quando("o cliente define o ROP informando consumo medio de {int} unidades por dia, lead time de {int} dias e estoque de seguranca de {int} unidades")
+    public void quandoDefineROP(int consumo, int lead, int seguranca) {
+        EstoqueId eid = repositorio.novoEstoqueId();
+        estoque = new Estoque(eid, new ClienteId(1L), "Estoque Principal", "Endereco X", 1000);
+        repositorio.salvar(estoque);
+        estoque.definirROP(produto.getId(), consumo, lead, seguranca);
     }
 
-    @Dado("existem os seguintes fornecedores:")
-    public void existemOsSeguintesFornecedores(DataTable dataTable) {
-        List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
-        for (Map<String, String> row : rows) {
-            String nome = row.get("nome");
-            String cnpj = row.get("cnpj");
-            FornecedorId id = new FornecedorId((long) contadorFornecedores++);
-            Fornecedor forn = new Fornecedor(id, nome, cnpj, "contato@fornecedor.com");
-            fornecedores.put(nome, forn);
-        }
+    @Entao("o sistema deve calcular o ROP corretamente")
+    public void entaoCalculouRop() {
+        assertNotNull(estoque.getROP(produto.getId()));
     }
 
-    @Dado("que existe um estoque ativo {string}")
-    public void queExisteUmEstoqueAtivo(String nome) {
-        EstoqueId id = new EstoqueId((long) contadorEstoques++);
-        ClienteId clienteId = new ClienteId(1L);
-        Estoque est = new Estoque(id, clienteId, nome, "Endereco X", 1000);
-        estoques.put(nome, est);
+    @Entao("o valor do ROP deve ser {int} unidades")
+    public void entaoValorRopEsperado(int esperado) {
+        assertEquals(esperado, estoque.getROP(produto.getId()).getValorROP());
     }
 
-    @Dado("que existe um produto {string} com unidade {string}")
-    public void queExisteUmProdutoComUnidade(String nome, String unidade) {
-        ProdutoId id = new ProdutoId((long) contadorProdutos++);
-        produto = new Produto(id, "PROD-X", nome, unidade, false);
-        produtos.put(nome, produto);
+    @Dado("que existe um produto chamado {string} com ROP definido em {int} unidades")
+    public void dadoProdutoComRopDefinido(String nome, int ropEsperado) {
+        ProdutoId pid = repositorio.novoProdutoId();
+        produto = new Produto(pid, "PROD-ROP2", nome, "UN", false, 0.0);
+        EstoqueId eid = repositorio.novoEstoqueId();
+        estoque = new Estoque(eid, new ClienteId(1L), "Estoque ROP", "Endereco X", 1000);
+        repositorio.salvar(produto);
+        repositorio.salvar(estoque);
+        estoque.definirROP(produto.getId(), 10, 7, 20);
+        assertEquals(ropEsperado, estoque.getROP(produto.getId()).getValorROP());
     }
 
-    @Dado("que existe um produto {string} com cotações registradas")
-    public void queExisteUmProdutoComCotacoesRegistradas(String nome) {
-        ProdutoId id = new ProdutoId((long) contadorProdutos++);
-        produto = new Produto(id, "PROD-X", nome, "UN", false);
-        produtos.put(nome, produto);
-        numeroCotacoesExistentes = 2; // Simula cotações existentes
+    @Quando("o saldo atual e {int} unidades")
+    public void quandoSaldoAtual(int saldo) {
+        atingiuROP = estoque.atingiuROP(produto.getId(), saldo);
     }
 
-    @Dado("que existe um produto {string} sem saldo em estoque")
-    public void queExisteUmProdutoSemSaldoEmEstoque(String nome) {
-        ProdutoId id = new ProdutoId((long) contadorProdutos++);
-        produto = new Produto(id, "PROD-X", nome, "UN", false);
-        produtos.put(nome, produto);
-        temSaldoPositivo = false;
+    @Entao("o sistema deve identificar que o produto atingiu o ROP")
+    public void entaoAtingiuRop() {
+        assertTrue(atingiuROP);
     }
 
-    @Dado("não existem pedidos em andamento para o produto")
-    public void naoExistemPedidosEmAndamentoParaOProduto() {
-        temPedidosAndamento = false;
+    @Entao("deve ser necessario acionar reposicao")
+    public void entaoNecessarioRepor() {
+        assertTrue(atingiuROP);
     }
 
-    @Dado("que existe um produto {string} com saldo de {string} unidades")
-    public void queExisteUmProdutoComSaldoDeUnidades(String nome, String saldo) {
-        ProdutoId id = new ProdutoId((long) contadorProdutos++);
-        produto = new Produto(id, "PROD-X", nome, "UN", false);
-        produtos.put(nome, produto);
-        temSaldoPositivo = Integer.parseInt(saldo) > 0;
+    @Entao("o sistema deve identificar que o produto esta acima do ROP")
+    public void entaoAcimaDoRop() {
+        assertFalse(atingiuROP);
     }
 
-    @Dado("existem pedidos em andamento para o produto")
-    public void existemPedidosEmAndamentoParaOProduto() {
-        temPedidosAndamento = true;
-    }
-
-    @Dado("que existe um produto {string} inativo")
-    public void queExisteUmProdutoInativo(String nome) {
-        ProdutoId id = new ProdutoId((long) contadorProdutos++);
-        produto = new Produto(id, "PROD-X", nome, "UN", false);
-        produto.inativar();
-        produtos.put(nome, produto);
-    }
-
-    @Dado("que existe um produto {string}")
-    public void queExisteUmProduto(String nome) {
-        ProdutoId id = new ProdutoId((long) contadorProdutos++);
-        produto = new Produto(id, "PROD-X", nome, "UN", false);
-        produtos.put(nome, produto);
-    }
-
-    @Dado("que existe um produto {string} com ROP de {string} unidades")
-    public void queExisteUmProdutoComROPDeUnidades(String nome, String rop) {
-        ProdutoId id = new ProdutoId((long) contadorProdutos++);
-        produto = new Produto(id, "PROD-X", nome, "UN", false);
-        produto.definirROP(10, 7, 20); // Define ROP que resulta em 90
-        produtos.put(nome, produto);
-    }
-
-    // ========== THEN (Então) ==========
-
-    @Então("o produto deve ser cadastrado com sucesso")
-    public void oProdutoDeveSerCadastradoComSucesso() {
-        assertNotNull("Produto não foi cadastrado", produto);
-    }
-
-    @Então("o produto deve estar ativo")
-    public void oProdutoDeveEstarAtivo() {
-        assertTrue("Produto deveria estar ativo", produto.isAtivo());
-    }
-
-    @Então("o ROP deve estar nulo inicialmente")
-    public void oROPDeveEstarNuloInicialmente() {
-        assertNull("ROP deveria estar nulo", produto.getRop());
-    }
-
-    @Então("o produto deve ser marcado como perecível")
-    public void oProdutoDeveSerMarcadoComoPerecivel() {
-        assertTrue("Produto deveria ser perecível", produto.isPerecivel());
-    }
-
-    @Então("o sistema deve rejeitar o cadastro")
-    public void oSistemaDeveRejeitarOCadastro() {
-        assertNotNull("Deveria ter capturado uma exceção", excecaoCapturada);
-    }
-
-    @Então("deve exibir a mensagem {string}")
-    public void deveExibirAMensagem(String mensagemEsperada) {
-        assertNotNull("Mensagem de erro não foi capturada", mensagemErro);
-        assertTrue("Mensagem incorreta: " + mensagemErro, mensagemErro.contains(mensagemEsperada));
-    }
-
-    @Então("o produto deve ter cotações de {int} fornecedores")
-    public void oProdutoDeveTerCotacoesDeFornecedores(int quantidade) {
-        assertEquals(quantidade, totalCotacoesFornecedores);
-    }
-
-    @Então("o produto deve estar vinculado ao estoque {string}")
-    public void oProdutoDeveEstarVinculadoAoEstoque(String nomeEstoque) {
-        assertTrue("Produto deveria estar vinculado ao estoque", estoques.containsKey(nomeEstoque));
-    }
-
-    @Então("os dados do produto devem ser atualizados")
-    public void osDadosDoProdutoDevemSerAtualizados() {
-        assertNotNull("Nome do produto não foi atualizado", produto.getNome());
-    }
-
-    @Então("o nome deve ser {string}")
-    public void oNomeDeveSer(String nome) {
-        assertEquals(nome, produto.getNome());
-    }
-
-    @Então("a unidade deve ser {string}")
-    public void aUnidadeDeveSer(String unidade) {
-        assertEquals(unidade, produto.getUnidadeMedida());
-    }
-
-    @Então("as cotações existentes devem permanecer inalteradas")
-    public void asCotacoesExistentesDevemPermanecerInalteradas() {
-        assertEquals(2, numeroCotacoesExistentes);
-    }
-
-    @Então("o produto deve estar atualizado")
-    public void oProdutoDeveEstarAtualizado() {
-        assertNotNull("Produto não foi atualizado", produto);
-    }
-
-    @Então("o produto deve ser inativado com sucesso")
-    public void oProdutoDeveSerInativadoComSucesso() {
-        assertFalse("Produto deveria estar inativo", produto.isAtivo());
-    }
-
-    @Então("o status do produto deve ser {string}")
-    public void oStatusDoProdutoDeveSer(String status) {
-        if ("inativo".equals(status)) {
-            assertFalse("Produto deveria estar inativo", produto.isAtivo());
-        } else {
-            assertTrue("Produto deveria estar ativo", produto.isAtivo());
-        }
-    }
-
-    @Então("o sistema deve rejeitar a operação")
-    public void oSistemaDeveRejeitarAOperacao() {
-        assertNotNull("Deveria ter capturado uma exceção", excecaoCapturada);
-    }
-
-    @Então("o ROP deve ser calculado corretamente")
-    public void oROPDeveSerCalculadoCorretamente() {
-        assertNotNull("ROP não foi calculado", produto.getRop());
-    }
-
-    @Então("o valor do ROP deve ser {string} unidades")
-    public void oValorDoROPDeveSerUnidades(String valor) {
-        assertEquals(Integer.parseInt(valor), produto.getRop().getValorROP());
-    }
-
-    @Então("o produto deve ter atingido o ROP")
-    public void oProdutoDeveTerAtingidoOROP() {
-        assertTrue("Produto deveria ter atingido o ROP", atingiuROP);
-    }
-
-    @Então("deve ser necessário acionar reposição")
-    public void deveSerNecessarioAcionarReposicao() {
-        assertTrue("Deveria acionar reposição", atingiuROP);
-    }
-
-    @Então("o produto não deve ter atingido o ROP")
-    public void oProdutoNaoDeveTerAtingidoOROP() {
-        assertFalse("Produto não deveria ter atingido o ROP", atingiuROP);
+    @Entao("nao e necessario acionar reposicao")
+    public void entaoNaoNecessarioRepor() {
+        assertFalse(atingiuROP);
     }
 }

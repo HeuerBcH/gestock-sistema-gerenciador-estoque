@@ -2,7 +2,7 @@ package dev.gestock.sge.dominio.principal.fornecedor;
 
 import java.util.Objects;
 
-/** Value Object: Identidade imutável do Fornecedor */
+/* Value Object: Identidade imutável do Fornecedor */
 public class FornecedorId {
     private final Long id;
 

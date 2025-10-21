@@ -1,138 +1,191 @@
 package dev.gestock.sge.dominio.principal;
 
 import dev.gestock.sge.dominio.principal.alerta.*;
-import dev.gestock.sge.dominio.principal.estoque.EstoqueId;
+import dev.gestock.sge.dominio.principal.estoque.*;
 import dev.gestock.sge.dominio.principal.produto.*;
+import dev.gestock.sge.dominio.principal.cliente.*;
+import dev.gestock.sge.infraestrutura.persistencia.memoria.*;
 import io.cucumber.java.pt.*;
 import java.util.*;
 import static org.junit.Assert.*;
 
 public class AlertaFuncionalidade {
 
+    private Repositorio repositorio;
     private Produto produto;
-    private int saldoAtual;
+    private Estoque estoque;
     private Alerta alerta;
-    private List<Alerta> alertas = new ArrayList<>();
-    private boolean alertaGerado = false;
-    private int saldoAtualAlerta = 0;
-    private int ropEsperado = 0;
+    private int saldoAtual;
+    private int ropEsperado;
+    private boolean alertaGerado;
 
-    @Dado("que existe um produto com ROP de {string} unidades")
-    public void queExisteUmProdutoComROPDeUnidades(String rop) {
-        ProdutoId id = new ProdutoId(1L);
-        produto = new Produto(id, "PROD-001", "Produto A", "UN", false);
-        produto.definirROP(10, 7, 20);
-        ropEsperado = produto.getRop().getValorROP();
+    // ===============================================================
+    // CENÁRIOS H16 — Gerar Alerta ao atingir ou ficar abaixo do ROP
+    // ===============================================================
+
+    @Dado("que existe um produto com ROP de {int} unidades")
+    public void queExisteUmProdutoComROPDeUnidades(int rop) {
+        repositorio = new Repositorio();
+
+        ProdutoId produtoId = repositorio.novoProdutoId();
+        produto = new Produto(produtoId, "PROD-001", "Produto A", "UN", false, 0.0);
+        repositorio.salvar(produto);
+
+        EstoqueId estoqueId = repositorio.novoEstoqueId();
+        ClienteId clienteId = repositorio.novoClienteId();
+        estoque = new Estoque(estoqueId, clienteId, "Estoque Central", "Rua X", 1000);
+        estoque.definirROP(produto.getId(), 10, 7, rop);
+        repositorio.salvar(estoque);
+
+        ropEsperado = rop;
     }
 
-    @Dado("o saldo atual é {string} unidades")
-    public void oSaldoAtualEUnidades(String saldo) {
-        saldoAtual = Integer.parseInt(saldo);
+    @E("o saldo atual do produto e {int} unidades")
+    public void oSaldoAtualDoProdutoEUnidades(int saldo) {
+        saldoAtual = saldo;
     }
 
     @Quando("o sistema verifica o estoque")
     public void oSistemaVerificaOEstoque() {
-        alertaGerado = produto.atingiuROP(saldoAtual);
+        alertaGerado = estoque.atingiuROP(produto.getId(), saldoAtual);
         if (alertaGerado) {
-            AlertaId alertaId = new AlertaId(1L);
-            EstoqueId estoqueId = new EstoqueId(1L);
-            alerta = new Alerta(alertaId, produto.getId(), estoqueId, null);
-            saldoAtualAlerta = saldoAtual;
+            AlertaId alertaId = repositorio.novoAlertaId();
+            alerta = new Alerta(alertaId, produto.getId(), estoque.getId(), null);
+            repositorio.salvar(alerta);
         }
     }
 
-    @Então("um alerta deve ser gerado automaticamente")
+    @Entao("um alerta deve ser gerado automaticamente")
     public void umAlertaDeveSerGeradoAutomaticamente() {
-        assertTrue("Alerta deve ser gerado", alertaGerado);
+        assertTrue(alertaGerado);
+        assertEquals(1, repositorio.listarAtivos().size());
     }
 
-    @Então("um alerta deve ser gerado")
+    @Entao("um alerta deve ser gerado")
     public void umAlertaDeveSerGerado() {
-        assertTrue("Alerta deve ser gerado", alertaGerado);
+        assertTrue(alertaGerado);
+        assertEquals(1, repositorio.listarAtivos().size());
     }
 
-    @Então("nenhum alerta deve ser gerado")
+    @Entao("nenhum alerta deve ser gerado")
     public void nenhumAlertaDeveSerGerado() {
-        assertFalse("Nenhum alerta deve ser gerado", alertaGerado);
+        assertFalse(alertaGerado);
+        assertTrue(repositorio.listarAtivos().isEmpty());
     }
 
-    @Dado("que existe um alerta gerado")
-    public void queExisteUmAlertaGerado() {
-        ProdutoId id = new ProdutoId(1L);
-        AlertaId alertaId = new AlertaId(1L);
-        EstoqueId estoqueId = new EstoqueId(1L);
-        alerta = new Alerta(alertaId, id, estoqueId, null);
-        saldoAtualAlerta = 90;
-        ropEsperado = 100;
+    // ===============================================================
+    // CENÁRIO — Alerta contém informações completas
+    // ===============================================================
+
+    @Dado("que existe um alerta gerado para um produto")
+    public void queExisteUmAlertaGeradoParaUmProduto() {
+        repositorio = new Repositorio();
+
+        ProdutoId produtoId = repositorio.novoProdutoId();
+        produto = new Produto(produtoId, "PROD-002", "Produto B", "UN", false, 0.0);
+        repositorio.salvar(produto);
+
+        EstoqueId estoqueId = repositorio.novoEstoqueId();
+        ClienteId clienteId = repositorio.novoClienteId();
+        estoque = new Estoque(estoqueId, clienteId, "Estoque B", "Rua Y", 1000);
+        repositorio.salvar(estoque);
+
+        AlertaId alertaId = repositorio.novoAlertaId();
+        alerta = new Alerta(alertaId, produto.getId(), estoque.getId(), null);
+        repositorio.salvar(alerta);
     }
 
-    @Quando("eu visualizo o alerta")
-    public void euVisualizoOAlerta() {
-        assertNotNull("Alerta deve existir", alerta);
+    @Quando("o cliente visualiza o alerta")
+    public void oClienteVisualizaOAlerta() {
+        assertNotNull(repositorio.obter(alerta.getId()));
     }
 
-    @Então("devo ver o nome do produto")
-    public void devoVerONomeDoProduto() {
-        assertNotNull("Produto ID deve existir", alerta.getProdutoId());
+    @Entao("o sistema deve exibir o nome do produto")
+    public void oSistemaDeveExibirONomeDoProduto() {
+        Optional<Produto> produtoOpt = repositorio.buscarPorId(alerta.getProdutoId());
+        assertTrue(produtoOpt.isPresent());
     }
 
-    @Então("devo ver o estoque afetado")
-    public void devoVerOEstoqueAfetado() {
-        assertTrue("Saldo deve ser menor que ROP", saldoAtualAlerta < ropEsperado);
+    @E("o sistema deve exibir o estoque afetado")
+    public void oSistemaDeveExibirOEstoqueAfetado() {
+        Optional<Estoque> estoqueOpt = repositorio.buscarPorId(alerta.getEstoqueId());
+        assertTrue(estoqueOpt.isPresent());
     }
 
-    @Então("devo ver o fornecedor com menor cotação")
-    public void devoVerOFornecedorComMenorCotacao() {
-        // Verificação de fornecedor sugerido
-        assertNotNull("Alerta deve existir", alerta);
+    @E("o sitema deve exibir o fornecedor com menor cotacao")
+    public void oSitemaDeveExibirOFornecedorComMenorCotacao() {
+        // Corrigido: “sitema” → “sistema”, mas mantendo igual ao .feature
+        assertNotNull(alerta);
     }
+
+    // ===============================================================
+    // CENÁRIO — Listar todos os alertas ativos
+    // ===============================================================
 
     @Dado("que existem {int} alertas ativos")
     public void queExistemAlertasAtivos(int quantidade) {
+        repositorio = new Repositorio();
+
         for (int i = 0; i < quantidade; i++) {
-            ProdutoId id = new ProdutoId((long) (i + 1));
-            AlertaId alertaId = new AlertaId((long) (i + 1));
-            EstoqueId estoqueId = new EstoqueId(1L);
-            alertas.add(new Alerta(alertaId, id, estoqueId, null));
+            ProdutoId pId = repositorio.novoProdutoId();
+            EstoqueId eId = repositorio.novoEstoqueId();
+            AlertaId aId = repositorio.novoAlertaId();
+            Alerta a = new Alerta(aId, pId, eId, null);
+            repositorio.salvar(a);
         }
     }
 
-    @Quando("eu visualizo a lista de alertas")
-    public void euVisualizoAListaDeAlertas() {
-        assertFalse("Lista de alertas não deve estar vazia", alertas.isEmpty());
+    @Quando("o cliente visualiza a lista de alertas")
+    public void oClienteVisualizaAListaDeAlertas() {
+        assertFalse(repositorio.listarAtivos().isEmpty());
     }
 
-    @Então("devo ver {int} alertas")
-    public void devoVerAlertas(int quantidade) {
-        assertEquals(quantidade, alertas.size());
+    @Entao("o sistema deve exibir {int} alertas")
+    public void oSistemaDeveExibirAlertas(int quantidade) {
+        assertEquals(quantidade, repositorio.listarAtivos().size());
     }
+
+    // ===============================================================
+    // CENÁRIO — Remover alerta após recebimento do pedido
+    // ===============================================================
 
     @Dado("que existe um alerta ativo para um produto")
     public void queExisteUmAlertaAtivoParaUmProduto() {
-        ProdutoId id = new ProdutoId(1L);
-        AlertaId alertaId = new AlertaId(1L);
-        EstoqueId estoqueId = new EstoqueId(1L);
-        alerta = new Alerta(alertaId, id, estoqueId, null);
-        alertas.add(alerta);
-        saldoAtualAlerta = 80;
+        repositorio = new Repositorio();
+
+        ProdutoId produtoId = repositorio.novoProdutoId();
+        produto = new Produto(produtoId, "PROD-003", "Produto C", "UN", false, 0.0);
+        repositorio.salvar(produto);
+
+        EstoqueId estoqueId = repositorio.novoEstoqueId();
+        ClienteId clienteId = repositorio.novoClienteId();
+        estoque = new Estoque(estoqueId, clienteId, "Estoque C", "Rua Z", 1000);
+        repositorio.salvar(estoque);
+
+        AlertaId alertaId = repositorio.novoAlertaId();
+        alerta = new Alerta(alertaId, produto.getId(), estoque.getId(), null);
+        repositorio.salvar(alerta);
+
         ropEsperado = 100;
+        saldoAtual = 80;
     }
 
-    @Dado("um pedido foi recebido para esse produto")
-    public void umPedidoFoiRecebidoParaEsseProduto() {
-        saldoAtual = 150; // Saldo aumentou
+    @E("um pedido foi recebido para suprir o estoque do produto")
+    public void umPedidoFoiRecebidoParaSuprirOEstoqueDoProduto() {
+        saldoAtual = 150; // estoque reabastecido
     }
 
-    @Quando("o sistema atualiza os alertas")
-    public void oSistemaAtualizaOsAlertas() {
+    @Quando("o sistema atualiza o estoque")
+    public void oSistemaAtualizaOEstoque() {
         if (saldoAtual > ropEsperado) {
             alerta.desativar();
-            alertas.remove(alerta);
+            repositorio.salvar(alerta);
         }
     }
 
-    @Então("o alerta deve ser removido automaticamente")
+    @Entao("o alerta deve ser removido automaticamente")
     public void oAlertaDeveSerRemovidoAutomaticamente() {
-        assertFalse("Alerta deve ter sido removido", alertas.contains(alerta));
+        List<Alerta> ativos = repositorio.listarAtivos();
+        assertTrue(ativos.stream().noneMatch(Alerta::isAtivo));
     }
 }
