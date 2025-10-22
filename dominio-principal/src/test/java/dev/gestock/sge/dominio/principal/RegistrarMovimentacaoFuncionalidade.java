@@ -58,23 +58,24 @@ public class RegistrarMovimentacaoFuncionalidade {
     @Quando("o cliente registra uma entrada de {int} unidades do produto")
     public void oClienteRegistraUmaEntradaDeUnidadesDoProduto(int quantidade) {
         try {
-            // Simular entrada no estoque
+            // Saldo antes
             saldoAnterior = estoque.getSaldoDisponivel(produto.getId());
 
-            // Criar movimentação de entrada
-            movimentacao = new Movimentacao(
-                    1L,
-                    TipoMovimentacao.ENTRADA,
+            // Ação de domínio: entrada
+            estoque.registrarEntrada(
                     produto.getId(),
                     quantidade,
-                    LocalDateTime.now(),
                     "Sistema",
                     "Entrada manual",
                     Map.of("origem", "manual")
             );
 
-            // Simular atualização do saldo
-            saldoAtual = saldoAnterior + quantidade;
+            // Saldo depois
+            saldoAtual = estoque.getSaldoDisponivel(produto.getId());
+
+            // Última movimentação registrada no agregado
+            List<Movimentacao> movs = estoque.getMovimentacoesSnapshot();
+            movimentacao = movs.isEmpty() ? null : movs.get(movs.size() - 1);
 
         } catch (Exception e) {
             excecaoCapturada = e;
@@ -146,23 +147,25 @@ public class RegistrarMovimentacaoFuncionalidade {
     @Quando("o sistema processa o recebimento do pedido")
     public void oSistemaProcessaORecebimentoDoPedido() {
         try {
-            // Simular processamento automático de recebimento
+            // Saldo antes
             saldoAnterior = estoque.getSaldoDisponivel(produto.getId());
 
-            // Criar movimentação automática
-            movimentacao = new Movimentacao(
-                    2L,
-                    TipoMovimentacao.ENTRADA,
+            // Registrar a entrada no estoque referente ao recebimento do pedido
+            int qtd = pedido.getItens().get(0).getQuantidade();
+            estoque.registrarEntrada(
                     produto.getId(),
-                    pedido.getItens().get(0).getQuantidade(),
-                    LocalDateTime.now(),
+                    qtd,
                     "Sistema",
                     "Recebimento automático de pedido",
                     Map.of("pedidoId", pedido.getId().getId().toString())
             );
 
-            // Simular atualização do saldo
-            saldoAtual = saldoAnterior + pedido.getItens().get(0).getQuantidade();
+            // Saldo depois
+            saldoAtual = estoque.getSaldoDisponivel(produto.getId());
+
+            // Última movimentação
+            List<Movimentacao> movs = estoque.getMovimentacoesSnapshot();
+            movimentacao = movs.isEmpty() ? null : movs.get(movs.size() - 1);
 
         } catch (Exception e) {
             excecaoCapturada = e;
@@ -202,8 +205,16 @@ public class RegistrarMovimentacaoFuncionalidade {
         estoque = new Estoque(estoqueId, cliente.getId(), "Estoque Teste", "Endereço Teste", 1000);
         repositorio.salvar(estoque);
 
-        // Simular saldo inicial
-        saldoAnterior = saldoInicial;
+        // Inicializar saldo físico real via entrada
+        estoque.registrarEntrada(
+                produto.getId(),
+                saldoInicial,
+                "Setup",
+                "Carga inicial de teste",
+                Map.of("setup", "true")
+        );
+        // Atualiza marcador de saldo anterior
+        saldoAnterior = estoque.getSaldoDisponivel(produto.getId());
     }
 
     // NOVO STEP DEFINITION
@@ -216,26 +227,23 @@ public class RegistrarMovimentacaoFuncionalidade {
     @Quando("o cliente registra uma saida de {int} unidades com motivo {string}")
     public void oClienteRegistraUmaSaidaDeUnidadesComMotivo(int quantidade, String motivo) {
         try {
-            // Verificar se há saldo suficiente
-            if (saldoAnterior >= quantidade) {
-                // Criar movimentação de saída
-                movimentacao = new Movimentacao(
-                        3L,
-                        TipoMovimentacao.SAIDA,
-                        produto.getId(),
-                        quantidade,
-                        LocalDateTime.now(),
-                        "Cliente",
-                        motivo,
-                        Map.of("tipo", "manual")
-                );
+            // Saldo antes
+            saldoAnterior = estoque.getSaldoDisponivel(produto.getId());
 
-                // Simular atualização do saldo
-                saldoAtual = saldoAnterior - quantidade;
-            } else {
-                // Manter o erro como uma Exceção de Domínio (IllegalArgumentException é uma boa escolha aqui)
-                throw new IllegalArgumentException("Saldo disponivel insuficiente");
-            }
+            // Ação de domínio: saída
+            estoque.registrarSaida(
+                    produto.getId(),
+                    quantidade,
+                    "Cliente",
+                    motivo
+            );
+
+            // Saldo depois
+            saldoAtual = estoque.getSaldoDisponivel(produto.getId());
+
+            // Última movimentação
+            List<Movimentacao> movs = estoque.getMovimentacoesSnapshot();
+            movimentacao = movs.isEmpty() ? null : movs.get(movs.size() - 1);
 
         } catch (Exception e) {
             excecaoCapturada = e;
@@ -259,24 +267,19 @@ public class RegistrarMovimentacaoFuncionalidade {
     @Quando("o cliente tenta registrar uma saida de {int} unidades")
     public void oClienteTentaRegistrarUmaSaidaDeUnidades(int quantidade) {
         try {
-            // Verificar se há saldo suficiente
-            if (saldoAnterior < quantidade) {
-                throw new IllegalArgumentException("Saldo disponivel insuficiente");
-            }
+            // Saldo antes
+            saldoAnterior = estoque.getSaldoDisponivel(produto.getId());
 
-            // Criar movimentação de saída
-            movimentacao = new Movimentacao(
-                    4L,
-                    TipoMovimentacao.SAIDA,
+            // Ação de domínio que deve falhar se não houver saldo
+            estoque.registrarSaida(
                     produto.getId(),
                     quantidade,
-                    LocalDateTime.now(),
                     "Cliente",
-                    "Saída manual",
-                    Map.of("tipo", "manual")
+                    "Saída manual"
             );
-            // Simular atualização de saldo (apenas se a operação for bem-sucedida)
-            saldoAtual = saldoAnterior - quantidade;
+
+            // Se não lançar, atualiza saldo depois
+            saldoAtual = estoque.getSaldoDisponivel(produto.getId());
 
         } catch (Exception e) {
             excecaoCapturada = e;
@@ -292,7 +295,14 @@ public class RegistrarMovimentacaoFuncionalidade {
     @E("deve exibir a mensagem {string}")
     public void deveExibirAMensagem(String mensagem) {
         assertNotNull(mensagemErro);
-        assertTrue(mensagemErro.contains(mensagem));
+        // Normaliza acentos e caixa para comparação mais resiliente
+        String normalize = java.text.Normalizer.normalize(mensagemErro, java.text.Normalizer.Form.NFD)
+                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
+                .toLowerCase();
+        String esperado = java.text.Normalizer.normalize(mensagem, java.text.Normalizer.Form.NFD)
+                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
+                .toLowerCase();
+        assertTrue(normalize.contains(esperado));
     }
 
     // =============================================================

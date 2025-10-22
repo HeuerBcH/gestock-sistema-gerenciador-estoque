@@ -384,17 +384,27 @@ public class GerenciarPedidosFuncionalidade {
                     .mapToInt(ItemPedido::getQuantidade)
                     .sum();
 
-            // Simula saldo anterior (0 se for novo estoque)
-            saldoAnterior = estoque != null ? estoque.getSaldoDisponivel(produto.getId()) : 0;
-
-            // A ação de domínio
+            // Ação de domínio do Pedido (sempre)
             pedido.registrarRecebimento();
             repositorio.salvar(pedido);
 
-            // Simula saldo atual (assume que o domínio faz a movimentação)
-            saldoAtual = saldoAnterior + quantidadeRecebida;
+            // Interação com estoque somente quando existir no cenário
+            if (estoque != null && produto != null) {
+                // Saldo anterior real do agregado
+                saldoAnterior = estoque.getSaldoDisponivel(produto.getId());
 
+                // Registrar entrada real no estoque referente ao recebimento
+                estoque.registrarEntrada(
+                        produto.getId(),
+                        quantidadeRecebida,
+                        "Sistema",
+                        "Recebimento de pedido",
+                        Map.of("pedidoId", pedido.getId().getId().toString())
+                );
 
+                // Saldo atual real do agregado
+                saldoAtual = estoque.getSaldoDisponivel(produto.getId());
+            }
         } catch (Exception e) {
             excecaoCapturada = e;
             mensagemErro = e.getMessage();
@@ -460,7 +470,13 @@ public class GerenciarPedidosFuncionalidade {
     @Entao("uma movimentacao de entrada deve ser gerada")
     public void umaMovimentacaoDeEntradaDeveSerGerada() {
         quantidadeMovimentacao = pedido.getItens().stream().mapToInt(ItemPedido::getQuantidade).sum();
-        assertTrue(quantidadeMovimentacao > 0);
+        // Verifica no agregado Estoque se houve movimentação de ENTRADA correspondente
+        List<Movimentacao> movs = estoque.getMovimentacoesSnapshot();
+        assertTrue(movs.stream().anyMatch(m ->
+                m.getTipo() == TipoMovimentacao.ENTRADA &&
+                m.getProdutoId().equals(produto.getId()) &&
+                m.getQuantidade() == quantidadeMovimentacao
+        ));
     }
 
     @Quando("o cliente tenta confirmar o recebimento")
