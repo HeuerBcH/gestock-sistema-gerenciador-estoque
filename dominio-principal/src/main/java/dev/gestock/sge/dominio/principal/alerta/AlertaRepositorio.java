@@ -26,4 +26,7 @@ public interface AlertaRepositorio {
     
     /** Lista alertas de um estoque específico */
     List<Alerta> listarPorEstoque(EstoqueId estoqueId);
+
+    /** Gera um novo identificador único para Alerta */
+    AlertaId novoAlertaId();
 }
