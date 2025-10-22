@@ -70,7 +70,7 @@ Funcionalidade: Gerenciar Estoques
   Cenario: Tentar pesquisar estoques sem cadastros
     Dado que nao existem estoques cadastrados
     Quando o cliente realiza uma pesquisa de estoques
-    Entao o sistema deve exibir a mensagem "Nenhum estoque cadastrado"
+    Entao o sistema deve exibir a mensagem de estoque "Nenhum estoque cadastrado"
 
   # R2H4: Pesquisa por multiplos parametros
   Cenario: Pesquisar estoque por nome e endereco
