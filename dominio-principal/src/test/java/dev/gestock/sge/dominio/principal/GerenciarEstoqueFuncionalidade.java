@@ -159,6 +159,8 @@ public class GerenciarEstoqueFuncionalidade {
         repo.salvar(fornecedor);
         dev.gestock.sge.dominio.principal.pedido.Pedido p =
             new dev.gestock.sge.dominio.principal.pedido.Pedido(pid, e.getClienteId(), fornecedorId);
+        // associar o pedido ao estoque para que o serviço detecte pedido pendente
+        p.setEstoqueId(e.getId());
         repo.salvar(p);
     }
 
@@ -341,6 +343,11 @@ public class GerenciarEstoqueFuncionalidade {
 
     @Entao("o sistema deve exibir a mensagem \"Nenhum estoque cadastrado\"")
     public void msg_nenhum_estoque_cadastrado() { deve_exibir_mensagem_estoque("Nenhum estoque cadastrado"); }
+
+    @Entao("o sistema deve exibir a mensagem de estoque {string}")
+    public void o_sistema_deve_exibir_a_mensagem_de_estoque(String msg) {
+        deve_exibir_mensagem_estoque(msg);
+    }
 
     @Entao("o sistema deve exibir o estoque correspondente")
     public void sistema_exibe_estoque_correspondente() {
