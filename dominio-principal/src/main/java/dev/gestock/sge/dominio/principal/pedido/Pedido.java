@@ -68,6 +68,12 @@ public class Pedido {
         this.status = StatusPedido.RECEBIDO;
     }
 
+    /* Inicia o transporte do pedido (ENVIADO → EM_TRANSPORTE). */
+    public void iniciarTransporte() {
+        isTrue(status == StatusPedido.ENVIADO, "Somente pedidos ENVIADO podem iniciar transporte");
+        this.status = StatusPedido.EM_TRANSPORTE;
+    }
+
     /* Cancela o pedido (exceto quando EM_TRANSPORTE e CONCLUIDO) - R1H12. */
     public void cancelar() {
         isTrue(status != StatusPedido.CONCLUIDO, "Pedido CONCLUIDO não pode ser cancelado");
