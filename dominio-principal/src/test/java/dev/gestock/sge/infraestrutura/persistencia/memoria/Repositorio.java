@@ -15,14 +15,13 @@ import java.util.stream.Collectors;
 /**
  * Implementação em memória de todos os repositórios de domínio.
  * Utilizada principalmente para testes.
- * 
- * Características:
+ * * Características:
  * - Armazenamento volátil (dados perdidos ao reiniciar)
  * - Thread-safe usando ConcurrentHashMap
  * - Geração automática de IDs
  * - Implementa todos os repositórios: Estoque, Produto, Fornecedor, Pedido, Alerta, Cliente
  */
-public class Repositorio implements 
+public class Repositorio implements
         EstoqueRepositorio,
         ProdutoRepositorio,
         FornecedorRepositorio,
@@ -77,8 +76,8 @@ public class Repositorio implements
             return false;
         }
         return estoques.values().stream()
-                .anyMatch(e -> e.getClienteId().equals(clienteId) && 
-                              e.getEndereco().equalsIgnoreCase(endereco));
+                .anyMatch(e -> e.getClienteId().equals(clienteId) &&
+                        e.getEndereco().equalsIgnoreCase(endereco));
     }
 
     @Override
@@ -87,8 +86,8 @@ public class Repositorio implements
             return false;
         }
         return estoques.values().stream()
-                .anyMatch(e -> e.getClienteId().equals(clienteId) && 
-                              e.getNome().equalsIgnoreCase(nome));
+                .anyMatch(e -> e.getClienteId().equals(clienteId) &&
+                        e.getNome().equalsIgnoreCase(nome));
     }
 
     // ==================== ProdutoRepositorio ====================
@@ -221,9 +220,9 @@ public class Repositorio implements
         }
         return pedidos.values().stream()
                 .anyMatch(p -> p.getFornecedorId().equals(fornecedorId) &&
-                              (p.getStatus() == StatusPedido.CRIADO || 
-                               p.getStatus() == StatusPedido.ENVIADO ||
-                               p.getStatus() == StatusPedido.EM_TRANSPORTE));
+                        (p.getStatus() == StatusPedido.CRIADO ||
+                                p.getStatus() == StatusPedido.ENVIADO ||
+                                p.getStatus() == StatusPedido.EM_TRANSPORTE));
     }
 
     // ==================== AlertaRepositorio ====================
@@ -286,6 +285,30 @@ public class Repositorio implements
     // ==================== Métodos Utilitários ====================
 
     /**
+     * Retorna todos os objetos de um tipo específico (útil para testes).
+     * @param tipo A classe dos objetos a serem retornados.
+     * @param <T> O tipo de objeto (ex: Produto, Estoque).
+     * @return Uma coleção de todos os objetos do tipo especificado.
+     */
+    @SuppressWarnings("unchecked")
+    public <T> Collection<T> buscarTodos(Class<T> tipo) {
+        if (tipo.equals(Estoque.class)) {
+            return (Collection<T>) estoques.values();
+        } else if (tipo.equals(Produto.class)) {
+            return (Collection<T>) produtos.values();
+        } else if (tipo.equals(Fornecedor.class)) {
+            return (Collection<T>) fornecedores.values();
+        } else if (tipo.equals(Pedido.class)) {
+            return (Collection<T>) pedidos.values();
+        } else if (tipo.equals(Alerta.class)) {
+            return (Collection<T>) alertas.values();
+        } else if (tipo.equals(Cliente.class)) {
+            return (Collection<T>) clientes.values();
+        }
+        return Collections.emptyList();
+    }
+
+    /**
      * Gera um novo ID de estoque.
      */
     public EstoqueId novoEstoqueId() {
@@ -344,19 +367,19 @@ public class Repositorio implements
      */
     public String estatisticas() {
         return String.format(
-            "Repositório em Memória:\n" +
-            "  - Estoques: %d\n" +
-            "  - Produtos: %d\n" +
-            "  - Fornecedores: %d\n" +
-            "  - Pedidos: %d\n" +
-            "  - Alertas: %d\n" +
-            "  - Clientes: %d",
-            estoques.size(),
-            produtos.size(),
-            fornecedores.size(),
-            pedidos.size(),
-            alertas.size(),
-            clientes.size()
+                "Repositório em Memória:\n" +
+                        "  - Estoques: %d\n" +
+                        "  - Produtos: %d\n" +
+                        "  - Fornecedores: %d\n" +
+                        "  - Pedidos: %d\n" +
+                        "  - Alertas: %d\n" +
+                        "  - Clientes: %d",
+                estoques.size(),
+                produtos.size(),
+                fornecedores.size(),
+                pedidos.size(),
+                alertas.size(),
+                clientes.size()
         );
     }
 }
