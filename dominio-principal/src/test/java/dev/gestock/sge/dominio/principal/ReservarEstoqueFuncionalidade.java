@@ -313,14 +313,6 @@ public class ReservarEstoqueFuncionalidade {
                 "Esperava mensagem contendo '" + mensagem + "', mas obteve: " + msg);
     }
 
-    @Entao("deve exibir a mensagem {string}")
-    public void deve_exibir_a_mensagem(String mensagem) {
-        assertNotNull(lastError);
-        String msg = lastError.getMessage() == null ? "" : lastError.getMessage();
-        assertTrue(msg.contains(mensagem),
-                "Esperava mensagem contendo '" + mensagem + "', mas obteve: " + msg);
-    }
-
     @Entao("o sistema deve liberar automaticamente as {int} unidades reservadas")
     public void o_sistema_deve_liberar_automaticamente_as_unidades_reservadas(Integer quantidadeEsperada) {
         Estoque estoque = repo.buscarPorId(currentEstoqueId).orElseThrow();
