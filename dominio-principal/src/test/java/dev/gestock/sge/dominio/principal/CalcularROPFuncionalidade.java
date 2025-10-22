@@ -28,9 +28,9 @@ public class CalcularROPFuncionalidade {
     // Defaults
     private static final int DEFAULT_LEAD_TIME = 7;
     private static final int DEFAULT_ESTOQUE_SEGURANCA = 20;
-    private static final int ROP_PADRAO_SEM_HISTORICO = 1;
 
     private Repositorio repo;
+    private RopServico ropServico;
 
     @Before
     public void reset() {
@@ -45,9 +45,10 @@ public class CalcularROPFuncionalidade {
 
         repo = new Repositorio();
         repo.limparTodos();
+        ropServico = new RopServico();
     }
 
-    // ===== GIVENS =====
+    // GIVENS
 
     @Dado("que existe um produto chamado {string}")
     public void existe_produto_chamado(String nome) {
@@ -95,13 +96,13 @@ public class CalcularROPFuncionalidade {
         calcularROP();
     }
 
-    // ===== WHENS =====
+    // WHENS 
 
     @Quando("o ROP do produto for calculado")
     public void rop_do_produto_calculado() {
         lastError = null;
         try {
-            calcularROP();
+            ropCalculado = ropServico.calcular(consumoMedio, leadTimeDias, estoqueSeguranca, historicoConsumo);
         } catch (Exception e) {
             lastError = e;
         }
@@ -111,13 +112,8 @@ public class CalcularROPFuncionalidade {
     public void sistema_calcula_consumo_medio() {
         lastError = null;
         try {
-            if (historicoConsumo == null || historicoConsumo.isEmpty()) {
-                consumoMedio = null; // força regra de ROP padrão em calcularROP
-            } else {
-                double avg = historicoConsumo.stream().mapToInt(Integer::intValue).average().orElse(0.0);
-                consumoMedio = (int) Math.round(avg);
-            }
-            calcularROP();
+            // Delegar o cálculo do ROP ao serviço
+            ropCalculado = ropServico.calcular(consumoMedio, leadTimeDias, estoqueSeguranca, historicoConsumo);
         } catch (Exception e) {
             lastError = e;
         }
@@ -130,10 +126,11 @@ public class CalcularROPFuncionalidade {
 
     @Quando("o cliente clica para visualizar o ROP dos produtos")
     public void cliente_clica_visualizar_rop() {
-        // em um cenário real, recuperaríamos o valor do SUT; aqui já está em ropCalculado
+        // Recupera o último ROP calculado via serviço (consulta)
+        ropServico.obterRopAtual().ifPresent(val -> ropCalculado = val);
     }
 
-    // ===== THENS =====
+    // THENS 
 
     @Entao("o ROP do produto deve ser {int} unidades")
     public void rop_deve_ser(int esperado) {
@@ -145,10 +142,18 @@ public class CalcularROPFuncionalidade {
     @Entao("o ROP do produto e calculado com base nesse historico")
     public void rop_calculado_com_base_no_historico() {
         assertNull(lastError, "Erro inesperado: " + (lastError == null ? "" : lastError.getMessage()));
-        assertNotNull(consumoMedio, "Consumo médio não foi calculado a partir do histórico");
         int lt = Optional.ofNullable(leadTimeDias).orElse(DEFAULT_LEAD_TIME);
         int es = Optional.ofNullable(estoqueSeguranca).orElse(DEFAULT_ESTOQUE_SEGURANCA);
-        ROP rop = new ROP(consumoMedio, lt, es);
+        // Se consumoMedio não foi previamente definido, o serviço deverá ter usado média do histórico
+        int consumoParaValidacao;
+        if (consumoMedio == null || consumoMedio == 0) {
+            double avg = historicoConsumo == null || historicoConsumo.isEmpty() ? 0.0
+                    : historicoConsumo.stream().mapToInt(Integer::intValue).average().orElse(0.0);
+            consumoParaValidacao = (int) Math.round(avg);
+        } else {
+            consumoParaValidacao = consumoMedio;
+        }
+        ROP rop = new ROP(consumoParaValidacao, lt, es);
         assertNotNull(ropCalculado, "ROP não foi calculado");
         assertEquals(rop.getValorROP(), ropCalculado.intValue());
     }
@@ -170,29 +175,10 @@ public class CalcularROPFuncionalidade {
         assertEquals(padrao, ropCalculado.intValue(), "ROP padrão não aplicado");
     }
 
-    // ===== Helpers =====
+    // Helpers 
 
     private void calcularROP() {
-        Integer consumo = consumoMedio;
-        List<Integer> hist = historicoConsumo;
-
-        boolean temHistorico = hist != null && !hist.isEmpty();
-
-        if ((consumo == null || consumo == 0) && !temHistorico) {
-            ropCalculado = ROP_PADRAO_SEM_HISTORICO;
-            return;
-        }
-
-        if ((consumo == null || consumo == 0) && temHistorico) {
-            double avg = hist.stream().mapToInt(Integer::intValue).average().orElse(0.0);
-            consumo = (int) Math.round(avg);
-            consumoMedio = consumo;
-        }
-
-        int lt = Optional.ofNullable(leadTimeDias).orElse(DEFAULT_LEAD_TIME);
-        int es = Optional.ofNullable(estoqueSeguranca).orElse(DEFAULT_ESTOQUE_SEGURANCA);
-
-        ROP rop = new ROP(consumo, lt, es);
-        ropCalculado = rop.getValorROP();
+        // Mantido por compatibilidade com steps existentes que chamam este helper
+        ropCalculado = ropServico.calcular(consumoMedio, leadTimeDias, estoqueSeguranca, historicoConsumo);
     }
 }

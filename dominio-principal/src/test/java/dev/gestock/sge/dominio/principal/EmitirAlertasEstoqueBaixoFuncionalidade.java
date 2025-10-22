@@ -17,7 +17,7 @@ import dev.gestock.sge.infraestrutura.persistencia.memoria.Repositorio;
 
 public class EmitirAlertasEstoqueBaixoFuncionalidade {
 
-    // ===== Estado por cenário =====
+    // Estado por cenário
     private Map<String, Produto> produtos;
     private Map<String, Alerta> alertas;
     private Map<String, Fornecedor> fornecedores;
@@ -93,9 +93,20 @@ public class EmitirAlertasEstoqueBaixoFuncionalidade {
         fornecedorAtual = new Fornecedor(fid, "Fornecedor1", "00000000000191", "contato@forn.com");
         fornecedores.put(fornecedorAtual.getNome(), fornecedorAtual);
         repo.salvar(fornecedorAtual);
-        // Gerar alerta via serviço de domínio (SUT)
-        alertaAtual = alertaServico.gerarAlerta(produtoAtual.getId(), estoqueAtual.getId(), fornecedorAtual.getId());
-        alertas.put(produtoAtual.getNome(), alertaAtual);
+        // Gerar alerta via fluxo do SUT (verificação de estoque)
+        alertaServico.verificarEstoqueEEmitirAlertas(
+            produtoAtual.getId(),
+            estoqueAtual.getId(),
+            saldoAtual,
+            ropAtual,
+            fornecedorAtual.getId()
+        );
+        // Capturar o alerta ativo gerado
+        List<Alerta> porProduto = alertaServico.listarPorProduto(produtoAtual.getId());
+        alertaAtual = porProduto.stream().filter(Alerta::isAtivo).findFirst().orElse(null);
+        if (alertaAtual != null) {
+            alertas.put(produtoAtual.getNome(), alertaAtual);
+        }
     }
 
     @E("o fornecedor sugerido possui cotacao valida e ativa")
@@ -120,18 +131,15 @@ public class EmitirAlertasEstoqueBaixoFuncionalidade {
 
         // Seleciona a melhor cotação via SUT (menor preço; em empate, menor prazo)
         Optional<Cotacao> melhorCotacao = fornecedorServico.selecionarMelhorCotacao(candidatos, produtoAtual.getId());
-        assertTrue(melhorCotacao.isPresent(), "Nenhuma cotação válida encontrada");
-
-        Cotacao escolhida = melhorCotacao.get();
+        Cotacao escolhida = melhorCotacao.orElse(null);
         // Descobre o fornecedor da melhor cotação por identidade da Cotacao (mesma instância)
-        melhorFornecedorSelecionado = candidatos.stream()
+        melhorFornecedorSelecionado = escolhida == null ? null : candidatos.stream()
                 .filter(f -> f.obterCotacaoPorProduto(produtoAtual.getId()).isPresent())
                 .filter(f -> f.obterCotacaoPorProduto(produtoAtual.getId()).get() == escolhida)
                 .findFirst()
-                .orElseThrow(() -> new AssertionError("Fornecedor da melhor cotação não encontrado"));
+                .orElse(null);
 
-        alertaAtual.atualizarFornecedorSugerido(melhorFornecedorSelecionado.getId());
-        repo.salvar(alertaAtual);
+        alertaServico.atualizarFornecedorSugerido(alertaAtual, melhorFornecedorSelecionado.getId());
     }
 
     @Dado("que existem {int} alertas ativos")
@@ -147,9 +155,15 @@ public class EmitirAlertasEstoqueBaixoFuncionalidade {
             ClienteId cid = new ClienteId((long) seq.getAndIncrement());
             EstoqueId eid = new EstoqueId((long) seq.getAndIncrement());
             Estoque est = new Estoque(eid, cid, "Estoque" + i, "Endereco", 1000);
+            // definir um ROP específico por produto para evitar números mágicos
+            int rop = 50 + i; // ROP derivado do índice
+            est.definirROP(p.getId(), rop, 1, 0);
             repo.salvar(est);
-            Alerta a = alertaServico.gerarAlerta(p.getId(), est.getId(), f.getId());
-            alertasAtivos.add(a);
+            // Usar fluxo do SUT: saldo abaixo do ROP para disparar alerta
+            int saldo = rop - 10; // saldo derivado do ROP
+            alertaServico.verificarEstoqueEEmitirAlertas(p.getId(), est.getId(), saldo, rop, f.getId());
+            List<Alerta> gerados = alertaServico.listarPorProduto(p.getId());
+            gerados.stream().filter(Alerta::isAtivo).findFirst().ifPresent(alertasAtivos::add);
         }
     }
 
@@ -160,8 +174,20 @@ public class EmitirAlertasEstoqueBaixoFuncionalidade {
         FornecedorId fid = new FornecedorId((long) seq.getAndIncrement());
         fornecedorAtual = new Fornecedor(fid, "Fornecedor1", "00000000000191", "contato@forn.com");
         repo.salvar(fornecedorAtual);
-        alertaAtual = alertaServico.gerarAlerta(produtoAtual.getId(), estoqueAtual.getId(), fornecedorAtual.getId());
-        alertas.put(produtoAtual.getNome(), alertaAtual);
+        alertaServico.verificarEstoqueEEmitirAlertas(
+            produtoAtual.getId(),
+            estoqueAtual.getId(),
+            saldoAtual,
+            ropAtual,
+            fornecedorAtual.getId()
+        );
+        alertaAtual = alertaServico.listarPorProduto(produtoAtual.getId()).stream()
+                .filter(Alerta::isAtivo)
+                .findFirst()
+                .orElse(null);
+        if (alertaAtual != null) {
+            alertas.put(produtoAtual.getNome(), alertaAtual);
+        }
     }
 
     @E("um pedido foi recebido para suprir o estoque do produto")
@@ -175,14 +201,18 @@ public class EmitirAlertasEstoqueBaixoFuncionalidade {
     public void sistema_verifica_estoque() {
         lastError = null;
         try {
-            if (saldoAtual <= ropAtual) {
-                // Gera alerta via serviço de domínio para simular verificação do estoque
+            if (fornecedorAtual == null) {
                 FornecedorId fid = new FornecedorId((long) seq.getAndIncrement());
                 fornecedorAtual = new Fornecedor(fid, "Fornecedor1", "00000000000191", "contato@forn.com");
                 repo.salvar(fornecedorAtual);
-                alertaAtual = alertaServico.gerarAlerta(produtoAtual.getId(), estoqueAtual.getId(), fornecedorAtual.getId());
-                alertas.put(produtoAtual.getNome(), alertaAtual);
             }
+            alertaServico.verificarEstoqueEEmitirAlertas(
+                produtoAtual.getId(),
+                estoqueAtual.getId(),
+                saldoAtual,
+                ropAtual,
+                fornecedorAtual.getId()
+            );
         } catch (Exception e) {
             lastError = e;
         }
@@ -190,13 +220,17 @@ public class EmitirAlertasEstoqueBaixoFuncionalidade {
 
     @Quando("o cliente visualiza o alerta")
     public void cliente_visualiza_alerta() {
-        // Simula visualização, nada a fazer
+        // Carrega o alerta atual a partir do serviço (simula a consulta/visualização)
+        alertaAtual = alertaServico.listarPorProduto(produtoAtual.getId()).stream()
+                .filter(Alerta::isAtivo)
+                .findFirst()
+                .orElse(alertaAtual);
     }
 
     @Quando("o cliente visualiza a lista de alertas")
     public void cliente_visualiza_lista_alertas() {
-        // Consulta os alertas ativos no repositório (SUT)
-        alertasAtivos = repo.listarAtivos();
+        // Consulta via serviço de domínio
+        alertasAtivos = alertaServico.listarAtivos();
     }
 
     @Quando("o sistema atualiza o estoque")
@@ -205,9 +239,8 @@ public class EmitirAlertasEstoqueBaixoFuncionalidade {
         try {
             if (quantidadeRecebida != null) {
                 saldoAtual += quantidadeRecebida;
-                // Remove alerta se estoque suprido
-                if (alertaAtual != null && saldoAtual > ropAtual) {
-                    alertaServico.desativarAlerta(alertaAtual);
+                if (alertaAtual != null) {
+                    alertaServico.processarRecebimento(alertaAtual, saldoAtual, ropAtual);
                 }
             }
         } catch (Exception e) {
@@ -220,7 +253,7 @@ public class EmitirAlertasEstoqueBaixoFuncionalidade {
     @Entao("um alerta deve ser gerado automaticamente")
     public void alerta_gerado_automaticamente() {
         // Verifica no repositório se há alerta ativo para o produto
-        List<Alerta> porProduto = repo.listarPorProduto(produtoAtual.getId());
+        List<Alerta> porProduto = alertaServico.listarPorProduto(produtoAtual.getId());
         assertFalse(porProduto.isEmpty(), "Alerta não foi gerado automaticamente");
         assertTrue(porProduto.stream().anyMatch(Alerta::isAtivo), "Alerta não está ativo");
     }
@@ -232,7 +265,7 @@ public class EmitirAlertasEstoqueBaixoFuncionalidade {
 
     @Entao("nenhum alerta deve ser gerado")
     public void nenhum_alerta_gerado() {
-        List<Alerta> porProduto = repo.listarPorProduto(produtoAtual.getId());
+        List<Alerta> porProduto = alertaServico.listarPorProduto(produtoAtual.getId());
         assertTrue(porProduto.isEmpty(), "Alerta foi gerado indevidamente");
     }
 
@@ -260,7 +293,7 @@ public class EmitirAlertasEstoqueBaixoFuncionalidade {
     @Entao("o sistema deve exibir {int} alertas")
     public void sistema_exibe_qtd_alertas(int qtd) {
         // Consulta o repositório para obter os alertas ativos reais
-        List<Alerta> ativos = repo.listarAtivos();
+        List<Alerta> ativos = alertaServico.listarAtivos();
         assertEquals(qtd, ativos.size(), "Quantidade de alertas exibidos incorreta");
     }
 
@@ -268,7 +301,7 @@ public class EmitirAlertasEstoqueBaixoFuncionalidade {
     public void alerta_removido_automaticamente() {
         assertNotNull(alertaAtual, "Alerta não existe");
         // Recarrega do repositório para garantir persistência do estado
-        Optional<Alerta> recarregado = repo.obter(alertaAtual.getId());
+        Optional<Alerta> recarregado = alertaServico.obter(alertaAtual.getId());
         assertTrue(recarregado.isPresent(), "Alerta não encontrado no repositório");
         assertFalse(recarregado.get().isAtivo(), "Alerta não foi removido automaticamente");
     }
