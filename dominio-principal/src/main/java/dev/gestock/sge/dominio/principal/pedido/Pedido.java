@@ -68,10 +68,16 @@ public class Pedido {
         this.status = StatusPedido.RECEBIDO;
     }
 
+    /* Marca pedido como em transporte (ENVIADO → EM_TRANSPORTE). */
+    public void iniciarTransporte() {
+        isTrue(status == StatusPedido.ENVIADO, "Somente pedidos ENVIADO podem ir para EM_TRANSPORTE");
+        this.status = StatusPedido.EM_TRANSPORTE;
+    }
+
     /* Cancela o pedido (exceto quando EM_TRANSPORTE e CONCLUIDO) - R1H12. */
     public void cancelar() {
-        isTrue(status != StatusPedido.CONCLUIDO, "Pedido CONCLUIDO não pode ser cancelado");
-        isTrue(status != StatusPedido.EM_TRANSPORTE, "Pedido EM TRANSPORTE não pode ser cancelado");
+        isTrue(status != StatusPedido.CONCLUIDO, "Pedido CONCLUIDO nao pode ser cancelado");
+        isTrue(status != StatusPedido.EM_TRANSPORTE, "Pedido EM TRANSPORTE nao pode ser cancelado");
         this.status = StatusPedido.CANCELADO;
     }
 

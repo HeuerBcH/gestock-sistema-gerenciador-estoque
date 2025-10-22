@@ -15,8 +15,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class RegistrarMovimentacaoFuncionalidade {
 
-
     private final Repositorio repositorio = new Repositorio();
+
+    // Construtor público sem argumentos exigido pelo Cucumber
+    public RegistrarMovimentacaoFuncionalidade() {
+    }
 
     private Estoque estoque;
     private Produto produto;

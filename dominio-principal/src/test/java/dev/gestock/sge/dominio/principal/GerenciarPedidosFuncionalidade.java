@@ -318,7 +318,7 @@ public class GerenciarPedidosFuncionalidade {
                 break;
             case EM_TRANSPORTE:
                 pedido.enviar();
-                // Assumindo que EM_TRANSPORTE é um estado alcançável após ENVIADO
+                pedido.iniciarTransporte();
                 break;
             case RECEBIDO:
                 pedido.enviar();
@@ -455,6 +455,13 @@ public class GerenciarPedidosFuncionalidade {
     public void umaMovimentacaoDeEntradaDeveSerGerada() {
         quantidadeMovimentacao = pedido.getItens().stream().mapToInt(ItemPedido::getQuantidade).sum();
         assertTrue(quantidadeMovimentacao > 0);
+    }
+
+    // Garantir que a asserção de aumento de saldo use o estado desta classe
+    @Entao("o saldo do estoque deve aumentar em {int} unidades")
+    public void oSaldoDoEstoqueDeveAumentarEmUnidades_local(int quantidadeEsperada) {
+        int diferencaSaldo = saldoAtual - saldoAnterior;
+        assertEquals(quantidadeEsperada, diferencaSaldo);
     }
 
     @Quando("o cliente tenta confirmar o recebimento")
