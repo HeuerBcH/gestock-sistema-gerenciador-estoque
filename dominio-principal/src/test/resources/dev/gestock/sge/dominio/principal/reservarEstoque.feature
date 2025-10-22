@@ -17,7 +17,7 @@ Funcionalidade: Reservar Estoque para Pedidos Pendentes
     E 50 unidades estao reservadas aguardando entrega de fornecedor
     Quando o cliente tenta registrar uma saida de 230 unidades do produto "Produto Y"
     Entao o sistema deve rejeitar a operacao de reserva
-    E deve exibir a mensagem "Saldo disponível insuficiente para saída"
+    E deve exibir a mensagem de reserva "Saldo disponível insuficiente para saída"
 
   # H25: Liberar reserva ao concluir pedido
   # R1H25: Reservas liberadas automaticamente apos recebimento
