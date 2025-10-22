@@ -222,6 +222,12 @@ public class GerenciarPedidosFuncionalidade {
         assertEquals(quantidadeItens, pedido.getItens().size());
     }
 
+    @Entao("o saldo do estoque do pedido deve aumentar em {int} unidades")
+    public void oSaldoDoEstoqueDoPedidoDeveAumentarEmUnidades(int quantidadeEsperada) {
+        int diferencaSaldo = saldoAtual - saldoAnterior;
+        assertEquals(quantidadeEsperada, diferencaSaldo);
+    }
+
     @E("o valor total dos itens deve ser calculado corretamente")
     public void oValorTotalDosItensDeveSerCalculadoCorretamente() {
         assertEquals(valorTotalEsperado, pedido.calcularTotalItens());
@@ -455,13 +461,6 @@ public class GerenciarPedidosFuncionalidade {
     public void umaMovimentacaoDeEntradaDeveSerGerada() {
         quantidadeMovimentacao = pedido.getItens().stream().mapToInt(ItemPedido::getQuantidade).sum();
         assertTrue(quantidadeMovimentacao > 0);
-    }
-
-    // Garantir que a asserção de aumento de saldo use o estado desta classe
-    @Entao("o saldo do estoque deve aumentar em {int} unidades")
-    public void oSaldoDoEstoqueDeveAumentarEmUnidades_local(int quantidadeEsperada) {
-        int diferencaSaldo = saldoAtual - saldoAnterior;
-        assertEquals(quantidadeEsperada, diferencaSaldo);
     }
 
     @Quando("o cliente tenta confirmar o recebimento")
