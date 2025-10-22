@@ -324,38 +324,50 @@ public class RegistrarMovimentacaoFuncionalidade {
         estoque = new Estoque(estoqueId, cliente.getId(), "Estoque Histórico", "Endereço Teste", 1000);
         repositorio.salvar(estoque);
 
-        // Criar histórico de movimentações
-        historicoMovimentacoes = new ArrayList<>();
+        // Gerar histórico real de movimentações: exatamente 'quantidadeMovimentacoes' registros
+        // Alterna ENTRADA e SAIDA com quantidade fixa para manter saldo não-negativo
         for (int i = 1; i <= quantidadeMovimentacoes; i++) {
-            Movimentacao mov = new Movimentacao(
-                    (long) i,
-                    i % 2 == 0 ? TipoMovimentacao.ENTRADA : TipoMovimentacao.SAIDA,
-                    produto.getId(),
-                    i * 10,
-                    LocalDateTime.now().minusDays(quantidadeMovimentacoes - i),
-                    "Responsável " + i,
-                    "Motivo " + i,
-                    Map.of("numero", String.valueOf(i))
-            );
-            historicoMovimentacoes.add(mov);
+            int qtd = 10;
+            String responsavel = "Responsável " + i;
+            String motivo = "Motivo " + i;
+            if (i % 2 == 1) {
+                // Ímpares: ENTRADA
+                estoque.registrarEntrada(
+                        produto.getId(),
+                        qtd,
+                        responsavel,
+                        motivo,
+                        Map.of("numero", String.valueOf(i))
+                );
+            } else {
+                // Pares: SAIDA (saldo foi aumentado na iteração anterior)
+                estoque.registrarSaida(
+                        produto.getId(),
+                        qtd,
+                        responsavel,
+                        motivo
+                );
+            }
         }
     }
 
     @Quando("o cliente visualiza o historico do produto")
     public void oClienteVisualizaOHistoricoDoProduto() {
-        // Simular busca do histórico
-        assertNotNull(historicoMovimentacoes);
-        assertFalse(historicoMovimentacoes.isEmpty());
+        List<Movimentacao> snapshot = estoque.getMovimentacoesSnapshot();
+        assertNotNull(snapshot);
+        assertFalse(snapshot.isEmpty());
     }
 
     @Entao("o sistema deve exibir todas as {int} movimentacoes")
     public void oSistemaDeveExibirTodasAsMovimentacoes(int quantidadeEsperada) {
-        assertEquals(quantidadeEsperada, historicoMovimentacoes.size());
+        List<Movimentacao> snapshot = estoque.getMovimentacoesSnapshot();
+        assertEquals(quantidadeEsperada, snapshot.size());
     }
 
     @E("cada movimentacao deve conter data, tipo, quantidade e responsavel")
     public void cadaMovimentacaoDeveConterDataTipoQuantidadeEResponsavel() {
-        for (Movimentacao mov : historicoMovimentacoes) {
+        List<Movimentacao> snapshot = estoque.getMovimentacoesSnapshot();
+        for (Movimentacao mov : snapshot) {
             assertNotNull(mov.getDataHora(), "Data não pode ser nula");
             assertNotNull(mov.getTipo(), "Tipo não pode ser nulo");
             assertTrue(mov.getQuantidade() > 0, "Quantidade deve ser positiva");
