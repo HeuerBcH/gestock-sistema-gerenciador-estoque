@@ -9,14 +9,7 @@ import dev.gestock.sge.dominio.principal.cliente.ClienteId;
 import dev.gestock.sge.dominio.principal.pedido.PedidoRepositorio;
 import dev.gestock.sge.dominio.principal.produto.ProdutoId;
 
-/**
- * Serviço de domínio para operações de gerenciamento de estoques.
- * 
- * Suporta:
- * - H1-H4: Gerenciar Estoques (cadastrar, inativar, editar, pesquisar)
- * - H22-H23: Transferir Produtos entre Estoques
- * - Validações de regras de negócio R2H1, R3H1, R1H2, R2H2, R1H22
- */
+// Serviço de domínio para operações de gerenciamento de estoques.
 public class EstoqueServico {
 
     private final EstoqueRepositorio estoqueRepositorio;
@@ -31,12 +24,7 @@ public class EstoqueServico {
         this.pedidoRepositorio = pedidoRepositorio;
     }
 
-    /**
-     * Cadastra um novo estoque (H1).
-     * Valida:
-     * - R2H1: Endereço único por cliente
-     * - R3H1: Nome único por cliente
-     */
+    // Cadastra um novo estoque (H1).
     public void cadastrar(Estoque estoque) {
         notNull(estoque, "Estoque é obrigatório");
         
@@ -53,36 +41,25 @@ public class EstoqueServico {
         estoqueRepositorio.salvar(estoque);
     }
 
-    /**
-     * Inativa um estoque (H2).
-     * Valida:
-     * - R1H2: Não pode ter produtos em estoque
-     * - R2H2: Não pode ter pedidos pendentes alocados
-     */
+    // Inativa um estoque (H2).
     public void inativar(Estoque estoque) {
         notNull(estoque, "Estoque é obrigatório");
-        
-        // R2H2: Validar se não há pedidos pendentes (se pedidoRepositorio disponível)
-        if (pedidoRepositorio != null) {
-            // Esta validação seria feita consultando pedidos com estoqueId
-            // Implementação depende de método no PedidoRepositorio
+ 
+        if (pedidoRepositorio != null && pedidoRepositorio.existePedidoPendentePorEstoqueId(estoque.getId())) {
+            throw new IllegalStateException("Estoque com pedido em andamento nao pode ser inativado (R2H2)");
         }
         
-        estoque.inativar(); // R1H2 é validado dentro do agregado
+        estoque.inativar();
         estoqueRepositorio.salvar(estoque);
     }
 
-    /**
-     * Atualiza parâmetros de um estoque (H3).
-     */
+    // Atualiza parâmetros de um estoque (H3).
     public void atualizar(Estoque estoque) {
         notNull(estoque, "Estoque é obrigatório");
         estoqueRepositorio.salvar(estoque);
     }
 
-    /**
-     * Pesquisa estoques de um cliente (H4).
-     */
+    // Pesquisa estoques de um cliente (H4).
     public List<Estoque> pesquisarPorCliente(ClienteId clienteId) {
         notNull(clienteId, "Cliente é obrigatório");
         List<Estoque> estoques = estoqueRepositorio.buscarEstoquesPorClienteId(clienteId);
@@ -95,13 +72,7 @@ public class EstoqueServico {
         return estoques;
     }
 
-    /**
-     * Transfere produtos entre estoques (H22-H23).
-     * Valida:
-     * - R1H22: Transferência só entre estoques do mesmo cliente
-     * - R2H22: Saldo disponível suficiente na origem
-     * - R3H22: Registra movimentações de saída/entrada automaticamente
-     */
+    //Transfere produtos entre estoques (H22-H23).
     public void transferir(Estoque origem,
                            Estoque destino,
                            ProdutoId produtoId,

@@ -226,6 +226,28 @@ public class Repositorio implements
                                p.getStatus() == StatusPedido.EM_TRANSPORTE));
     }
 
+    @Override
+    public List<Pedido> buscarPedidosPorEstoqueId(EstoqueId estoqueId) {
+        if (estoqueId == null) {
+            return Collections.emptyList();
+        }
+        return pedidos.values().stream()
+                .filter(p -> p.getEstoqueId().isPresent() && p.getEstoqueId().get().equals(estoqueId))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean existePedidoPendentePorEstoqueId(EstoqueId estoqueId) {
+        if (estoqueId == null) {
+            return false;
+        }
+        return pedidos.values().stream()
+                .filter(p -> p.getEstoqueId().isPresent() && p.getEstoqueId().get().equals(estoqueId))
+                .anyMatch(p -> p.getStatus() == StatusPedido.CRIADO ||
+                               p.getStatus() == StatusPedido.ENVIADO ||
+                               p.getStatus() == StatusPedido.EM_TRANSPORTE);
+    }
+
     // ==================== AlertaRepositorio ====================
 
     @Override
