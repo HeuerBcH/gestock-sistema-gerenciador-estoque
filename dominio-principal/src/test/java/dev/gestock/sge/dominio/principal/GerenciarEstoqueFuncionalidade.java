@@ -14,7 +14,7 @@ import dev.gestock.sge.dominio.principal.estoque.*;
 import dev.gestock.sge.dominio.principal.cliente.ClienteId;
 import dev.gestock.sge.dominio.principal.produto.ProdutoId;
 
-public class GerenciarEstoqueFeature {
+public class GerenciarEstoqueFuncionalidade {
 
     private Repositorio repo;
     private EstoqueServico estoqueSrv;
