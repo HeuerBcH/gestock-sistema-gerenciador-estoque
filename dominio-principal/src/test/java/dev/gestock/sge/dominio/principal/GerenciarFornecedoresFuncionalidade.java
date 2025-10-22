@@ -2,6 +2,7 @@ package dev.gestock.sge.dominio.principal;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.text.Normalizer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +38,6 @@ public class GerenciarFornecedoresFuncionalidade {
         lastError = null;
     }
 
-    // utils
     private FornecedorId ensureFornecedor(String nome, String cnpj, String contato) {
         return aliasFornecedor.computeIfAbsent(nome, k -> {
             FornecedorId id = repo.novoFornecedorId();
@@ -57,17 +57,25 @@ public class GerenciarFornecedoresFuncionalidade {
         });
     }
 
-    // ===== DADOS =====
-
     @Dado("nao existe um fornecedor cadastrado com o CNPJ {string}")
     public void nao_existe_fornecedor_com_cnpj(String cnpj) {
         repo.limparTodos();
+    }
+
+    @Dado("que nao existe um fornecedor cadastrado com o CNPJ {string}")
+    public void que_nao_existe_um_fornecedor_cadastrado_com_o_cnpj(String cnpj) {
+        nao_existe_fornecedor_com_cnpj(cnpj);
     }
 
     @Dado("existe um fornecedor {string}")
     public void existe_um_fornecedor(String nome) {
         String cnpj = "cnpj-" + seq.getAndIncrement();
         currentFornecedorId = ensureFornecedor(nome, cnpj, "contato@ex.com");
+    }
+
+    @Dado("que existe um fornecedor {string}")
+    public void que_existe_um_fornecedor(String nome) {
+        existe_um_fornecedor(nome);
     }
 
     @Dado("existe um produto {string} com id {string}")
@@ -92,6 +100,11 @@ public class GerenciarFornecedoresFuncionalidade {
         repo.salvar(f);
     }
 
+    @Dado("que existe um fornecedor chamado {string} com lead time de {int} dias")
+    public void que_existe_um_fornecedor_chamado_com_lead_time(String nome, int dias) {
+        existe_fornecedor_com_leadtime(nome, dias);
+    }
+
     @Dado("o fornecedor possui historico de entregas de {string}")
     public void fornecedor_possui_historico(String lista) {
         Fornecedor f = repo.buscarPorId(currentFornecedorId).orElseThrow();
@@ -102,14 +115,32 @@ public class GerenciarFornecedoresFuncionalidade {
         repo.salvar(f);
     }
 
+    @Dado("o fornecedor possui historico de entregas de {int}, {int}, {int}, {int} e {int} dias")
+    public void fornecedor_possui_historico_com_cinco_valores(int v1, int v2, int v3, int v4, int v5) {
+        Fornecedor f = repo.buscarPorId(currentFornecedorId).orElseThrow();
+        java.util.List<Integer> vals = java.util.List.of(v1, v2, v3, v4, v5);
+        f.recalibrarLeadTime(vals);
+        repo.salvar(f);
+    }
+
     @Dado("existe um fornecedor chamado {string} sem historico de entregas")
     public void fornecedor_sem_historico(String nome) {
         currentFornecedorId = ensureFornecedor(nome, "cnpj-"+seq.getAndIncrement(), "contato@ex.com");
     }
 
+    @Dado("que existe um fornecedor chamado {string} sem historico de entregas")
+    public void que_existe_um_fornecedor_chamado_sem_historico_de_entregas(String nome) {
+        fornecedor_sem_historico(nome);
+    }
+
     @Dado("existe um fornecedor chamado {string} sem pedidos pendentes")
     public void fornecedor_sem_pedidos_pendentes(String nome) {
         currentFornecedorId = ensureFornecedor(nome, "cnpj-"+seq.getAndIncrement(), "contato@ex.com");
+    }
+
+    @Dado("que existe um fornecedor chamado {string} sem pedidos pendentes")
+    public void que_existe_um_fornecedor_chamado_sem_pedidos_pendentes(String nome) {
+        fornecedor_sem_pedidos_pendentes(nome);
     }
 
     @Dado("existe um fornecedor chamado {string} com pedidos pendentes")
@@ -121,19 +152,30 @@ public class GerenciarFornecedoresFuncionalidade {
         repo.salvar(p);
     }
 
-    // ✅ NOVO: faltava step para "existe um fornecedor chamado X com contato Y"
+    @Dado("que existe um fornecedor chamado {string} com pedidos pendentes")
+    public void que_existe_um_fornecedor_chamado_com_pedidos_pendentes(String nome) {
+        fornecedor_com_pedidos_pendentes(nome);
+    }
+
+    @Dado("que existe um fornecedor chamado {string}")
+    public void que_existe_um_fornecedor_chamado(String nome) {
+        currentFornecedorId = ensureFornecedor(nome, "cnpj-"+seq.getAndIncrement(), "contato@ex.com");
+    }
+
     @Dado("existe um fornecedor chamado {string} com contato {string}")
     public void existe_fornecedor_com_contato(String nome, String contato) {
         currentFornecedorId = ensureFornecedor(nome, "cnpj-"+seq.getAndIncrement(), contato);
     }
 
-    // ✅ NOVO: faltava step para "existe um produto chamado X com id Y"
+    @Dado("que existe um fornecedor chamado {string} com contato {string}")
+    public void que_existe_um_fornecedor_chamado_com_contato(String nome, String contato) {
+        existe_fornecedor_com_contato(nome, contato);
+    }
+
     @Dado("existe um produto chamado {string} com id {string}")
     public void existe_produto_chamado_com_id(String nome, String id) {
         ensureProduto(id);
     }
-
-    // ===== QUANDOS =====
 
     @Quando("o cliente cadastra um fornecedor com nome {string}, CNPJ {string} e contato {string}")
     public void cadastra_fornecedor(String nome, String cnpj, String contato) {
@@ -147,7 +189,6 @@ public class GerenciarFornecedoresFuncionalidade {
         } catch (Exception ex) { lastError = ex; }
     }
 
-    // ✅ Corrigido: o feature usa aspas no número, então trocamos {int} por {string}
     @Quando("o cliente cadastra um fornecedor com nome {string}, CNPJ {string}, contato {string} e lead time de {string} dias")
     public void cadastra_fornecedor_com_leadtime(String nome, String cnpj, String contato, String diasStr) {
         lastError = null;
@@ -160,7 +201,6 @@ public class GerenciarFornecedoresFuncionalidade {
         } catch (Exception ex) { lastError = ex; }
     }
 
-    // ✅ Corrigido: feature usa "150.00" e "10" entre aspas
     @Quando("o cliente registra uma cotacao de {string} reais com prazo de {string} dias para o produto {string}")
     public void registra_cotacao(String precoStr, String prazoStr, String codigoProduto) {
         lastError = null;
@@ -260,8 +300,6 @@ public class GerenciarFornecedoresFuncionalidade {
     @Quando("o cliente tenta inativar o fornecedor {string}")
     public void cliente_tenta_inativar_fornecedor(String nome) { cliente_inativa_fornecedor(nome); }
 
-    // ===== ENTAOS =====
-
     @Entao("o fornecedor deve ser cadastrado com sucesso")
     public void fornecedor_cadastrado_sucesso() {
         assertNull(lastError, "Esperava sucesso no cadastro: " + (lastError==null?"":lastError.getMessage()));
@@ -281,7 +319,6 @@ public class GerenciarFornecedoresFuncionalidade {
         assertEquals(dias, f.getLeadTimeMedio().getDias());
     }
 
-    // ✅ NOVO: feature usa “E o lead time deve ser ‘7’ dias”
     @Entao("o lead time deve ser {string} dias")
     public void lead_time_generico(String diasStr) {
         int dias = Integer.parseInt(diasStr.replace("\"", ""));
@@ -312,23 +349,25 @@ public class GerenciarFornecedoresFuncionalidade {
     @Entao("o sistema deve rejeitar a operacao de fornecedor")
     public void sistema_rejeita_operacao() { assertNotNull(lastError); }
 
-    @Entao("deve exibir a mensagem de fornecedor \"{string}\"")
+    @Entao("deve exibir a mensagem de fornecedor {string}")
     public void deve_exibir_msg_fornecedor(String msg) {
         assertNotNull(lastError);
         String m = lastError.getMessage() == null ? "" : lastError.getMessage();
-        assertTrue(m.toLowerCase().contains(msg.toLowerCase()));
+        String mNorm = Normalizer.normalize(m, Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+        String msgNorm = Normalizer.normalize(msg, Normalizer.Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
+        assertTrue(mNorm.toLowerCase().contains(msgNorm.toLowerCase()));
     }
 
     @Entao("os dados do fornecedor devem ser atualizados")
     public void dados_fornecedor_atualizados() { assertNull(lastError); }
 
-    @Entao("o nome do fornecedor deve ser \"{string}\"")
+    @Entao("o nome do fornecedor deve ser {string}")
     public void nome_fornecedor_deve_ser(String nome) {
         Fornecedor f = repo.buscarPorId(currentFornecedorId).orElseThrow();
         assertEquals(nome, f.getNome());
     }
 
-    @Entao("o contato do fornecedor deve ser \"{string}\"")
+    @Entao("o contato do fornecedor deve ser {string}")
     public void contato_fornecedor_deve_ser(String contato) {
         Fornecedor f = repo.buscarPorId(currentFornecedorId).orElseThrow();
         assertEquals(contato, f.getContato());
@@ -340,7 +379,6 @@ public class GerenciarFornecedoresFuncionalidade {
         assertEquals(dias, f.getLeadTimeMedio().getDias());
     }
 
-    // ✅ NOVO: feature usa “E o ponto de ressuprimento dos produtos associados deve ser recalculado”
     @Entao("o ponto de ressuprimento dos produtos associados deve ser recalculado")
     public void ponto_de_ressuprimento_recalculado() {
         assertNull(lastError, "Esperava sucesso ao recalibrar ROP");

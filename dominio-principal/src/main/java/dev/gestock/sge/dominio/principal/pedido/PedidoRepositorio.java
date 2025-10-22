@@ -2,6 +2,7 @@ package dev.gestock.sge.dominio.principal.pedido;
 
 import dev.gestock.sge.dominio.principal.cliente.ClienteId;
 import dev.gestock.sge.dominio.principal.fornecedor.FornecedorId;
+import dev.gestock.sge.dominio.principal.estoque.EstoqueId;
 
 import java.util.List;
 import java.util.Optional;
@@ -37,4 +38,10 @@ public interface PedidoRepositorio {
     
     /** Verifica se existem pedidos pendentes para um fornecedor (R1H7) */
     boolean existePedidoPendenteParaFornecedor(FornecedorId fornecedorId);
+
+    /** Busca pedidos alocados a um estoque específico */
+    List<Pedido> buscarPedidosPorEstoqueId(EstoqueId estoqueId);
+
+    /** Verifica se existem pedidos pendentes alocados a um estoque específico (R2H2) */
+    boolean existePedidoPendentePorEstoqueId(EstoqueId estoqueId);
 }
