@@ -31,8 +31,7 @@ public class GerenciarProdutosFuncionalidade {
     private ProdutoId currentProdutoId;
     private Exception lastError;
 
-    private boolean produtoPerecivel = false;
-    // Dados temporários informados nos Givens
+    private boolean produtoPerecivel;    // Dados temporários informados nos Givens
     private String pendingCodigo;
     private String pendingNome;
     private String pendingUnidade;
@@ -456,6 +455,11 @@ public class GerenciarProdutosFuncionalidade {
         } else {
             assertTrue(msg.contains(mensagem), "Esperava mensagem contendo '" + mensagem + "', mas obteve: " + msg);
         }
+    }
+
+    @Entao("deve exibir a mensagem de produto {string}")
+    public void deve_exibir_mensagem_de_produto(String mensagem) {
+        sistema_exibe_mensagem(mensagem);
     }
 
     @Entao("o produto deve possuir cotacoes de dois fornecedores")
