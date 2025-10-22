@@ -2,19 +2,13 @@ package dev.gestock.sge.dominio.principal.fornecedor;
 
 import dev.gestock.sge.dominio.principal.produto.ProdutoId;
 
-/**
- * Entidade de domínio: Cotação
- *
- * Representa o preço e prazo de entrega ofertado por um fornecedor
- * para determinado produto (R2, R5, R6, R1H18).
- */
+// Entidade de domínio: Cotação
 public class Cotacao {
 
     private final CotacaoId id;
     private final ProdutoId produtoId;
     private double preco;
     private int prazoDias; // prazo em dias úteis
-    // Validade simplificada (ativa/inativa)
     private boolean validadeAtiva;
 
     public Cotacao(CotacaoId id, ProdutoId produtoId, double preco, int prazoDias) {
@@ -23,7 +17,7 @@ public class Cotacao {
         this.produtoId = produtoId;
         this.preco = preco;
         this.prazoDias = prazoDias;
-        this.validadeAtiva = true; // por padrão, ativa
+        this.validadeAtiva = true;
     }
 
     public ProdutoId getProdutoId() { return produtoId; }
@@ -39,7 +33,7 @@ public class Cotacao {
         this.prazoDias = novoPrazo;
     }
 
-    /** Define a validade como ativa ou inativa. */
+    // Define a validade como ativa ou inativa
     public void definirValidadeAtiva(boolean ativa) {
         this.validadeAtiva = ativa;
     }

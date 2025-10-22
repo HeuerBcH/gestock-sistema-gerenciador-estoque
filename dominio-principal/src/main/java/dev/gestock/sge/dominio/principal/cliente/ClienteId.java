@@ -2,11 +2,7 @@ package dev.gestock.sge.dominio.principal.cliente;
 
 import java.util.Objects;
 
-/* Value Object que encapsula a identidade do Cliente.
-
- - Garante que a identidade é imutável.
- - Evita "primitive obsession" (usar Long cru em todo o código).
- - Define igualdade por valor (do Long). */
+// Value Object que encapsula a identidade do Cliente.
 public class ClienteId {
     private final Long id;
 

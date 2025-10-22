@@ -2,7 +2,7 @@ package dev.gestock.sge.dominio.principal.fornecedor;
 
 import java.util.Objects;
 
-/* Value Object: Identificador de cotação */
+// Value Object: Identificador de cotação
 public class CotacaoId {
     private final Long id;
 

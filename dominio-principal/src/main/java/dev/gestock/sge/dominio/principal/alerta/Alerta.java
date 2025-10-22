@@ -6,12 +6,8 @@ import dev.gestock.sge.dominio.principal.produto.ProdutoId;
 
 import java.time.LocalDateTime;
 
-/* Aggregate Root: Alerta
+// Aggregate Root: Alerta
 
-  Responsabilidades:
-  - Notificar quando um produto atinge o ponto de ressuprimento (H16, R1H16, R2H16)
-  - Manter histórico de alertas ativos (H17, R1H17)
-  - Sugerir fornecedor com melhor cotação */
 public class Alerta {
 
     private final AlertaId id;
@@ -40,12 +36,12 @@ public class Alerta {
         this.ativo = true;
     }
 
-    /* Desativa o alerta após recebimento do pedido (R1H17) */
+    // Desativa o alerta após recebimento do pedido (R1H17)
     public void desativar() {
         this.ativo = false;
     }
 
-    /* Atualiza o fornecedor sugerido */
+    // Atualiza o fornecedor sugerido
     public void atualizarFornecedorSugerido(FornecedorId fornecedorId) {
         this.fornecedorSugerido = fornecedorId;
     }

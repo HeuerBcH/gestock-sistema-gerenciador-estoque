@@ -77,7 +77,7 @@ Funcionalidade: Gerenciar Pedidos
     E existe um estoque para receber o produto
     Quando o cliente confirma o recebimento do pedido
     Entao uma movimentacao de entrada deve ser gerada
-    E o saldo do estoque deve aumentar em 100 unidades
+    E o saldo do estoque do pedido deve aumentar em 100 unidades
 
   Cenario: Tentar confirmar recebimento de pedido nao enviado
     Dado que existe um pedido no estado "CRIADO"

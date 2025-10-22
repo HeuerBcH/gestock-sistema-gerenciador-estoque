@@ -3,8 +3,8 @@ package dev.gestock.sge.dominio.principal.estoque;
 import java.time.LocalDateTime;
 import java.util.Map;
 import dev.gestock.sge.dominio.principal.produto.ProdutoId;
-/* Entidade de auditoria de movimentos no Estoque.
-   Mantém trilha completa: tipo, produto, quantidade, data/hora, responsável, motivo, metadados. */
+// Entidade de auditoria de movimentos no Estoque.
+
 public class Movimentacao {
 
     private final Long id;

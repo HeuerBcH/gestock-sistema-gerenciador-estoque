@@ -12,17 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
-/**
- * Implementação em memória de todos os repositórios de domínio.
- * Utilizada principalmente para testes.
- * 
- * Características:
- * - Armazenamento volátil (dados perdidos ao reiniciar)
- * - Thread-safe usando ConcurrentHashMap
- * - Geração automática de IDs
- * - Implementa todos os repositórios: Estoque, Produto, Fornecedor, Pedido, Alerta, Cliente
- */
-public class Repositorio implements 
+public class Repositorio implements
         EstoqueRepositorio,
         ProdutoRepositorio,
         FornecedorRepositorio,
@@ -46,7 +36,7 @@ public class Repositorio implements
     private final AtomicLong alertaIdSeq = new AtomicLong(1);
     private final AtomicLong clienteIdSeq = new AtomicLong(1);
 
-    // ==================== EstoqueRepositorio ====================
+    // EstoqueRepositorio
 
     @Override
     public void salvar(Estoque estoque) {
@@ -77,8 +67,8 @@ public class Repositorio implements
             return false;
         }
         return estoques.values().stream()
-                .anyMatch(e -> e.getClienteId().equals(clienteId) && 
-                              e.getEndereco().equalsIgnoreCase(endereco));
+                .anyMatch(e -> e.getClienteId().equals(clienteId) &&
+                        e.getEndereco().equalsIgnoreCase(endereco));
     }
 
     @Override
@@ -87,11 +77,11 @@ public class Repositorio implements
             return false;
         }
         return estoques.values().stream()
-                .anyMatch(e -> e.getClienteId().equals(clienteId) && 
-                              e.getNome().equalsIgnoreCase(nome));
+                .anyMatch(e -> e.getClienteId().equals(clienteId) &&
+                        e.getNome().equalsIgnoreCase(nome));
     }
 
-    // ==================== ProdutoRepositorio ====================
+    // ProdutoRepositorio
 
     @Override
     public void salvar(Produto produto) {
@@ -130,7 +120,7 @@ public class Repositorio implements
         produtos.put(produto.getId(), produto);
     }
 
-    // ==================== FornecedorRepositorio ====================
+    // FornecedorRepositorio
 
     @Override
     public void salvar(Fornecedor fornecedor) {
@@ -155,7 +145,7 @@ public class Repositorio implements
                 .findFirst();
     }
 
-    // ==================== PedidoRepositorio ====================
+    // PedidoRepositorio 
 
     @Override
     public void salvar(Pedido pedido) {
@@ -221,12 +211,12 @@ public class Repositorio implements
         }
         return pedidos.values().stream()
                 .anyMatch(p -> p.getFornecedorId().equals(fornecedorId) &&
-                              (p.getStatus() == StatusPedido.CRIADO || 
-                               p.getStatus() == StatusPedido.ENVIADO ||
-                               p.getStatus() == StatusPedido.EM_TRANSPORTE));
+                        (p.getStatus() == StatusPedido.CRIADO ||
+                                p.getStatus() == StatusPedido.ENVIADO ||
+                                p.getStatus() == StatusPedido.EM_TRANSPORTE));
     }
 
-    // ==================== AlertaRepositorio ====================
+    // AlertaRepositorio
 
     @Override
     public void salvar(Alerta alerta) {
@@ -268,7 +258,7 @@ public class Repositorio implements
                 .collect(Collectors.toList());
     }
 
-    // ==================== ClienteRepositorio ====================
+    // ClienteRepositorio
 
     @Override
     public void salvar(Cliente cliente) {
@@ -283,53 +273,58 @@ public class Repositorio implements
         return Optional.ofNullable(clientes.get(id));
     }
 
-    // ==================== Métodos Utilitários ====================
+    // Métodos Utilitários 
 
-    /**
-     * Gera um novo ID de estoque.
-     */
+    @SuppressWarnings("unchecked")
+    public <T> Collection<T> buscarTodos(Class<T> tipo) {
+        if (tipo.equals(Estoque.class)) {
+            return (Collection<T>) estoques.values();
+        } else if (tipo.equals(Produto.class)) {
+            return (Collection<T>) produtos.values();
+        } else if (tipo.equals(Fornecedor.class)) {
+            return (Collection<T>) fornecedores.values();
+        } else if (tipo.equals(Pedido.class)) {
+            return (Collection<T>) pedidos.values();
+        } else if (tipo.equals(Alerta.class)) {
+            return (Collection<T>) alertas.values();
+        } else if (tipo.equals(Cliente.class)) {
+            return (Collection<T>) clientes.values();
+        }
+        return Collections.emptyList();
+    }
+
+    // Gera um novo ID de estoque.
     public EstoqueId novoEstoqueId() {
         return new EstoqueId(estoqueIdSeq.getAndIncrement());
     }
 
-    /**
-     * Gera um novo ID de produto.
-     */
+    // Gera um novo ID de produto.
     public ProdutoId novoProdutoId() {
         return new ProdutoId(produtoIdSeq.getAndIncrement());
     }
 
-    /**
-     * Gera um novo ID de fornecedor.
-     */
+    // Gera um novo ID de fornecedor.
     public FornecedorId novoFornecedorId() {
         return new FornecedorId(fornecedorIdSeq.getAndIncrement());
     }
 
-    /**
-     * Gera um novo ID de pedido.
-     */
+    // Gera um novo ID de pedido.
     public PedidoId novoPedidoId() {
         return new PedidoId(pedidoIdSeq.getAndIncrement());
     }
 
-    /**
-     * Gera um novo ID de alerta.
-     */
+    // Gera um novo ID de alerta.
     public AlertaId novoAlertaId() {
         return new AlertaId(alertaIdSeq.getAndIncrement());
     }
 
-    /**
-     * Gera um novo ID de cliente.
-     */
+
+    // Gera um novo ID de cliente.
     public ClienteId novoClienteId() {
         return new ClienteId(clienteIdSeq.getAndIncrement());
     }
 
-    /**
-     * Limpa todos os dados armazenados (útil para testes).
-     */
+    // Limpa todos os dados armazenados (útil para testes).
     public void limparTodos() {
         estoques.clear();
         produtos.clear();
@@ -339,24 +334,22 @@ public class Repositorio implements
         clientes.clear();
     }
 
-    /**
-     * Retorna estatísticas do repositório.
-     */
+    // Retorna estatísticas do repositório.
     public String estatisticas() {
         return String.format(
-            "Repositório em Memória:\n" +
-            "  - Estoques: %d\n" +
-            "  - Produtos: %d\n" +
-            "  - Fornecedores: %d\n" +
-            "  - Pedidos: %d\n" +
-            "  - Alertas: %d\n" +
-            "  - Clientes: %d",
-            estoques.size(),
-            produtos.size(),
-            fornecedores.size(),
-            pedidos.size(),
-            alertas.size(),
-            clientes.size()
+                "Repositório em Memória:\n" +
+                        "  - Estoques: %d\n" +
+                        "  - Produtos: %d\n" +
+                        "  - Fornecedores: %d\n" +
+                        "  - Pedidos: %d\n" +
+                        "  - Alertas: %d\n" +
+                        "  - Clientes: %d",
+                estoques.size(),
+                produtos.size(),
+                fornecedores.size(),
+                pedidos.size(),
+                alertas.size(),
+                clientes.size()
         );
     }
 }

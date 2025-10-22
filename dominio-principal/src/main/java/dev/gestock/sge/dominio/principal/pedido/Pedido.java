@@ -68,10 +68,16 @@ public class Pedido {
         this.status = StatusPedido.RECEBIDO;
     }
 
+    /* Marca pedido como em transporte (ENVIADO → EM_TRANSPORTE). */
+    public void iniciarTransporte() {
+        isTrue(status == StatusPedido.ENVIADO, "Somente pedidos ENVIADO podem ir para EM_TRANSPORTE");
+        this.status = StatusPedido.EM_TRANSPORTE;
+    }
+
     /* Cancela o pedido (exceto quando EM_TRANSPORTE e CONCLUIDO) - R1H12. */
     public void cancelar() {
-        isTrue(status != StatusPedido.CONCLUIDO, "Pedido CONCLUIDO não pode ser cancelado");
-        isTrue(status != StatusPedido.EM_TRANSPORTE, "Pedido EM TRANSPORTE não pode ser cancelado");
+        isTrue(status != StatusPedido.CONCLUIDO, "Pedido CONCLUIDO nao pode ser cancelado");
+        isTrue(status != StatusPedido.EM_TRANSPORTE, "Pedido EM TRANSPORTE nao pode ser cancelado");
         this.status = StatusPedido.CANCELADO;
     }
 
@@ -99,13 +105,10 @@ public class Pedido {
     public LocalDate getDataPrevistaEntrega() { return dataPrevistaEntrega; }
     public Optional<EstoqueId> getEstoqueId(){ return Optional.ofNullable(estoqueId); }
 
-    // Setters usados por PedidoServico
-
     public void setDataPrevistaEntrega(LocalDate data) { this.dataPrevistaEntrega = data; }
     public void setEstoqueId(EstoqueId estoqueId) { this.estoqueId = estoqueId; }
 
-    /* Calcula o peso total do pedido somando o peso de cada item.
-       Requer um provider que informe o peso por unidade de cada ProdutoId. */
+    // Calcula o peso total do pedido somando o peso de cada item.
     public double calcularPesoTotal(Function<ProdutoId, Double> pesoPorUnidadeProvider) {
         notNull(pesoPorUnidadeProvider, "Provider de peso é obrigatório");
         double total = 0.0d;

@@ -2,7 +2,7 @@ package dev.gestock.sge.dominio.principal.estoque;
 
 import java.util.Objects;
 
-/* Value Object: identidade do Estoque. */
+// Value Object: identidade do Estoque.
 public class EstoqueId {
     private final Long id;
 

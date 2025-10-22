@@ -15,7 +15,7 @@ Funcionalidade: Registrar Movimentacoes de Estoque
     E o pedido esta associado ao estoque "Estoque A"
     Quando o sistema processa o recebimento do pedido
     Entao o sistema deve gerar automaticamente uma movimentacao do tipo ENTRADA
-    E o saldo do estoque deve aumentar em 50 unidades
+    E o saldo do estoque apos a movimentacao deve aumentar em 50 unidades
 
   # R2H20: Saidas indicam motivo
   Cenario: Registrar saida com motivo
