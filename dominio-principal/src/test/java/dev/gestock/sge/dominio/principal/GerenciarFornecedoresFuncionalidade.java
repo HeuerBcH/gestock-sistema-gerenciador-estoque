@@ -14,7 +14,7 @@ import dev.gestock.sge.infraestrutura.persistencia.memoria.Repositorio;
 import dev.gestock.sge.dominio.principal.fornecedor.*;
 import dev.gestock.sge.dominio.principal.produto.ProdutoId;
 
-public class GerenciarFornecedoresFeature {
+public class GerenciarFornecedoresFuncionalidade {
 
     private Repositorio repo;
     private FornecedorServico fornecedorSrv;
