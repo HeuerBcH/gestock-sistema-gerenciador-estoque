@@ -6,15 +6,8 @@ import dev.gestock.sge.dominio.principal.produto.ProdutoId;
 
 import java.util.*;
 
-/**
- * Aggregate Root: Fornecedor
- *
- * Responsabilidades:
- * - Representar os dados cadastrais de um fornecedor.
- * - Manter as cotações (preço + prazo) associadas a produtos.
- * - Garantir regras de unicidade e atualização de lead time (R2, R14).
- * - Permitir escolha automática da melhor cotação (R5, R6).
- */
+// Aggregate Root: Fornecedor
+
 public class Fornecedor {
 
     private final FornecedorId id;                 // Identificador único do fornecedor
@@ -24,8 +17,6 @@ public class Fornecedor {
     private LeadTime leadTimeMedio;                // Lead time médio (R2H5, R1H6)
     private boolean ativo;                         // Status ativo/inativo (H7)
     private final Map<ProdutoId, Cotacao> cotacoes;// Cotações por produto
-
-    // ------------------ Construtores ------------------
 
     public Fornecedor(FornecedorId id, String nome, String cnpj, String contato) {
         if (id == null) {
@@ -57,7 +48,7 @@ public class Fornecedor {
         this.cotacoes = new HashMap<>();
     }
 
-    // ------------------ Getters ------------------
+    // Getters
 
     public FornecedorId getId() { return id; }
     public String getNome() { return nome; }
@@ -67,28 +58,24 @@ public class Fornecedor {
     public boolean isAtivo() { return ativo; }
     public Map<ProdutoId, Cotacao> getCotacoesSnapshot() { return Map.copyOf(cotacoes); }
 
-    // ------------------ Métodos de domínio ------------------
-
-    /** Atualiza dados cadastrais básicos */
+    // Atualiza dados cadastrais básicos 
     public void atualizarDados(String nome, String contato) {
         notBlank(nome, "Nome é obrigatório");
         this.nome = nome;
         this.contato = contato;
     }
 
-    /** Registra ou atualiza cotação de produto (R2) */
+    // Registra ou atualiza cotação de produto (R2)
     public void registrarCotacao(ProdutoId produtoId, double preco, int prazoDias) {
         notNull(produtoId, "Produto é obrigatório");
         isTrue(preco > 0, "Preço deve ser positivo");
         isTrue(prazoDias > 0, "Prazo deve ser positivo");
 
-        // R2: apenas uma cotação por produto
-        // NOTA: ID será gerado pela camada de persistência
         Cotacao nova = new Cotacao(new CotacaoId(1L), produtoId, preco, prazoDias);
         cotacoes.put(produtoId, nova);
     }
 
-    /** Seleciona a melhor cotação deste fornecedor considerando validade (R5, R6, R1H18). */
+    // Seleciona a melhor cotação deste fornecedor considerando validade (R5, R6, R1H18)
     public Optional<Cotacao> obterMelhorCotacao() {
         return cotacoes.values().stream()
                 .filter(Cotacao::isValidadeAtiva)
@@ -96,7 +83,7 @@ public class Fornecedor {
                         .thenComparingInt(Cotacao::getPrazoDias));
     }
 
-    /** Atualiza o Lead Time médio (R14) */
+    // Atualiza o Lead Time médio (R14)
     public void recalibrarLeadTime(List<Integer> historicoEntregasDias) {
         if (historicoEntregasDias == null || historicoEntregasDias.isEmpty()) {
             throw new IllegalStateException("Histórico insuficiente para recalibrar lead time");
@@ -105,22 +92,22 @@ public class Fornecedor {
         this.leadTimeMedio = new LeadTime((int) Math.round(media));
     }
 
-    /** Retorna a cotação de um produto específico */
+    // Retorna a cotação de um produto específico
     public Optional<Cotacao> obterCotacaoPorProduto(ProdutoId produtoId) {
         return Optional.ofNullable(cotacoes.get(produtoId));
     }
 
-    /** Remove cotação de um produto */
+    // Remove cotação de um produto
     public void removerCotacao(ProdutoId produtoId) {
         cotacoes.remove(produtoId);
     }
 
-    /** Inativa o fornecedor (H7, R1H7) */
+    // Inativa o fornecedor (H7, R1H7)
     public void inativar() {
         this.ativo = false;
     }
 
-    /** Reativa o fornecedor */
+    // Reativa o fornecedor
     public void ativar() {
         this.ativo = true;
     }

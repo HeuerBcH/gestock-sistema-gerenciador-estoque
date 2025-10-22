@@ -27,22 +27,16 @@ public class GerenciarPedidosFuncionalidade {
     private String mensagemErro;
     private BigDecimal valorTotalEsperado;
     private int quantidadeMovimentacao;
-
-    // CAMPOS ADICIONADOS PARA COMPARTILHAMENTO DE ESTADO com RegistrarMovimentacaoFuncionalidade
     private int saldoAnterior;
     private int saldoAtual;
 
-    // =============================================================
     // H11 — Criar pedidos de compra
-    // =============================================================
 
     @Dado("que existe um fornecedor chamado {string}")
     public void queExisteUmFornecedorChamado(String nomeFornecedor) {
         FornecedorId fornecedorId = repositorio.novoFornecedorId();
 
-        // CORREÇÃO: Criação segura de CNPJ de 14 dígitos (simulação de teste)
         String base = String.valueOf(Math.abs(nomeFornecedor.hashCode()));
-        // Garante que a string 'base' tenha pelo menos 14 caracteres antes de fazer o substring
         String cnpjBase = String.format("%014d", 0L) + base;
         cnpjBase = cnpjBase.substring(cnpjBase.length() - 14);
 
@@ -109,9 +103,7 @@ public class GerenciarPedidosFuncionalidade {
         assertTrue(pedido.getDataPrevistaEntrega().isAfter(LocalDate.now()));
     }
 
-    // -------------------------------------------------------------
     // R1H11 — Pedido só pode ser criado se existir cotação válida
-    // -------------------------------------------------------------
 
     @E("existe um produto chamado {string} sem cotacoes")
     public void existeUmProdutoChamadoSemCotacoes(String nomeProduto) {
@@ -146,21 +138,17 @@ public class GerenciarPedidosFuncionalidade {
 
     @Entao("o sistema deve rejeitar a operacao de pedido")
     public void oSistemaDeveRejeitarAOperacaoDePedido() {
-        // CORREÇÃO: Verifica se a exceção foi capturada
         assertNotNull(excecaoCapturada, "Era esperada uma exceção para rejeitar a operação, mas nenhuma foi lançada.");
     }
 
     @E("deve exibir a mensagem de pedido {string}")
     public void deveExibirAMensagemDePedido(String mensagem) {
         assertNotNull(mensagemErro, "Mensagem de erro não deve ser nula.");
-        // CORREÇÃO: Usa contains para evitar falhas por pequenas diferenças de formatação
         assertTrue(mensagemErro.contains(mensagem),
                 "A mensagem de erro esperada '" + mensagem + "' não foi encontrada em '" + mensagemErro + "'");
     }
 
-    // -------------------------------------------------------------
     // Cenário: Criar pedido com múltiplos itens
-    // -------------------------------------------------------------
 
     @E("existem os seguintes produtos com cotacoes:")
     public void existemOsSeguintesProdutosComCotacoes(DataTable dataTable) {
@@ -233,9 +221,7 @@ public class GerenciarPedidosFuncionalidade {
         assertEquals(valorTotalEsperado, pedido.calcularTotalItens());
     }
 
-    // -------------------------------------------------------------
     // R2H11 — Pedido registra data prevista de entrega baseada no Lead Time
-    // -------------------------------------------------------------
 
     @Dado("que existe um fornecedor com lead time de {int} dias")
     public void queExisteUmFornecedorComLeadTimeDeDias(int leadTime) {
@@ -287,9 +273,7 @@ public class GerenciarPedidosFuncionalidade {
         assertEquals(dataEsperada, pedido.getDataPrevistaEntrega());
     }
 
-    // =============================================================
     // H12 — Cancelar pedidos
-    // =============================================================
 
     @Dado("que existe um pedido no estado {string}")
     public void queExisteUmPedidoNoEstado(String statusString) {
@@ -373,9 +357,7 @@ public class GerenciarPedidosFuncionalidade {
         }
     }
 
-    // =============================================================
     // H13 — Confirmar recebimento de pedidos
-    // =============================================================
 
     @Quando("o cliente confirma o recebimento do pedido")
     public void oClienteConfirmaORecebimentoDoPedido() {
@@ -388,12 +370,9 @@ public class GerenciarPedidosFuncionalidade {
             pedido.registrarRecebimento();
             repositorio.salvar(pedido);
 
-            // Interação com estoque somente quando existir no cenário
             if (estoque != null && produto != null) {
-                // Saldo anterior real do agregado
                 saldoAnterior = estoque.getSaldoDisponivel(produto.getId());
 
-                // Registrar entrada real no estoque referente ao recebimento
                 estoque.registrarEntrada(
                         produto.getId(),
                         quantidadeRecebida,
@@ -417,9 +396,7 @@ public class GerenciarPedidosFuncionalidade {
         assertEquals(StatusPedido.valueOf(statusNormalizado), pedido.getStatus());
     }
 
-    // -------------------------------------------------------------
     // R1H13 — Confirmar recebimento gera movimentação de entrada
-    // -------------------------------------------------------------
 
     @Dado("que existe um pedido no estado {string} com {int} unidades")
     public void queExisteUmPedidoNoEstadoComUnidades(String statusString, int quantidade) {
@@ -470,7 +447,6 @@ public class GerenciarPedidosFuncionalidade {
     @Entao("uma movimentacao de entrada deve ser gerada")
     public void umaMovimentacaoDeEntradaDeveSerGerada() {
         quantidadeMovimentacao = pedido.getItens().stream().mapToInt(ItemPedido::getQuantidade).sum();
-        // Verifica no agregado Estoque se houve movimentação de ENTRADA correspondente
         List<Movimentacao> movs = estoque.getMovimentacoesSnapshot();
         assertTrue(movs.stream().anyMatch(m ->
                 m.getTipo() == TipoMovimentacao.ENTRADA &&

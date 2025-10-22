@@ -2,6 +2,8 @@ package dev.gestock.sge.dominio.principal.alerta;
 
 import java.util.Objects;
 
+// Value Object que encapsula a identidade do Alerta.
+
 public class AlertaId {
     private final Long id;
 

@@ -9,7 +9,6 @@ import dev.gestock.sge.infraestrutura.persistencia.memoria.Repositorio;
 
 import io.cucumber.java.pt.*;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -30,11 +29,9 @@ public class RegistrarMovimentacaoFuncionalidade {
     private String mensagemErro;
     private int saldoAnterior;
     private int saldoAtual;
-    private List<Movimentacao> historicoMovimentacoes;
 
-    // =============================================================
+
     // H20 — Registrar movimentações manuais
-    // =============================================================
 
     @Dado("que existe um estoque de movimentacao chamado {string}")
     public void queExisteUmEstoqueDeMovimentacaoChamado(String nomeEstoque) {
@@ -97,9 +94,7 @@ public class RegistrarMovimentacaoFuncionalidade {
         assertEquals(produto.getId(), movimentacao.getProdutoId());
     }
 
-    // -------------------------------------------------------------
     // R1H20 — Entradas geradas automaticamente após recebimento de pedido
-    // -------------------------------------------------------------
 
     @Dado("que existe um pedido recebido para o produto {string} com {int} unidades")
     public void queExisteUmPedidoRecebidoParaOProdutoComUnidades(String nomeProduto, int quantidade) {
@@ -186,9 +181,7 @@ public class RegistrarMovimentacaoFuncionalidade {
         assertEquals(quantidadeEsperada, diferencaSaldo);
     }
 
-    // -------------------------------------------------------------
     // R2H20 — Saídas indicam motivo
-    // -------------------------------------------------------------
 
     @Dado("que existe um estoque com {int} unidades do produto")
     public void queExisteUmEstoqueComUnidadesDoProduto(int saldoInicial) {
@@ -217,10 +210,8 @@ public class RegistrarMovimentacaoFuncionalidade {
         saldoAnterior = estoque.getSaldoDisponivel(produto.getId());
     }
 
-    // NOVO STEP DEFINITION
     @Dado("que existe um estoque com {int} unidades disponiveis do produto")
     public void queExisteUmEstoqueComUnidadesDisponiveisDoProduto(int saldoInicial) {
-        // Reutiliza a lógica do método anterior que faz o setup inicial:
         queExisteUmEstoqueComUnidadesDoProduto(saldoInicial);
     }
 
@@ -305,9 +296,7 @@ public class RegistrarMovimentacaoFuncionalidade {
         assertTrue(normalize.contains(esperado));
     }
 
-    // =============================================================
     // H21 — Visualizar histórico
-    // =============================================================
 
     @Dado("que existem {int} movimentacoes registradas para o produto")
     public void queExistemMovimentacoesRegistradasParaOProduto(int quantidadeMovimentacoes) {
@@ -324,14 +313,11 @@ public class RegistrarMovimentacaoFuncionalidade {
         estoque = new Estoque(estoqueId, cliente.getId(), "Estoque Histórico", "Endereço Teste", 1000);
         repositorio.salvar(estoque);
 
-        // Gerar histórico real de movimentações: exatamente 'quantidadeMovimentacoes' registros
-        // Alterna ENTRADA e SAIDA com quantidade fixa para manter saldo não-negativo
         for (int i = 1; i <= quantidadeMovimentacoes; i++) {
             int qtd = 10;
             String responsavel = "Responsável " + i;
             String motivo = "Motivo " + i;
             if (i % 2 == 1) {
-                // Ímpares: ENTRADA
                 estoque.registrarEntrada(
                         produto.getId(),
                         qtd,
@@ -340,7 +326,6 @@ public class RegistrarMovimentacaoFuncionalidade {
                         Map.of("numero", String.valueOf(i))
                 );
             } else {
-                // Pares: SAIDA (saldo foi aumentado na iteração anterior)
                 estoque.registrarSaida(
                         produto.getId(),
                         qtd,

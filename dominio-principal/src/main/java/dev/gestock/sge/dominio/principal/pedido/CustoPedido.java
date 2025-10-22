@@ -3,8 +3,7 @@ package dev.gestock.sge.dominio.principal.pedido;
 import java.math.BigDecimal;
 import static org.apache.commons.lang3.Validate.*;
 
-/* ValueObject: Custo do pedido.
-   R26: custo final = valor dos itens + frete + custos logísticos.*/
+// ValueObject: Custo do pedido.
 public class CustoPedido {
     private final BigDecimal valorItens;
     private final BigDecimal frete;

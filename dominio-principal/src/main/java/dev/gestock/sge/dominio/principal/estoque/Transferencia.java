@@ -3,8 +3,7 @@ package dev.gestock.sge.dominio.principal.estoque;
 import dev.gestock.sge.dominio.principal.produto.ProdutoId;
 import java.time.LocalDateTime;
 
-/* Entidade de auditoria para transferências entre estoques.
-   Mantém registro completo de origem, destino e produto transferido. */
+// Entidade de auditoria para transferências entre estoques.
 public class Transferencia {
 
     private final Long id;

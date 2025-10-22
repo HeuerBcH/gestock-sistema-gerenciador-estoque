@@ -8,14 +8,8 @@ import java.util.Optional;
 
 import static org.apache.commons.lang3.Validate.*;
 
-/**
- * Serviço de domínio para gerenciamento de fornecedores.
- * 
- * Suporta:
- * - H5-H7: Gerenciar Fornecedores (cadastrar, atualizar, inativar)
- * - H18-H19: Selecionar Cotação Mais Vantajosa
- * - Validações de regras de negócio R1H5, R2H5, R1H6, R1H7, R1H18, R2H18
- */
+// Serviço de domínio para gerenciamento de fornecedores.
+
 public class FornecedorServico {
 
     private final FornecedorRepositorio fornecedorRepositorio;
@@ -30,12 +24,7 @@ public class FornecedorServico {
         this.pedidoRepositorio = pedidoRepositorio;
     }
 
-    /**
-     * Cadastra um novo fornecedor (H5).
-     * Valida:
-     * - R1H5: Fornecedor deve possuir cotação vinculada a produto
-     * - R2H5: Lead time deve ser positivo
-     */
+    // Cadastra um novo fornecedor (H5).
     public void cadastrar(Fornecedor fornecedor) {
         notNull(fornecedor, "Fornecedor é obrigatório");
         
@@ -47,20 +36,13 @@ public class FornecedorServico {
         fornecedorRepositorio.salvar(fornecedor);
     }
 
-    /**
-     * Atualiza informações de um fornecedor (H6).
-     * Nota: R1H6 - alterar lead time recalcula ROP dos produtos associados
-     */
+    // Atualiza informações de um fornecedor (H6).
     public void atualizar(Fornecedor fornecedor) {
         notNull(fornecedor, "Fornecedor é obrigatório");
         fornecedorRepositorio.salvar(fornecedor);
     }
 
-    /**
-     * Inativa um fornecedor (H7).
-     * Valida:
-     * - R1H7: Não pode ter pedidos pendentes
-     */
+    // Inativa um fornecedor (H7).
     public void inativar(Fornecedor fornecedor) {
         notNull(fornecedor, "Fornecedor é obrigatório");
         
@@ -73,30 +55,23 @@ public class FornecedorServico {
         fornecedorRepositorio.salvar(fornecedor);
     }
 
-    /**
-     * Salva um fornecedor no repositório (compatibilidade).
-     */
+    // Salva um fornecedor no repositório (compatibilidade).
     public void salvar(Fornecedor fornecedor) {
         notNull(fornecedor, "Fornecedor é obrigatório");
         fornecedorRepositorio.salvar(fornecedor);
     }
 
-    /**
-     * Seleciona automaticamente a melhor cotação entre fornecedores (H18-H19).
-     * Valida:
-     * - R1H18: Apenas cotações com validade ativa e fornecedor ativo
-     * - R2H18: Desempate por menor lead time
-     */
+    // Seleciona automaticamente a melhor cotação entre fornecedores (H18-H19).
     public Optional<Cotacao> selecionarMelhorCotacao(List<Fornecedor> fornecedores, ProdutoId produtoId) {
         return fornecedores.stream()
-                .filter(Fornecedor::isAtivo) // R1H18: fornecedor ativo
+                .filter(Fornecedor::isAtivo)
                 .map(f -> f.obterCotacaoPorProduto(produtoId))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .filter(Cotacao::isValidadeAtiva) // R1H18: validade ativa
+                .filter(Cotacao::isValidadeAtiva)
                 .min((c1, c2) -> {
                     int cmp = Double.compare(c1.getPreco(), c2.getPreco());
-                    return (cmp != 0) ? cmp : Integer.compare(c1.getPrazoDias(), c2.getPrazoDias()); // R2H18: menor lead time
+                    return (cmp != 0) ? cmp : Integer.compare(c1.getPrazoDias(), c2.getPrazoDias());
                 });
     }
 }

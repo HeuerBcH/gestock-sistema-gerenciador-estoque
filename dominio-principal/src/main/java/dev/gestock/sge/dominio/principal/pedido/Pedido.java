@@ -105,13 +105,10 @@ public class Pedido {
     public LocalDate getDataPrevistaEntrega() { return dataPrevistaEntrega; }
     public Optional<EstoqueId> getEstoqueId(){ return Optional.ofNullable(estoqueId); }
 
-    // Setters usados por PedidoServico
-
     public void setDataPrevistaEntrega(LocalDate data) { this.dataPrevistaEntrega = data; }
     public void setEstoqueId(EstoqueId estoqueId) { this.estoqueId = estoqueId; }
 
-    /* Calcula o peso total do pedido somando o peso de cada item.
-       Requer um provider que informe o peso por unidade de cada ProdutoId. */
+    // Calcula o peso total do pedido somando o peso de cada item.
     public double calcularPesoTotal(Function<ProdutoId, Double> pesoPorUnidadeProvider) {
         notNull(pesoPorUnidadeProvider, "Provider de peso é obrigatório");
         double total = 0.0d;

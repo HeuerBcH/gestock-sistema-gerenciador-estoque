@@ -2,9 +2,7 @@ package dev.gestock.sge.dominio.principal.produto;
 
 import static org.apache.commons.lang3.Validate.*;
 
-/* Aggregate Root: Produto
-   Responsável por representar o item gerenciado no estoque e armazenar o
-   ponto de ressuprimento (ROP), que define quando um novo pedido deve ser feito. */
+// Aggregate Root: Produto
 public class Produto {
 
     private final ProdutoId id;
@@ -35,21 +33,18 @@ public class Produto {
         this.ativo = true; // inicia ativo por padrão
     }
 
-    // Métodos de domínio
-
     //  Getters
 
     public ProdutoId getId() { return id; }
     public String getCodigo() { return codigo; }
     public String getNome() { return nome; }
     public String getUnidadePeso() { return unidadePeso; }
-    /** Compat: mantém antigo nome do getter. */
     public String getUnidadeMedida() { return unidadePeso; }
     public double getPeso() { return peso; }
     public boolean isPerecivel() { return perecivel; }
     public boolean isAtivo() { return ativo; }
 
-    /** Atualiza informações do produto (H9) */
+    // Atualiza informações do produto (H9)
     public void atualizar(String nome, String unidadePeso, double peso) {
         notBlank(nome, "Nome é obrigatório");
         notBlank(unidadePeso, "Unidade de peso é obrigatória");
@@ -59,7 +54,7 @@ public class Produto {
         this.peso = peso;
     }
 
-    /** Compat: atualização sem alterar peso (mantém o atual). */
+    // Compat: atualização sem alterar peso (mantém o atual)
     public void atualizar(String nome, String unidadePeso) {
         notBlank(nome, "Nome é obrigatório");
         notBlank(unidadePeso, "Unidade de peso é obrigatória");
@@ -67,21 +62,21 @@ public class Produto {
         this.unidadePeso = unidadePeso;
     }
 
-    /**
-     * Calcula o peso total para uma quantidade de itens deste produto.
-     * Ex.: se peso=0.5 (kg por unidade) e quantidade=3, retorna 1.5 (kg).
+    /*
+    Calcula o peso total para uma quantidade de itens deste produto.
+    Ex.: se peso=0.5 (kg por unidade) e quantidade=3, retorna 1.5 (kg).
      */
     public double calcularPesoTotal(int quantidade) {
         isTrue(quantidade > 0, "Quantidade deve ser > 0");
         return peso * quantidade;
     }
 
-    /** Inativa o produto (H10, R1H10, R2H10) */
+    // Inativa o produto (H10, R1H10, R2H10) 
     public void inativar() {
         this.ativo = false;
     }
 
-    /** Reativa o produto */
+    // Reativa o produto 
     public void ativar() {
         this.ativo = true;
     }

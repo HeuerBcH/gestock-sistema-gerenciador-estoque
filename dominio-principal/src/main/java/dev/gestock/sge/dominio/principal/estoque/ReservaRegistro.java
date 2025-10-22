@@ -4,7 +4,7 @@ import dev.gestock.sge.dominio.principal.produto.ProdutoId;
 
 import java.time.LocalDateTime;
 
-/* Registro de auditoria de reservas/liberações (R2H25). */
+// Registro de auditoria de reservas/liberações (R2H25)
 public class ReservaRegistro {
     public enum Tipo { RESERVA, LIBERACAO }
 

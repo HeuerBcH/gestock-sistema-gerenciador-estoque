@@ -2,16 +2,8 @@ package dev.gestock.sge.dominio.principal.produto;
 
 import static org.apache.commons.lang3.Validate.*;
 
-/**
- * Value Object: Ponto de Ressuprimento (ROP)
- *
- * Representa o nível mínimo de estoque em que um novo pedido deve ser feito.
- * Calculado pela fórmula:
- *     ROP = (Consumo Médio × Lead Time) + Estoque de Segurança
- *
- * Regras cobertas:
- * - R3: cálculo do ROP e atualização automática.
- */
+// Value Object: Ponto de Ressuprimento (ROP)
+
 public class ROP {
 
     private final double consumoMedio;     // unidades por dia
