@@ -326,11 +326,7 @@ public class GerenciarPedidosFuncionalidade {
                 break;
             case EM_TRANSPORTE:
                 pedido.enviar();
-                try {
-                    java.lang.reflect.Field f = Pedido.class.getDeclaredField("status");
-                    f.setAccessible(true);
-                    f.set(pedido, StatusPedido.EM_TRANSPORTE);
-                } catch (Exception ignore) {}
+                pedido.iniciarTransporte();
                 break;
             case RECEBIDO:
                 pedido.enviar();
