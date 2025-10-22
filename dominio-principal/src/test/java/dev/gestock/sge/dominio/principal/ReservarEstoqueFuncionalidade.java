@@ -13,7 +13,6 @@ import dev.gestock.sge.dominio.principal.cliente.Cliente;
 import dev.gestock.sge.dominio.principal.cliente.ClienteId;
 import dev.gestock.sge.dominio.principal.estoque.Estoque;
 import dev.gestock.sge.dominio.principal.estoque.EstoqueId;
-import dev.gestock.sge.dominio.principal.estoque.EstoqueServico;
 import dev.gestock.sge.dominio.principal.estoque.Movimentacao;
 import dev.gestock.sge.dominio.principal.estoque.TipoMovimentacao;
 import dev.gestock.sge.dominio.principal.fornecedor.Fornecedor;
@@ -21,7 +20,6 @@ import dev.gestock.sge.dominio.principal.fornecedor.FornecedorId;
 import dev.gestock.sge.dominio.principal.pedido.ItemPedido;
 import dev.gestock.sge.dominio.principal.pedido.Pedido;
 import dev.gestock.sge.dominio.principal.pedido.PedidoId;
-import dev.gestock.sge.dominio.principal.pedido.PedidoServico;
 import dev.gestock.sge.dominio.principal.produto.Produto;
 import dev.gestock.sge.dominio.principal.produto.ProdutoId;
 import dev.gestock.sge.infraestrutura.persistencia.memoria.Repositorio;
@@ -33,15 +31,12 @@ import io.cucumber.java.pt.Quando;
 public class ReservarEstoqueFuncionalidade {
 
     private Repositorio repo;
-    private EstoqueServico estoqueSrv;
-    private PedidoServico pedidoSrv;
     private AtomicLong seq;
 
     private Map<String, EstoqueId> aliasEstoque;
     private Map<String, ProdutoId> aliasProduto;
     private Map<String, ClienteId> aliasCliente;
     private Map<String, FornecedorId> aliasFornecedor;
-    private Map<String, PedidoId> aliasPedido;
 
     private EstoqueId currentEstoqueId;
     private ProdutoId currentProdutoId;
@@ -53,8 +48,6 @@ public class ReservarEstoqueFuncionalidade {
         // Só criar um novo repositório se não existir (primeira execução)
         if (repo == null) {
             repo = new Repositorio();
-            estoqueSrv = new EstoqueServico(repo, repo);
-            pedidoSrv = new PedidoServico(repo, repo);
         }
         // Não resetar as variáveis de estado para manter o contexto entre steps do mesmo cenário
         seq = new AtomicLong(1);
@@ -62,7 +55,6 @@ public class ReservarEstoqueFuncionalidade {
         aliasProduto = new HashMap<>();
         aliasCliente = new HashMap<>();
         aliasFornecedor = new HashMap<>();
-        aliasPedido = new HashMap<>();
         lastError = null;
     }
 
@@ -149,7 +141,6 @@ public class ReservarEstoqueFuncionalidade {
 
     @Dado("que existe um pedido de compra de {int} unidades do produto {string} reservado no estoque")
     public void que_existe_um_pedido_de_compra_de_unidades_do_produto_reservado_no_estoque(int quantidade, String nomeProduto) {
-        System.out.println("DEBUG: Criando pedido com reserva - quantidade: " + quantidade + ", produto: " + nomeProduto);
         ClienteId clienteId = ensureCliente("Cliente Teste");
         FornecedorId fornecedorId = ensureFornecedor("Fornecedor A", "12345678000199");
         
@@ -158,13 +149,8 @@ public class ReservarEstoqueFuncionalidade {
         
         // Adicionar saldo e reservar
         adicionarSaldoEstoque(currentEstoqueId, currentProdutoId, 200);
-        System.out.println("DEBUG: Saldo adicionado, agora reservando " + quantidade + " unidades");
         reservarEstoque(currentEstoqueId, currentProdutoId, quantidade);
         
-        // Verificar se a reserva foi criada
-        Estoque estoque = repo.buscarPorId(currentEstoqueId).orElseThrow();
-        int saldoReservado = estoque.getSaldoReservado(currentProdutoId);
-        System.out.println("DEBUG: Após reservar - Saldo reservado: " + saldoReservado);
         
         // Criar pedido
         currentPedidoId = repo.novoPedidoId();
@@ -173,7 +159,6 @@ public class ReservarEstoqueFuncionalidade {
         pedido.adicionarItem(item);
         pedido.setEstoqueId(currentEstoqueId);
         repo.salvar(pedido);
-        System.out.println("DEBUG: Pedido criado com ID: " + currentPedidoId);
     }
 
     @Dado("que foi criada uma reserva de {int} unidades para o produto {string}")
@@ -233,27 +218,14 @@ public class ReservarEstoqueFuncionalidade {
         lastError = null;
         try {
             Estoque estoque = repo.buscarPorId(currentEstoqueId).orElseThrow();
-            int saldoDisponivel = estoque.getSaldoDisponivel(currentProdutoId);
-            int saldoFisico = estoque.getSaldoFisico(currentProdutoId);
-            int saldoReservado = estoque.getSaldoReservado(currentProdutoId);
-            System.out.println("DEBUG: Tentando saída de " + quantidade + " unidades");
-            System.out.println("DEBUG: Saldo físico: " + saldoFisico);
-            System.out.println("DEBUG: Saldo reservado: " + saldoReservado);
-            System.out.println("DEBUG: Saldo disponível: " + saldoDisponivel);
             estoque.registrarSaida(currentProdutoId, quantidade, "Sistema", "Tentativa de saída");
-            System.out.println("DEBUG: Saída registrada com sucesso (não deveria ter acontecido)");
         } catch (Exception ex) {
-            System.out.println("DEBUG: Erro capturado: " + ex.getMessage());
             lastError = ex;
         }
     }
 
     @Quando("o pedido e concluido apos o recebimento do fornecedor {string}")
     public void o_pedido_e_concluido_apos_o_recebimento_do_fornecedor(String nomeFornecedor) {
-        System.out.println("DEBUG: Método o_pedido_e_concluido_apos_o_recebimento_do_fornecedor chamado");
-        System.out.println("DEBUG: currentPedidoId = " + currentPedidoId);
-        System.out.println("DEBUG: currentEstoqueId = " + currentEstoqueId);
-        System.out.println("DEBUG: currentProdutoId = " + currentProdutoId);
         lastError = null;
         try {
             if (currentPedidoId != null) {
@@ -262,12 +234,10 @@ public class ReservarEstoqueFuncionalidade {
                 // Primeiro enviar o pedido (mudar de CRIADO para ENVIADO)
                 pedido.enviar();
                 repo.salvar(pedido);
-                System.out.println("DEBUG: Pedido enviado");
                 
                 // Depois registrar o recebimento (mudar de ENVIADO para RECEBIDO)
                 pedido.registrarRecebimento();
                 repo.salvar(pedido);
-                System.out.println("DEBUG: Pedido recebido");
                 
                 // Agora concluir o pedido
                 pedido.concluir();
@@ -277,13 +247,8 @@ public class ReservarEstoqueFuncionalidade {
                 if (currentEstoqueId != null && currentProdutoId != null) {
                     Estoque estoque = repo.buscarPorId(currentEstoqueId).orElseThrow();
                     int quantidadeReservada = estoque.getSaldoReservado(currentProdutoId);
-                    int saldoFisico = estoque.getSaldoFisico(currentProdutoId);
-                    int saldoDisponivel = estoque.getSaldoDisponivel(currentProdutoId);
-                    System.out.println("DEBUG: ANTES da liberação - Físico: " + saldoFisico + ", Reservado: " + quantidadeReservada + ", Disponível: " + saldoDisponivel);
-                    System.out.println("DEBUG: quantidadeReservada = " + quantidadeReservada + " (deveria ser 50)");
                     
                     if (quantidadeReservada > 0) {
-                        System.out.println("DEBUG: Entrando no if - quantidadeReservada = " + quantidadeReservada);
                         
                         // Primeiro liberar a reserva
                         estoque.liberarReserva(currentProdutoId, quantidadeReservada);
@@ -293,25 +258,13 @@ public class ReservarEstoqueFuncionalidade {
                         
                         repo.salvar(estoque);
                         
-                        // Buscar o estoque novamente para verificar se foi salvo corretamente
-                        Estoque estoqueApos = repo.buscarPorId(currentEstoqueId).orElseThrow();
-                        int quantidadeReservadaApos = estoqueApos.getSaldoReservado(currentProdutoId);
-                        int saldoFisicoApos = estoqueApos.getSaldoFisico(currentProdutoId);
-                        int saldoDisponivelApos = estoqueApos.getSaldoDisponivel(currentProdutoId);
-                        System.out.println("DEBUG: APÓS a liberação - Físico: " + saldoFisicoApos + ", Reservado: " + quantidadeReservadaApos + ", Disponível: " + saldoDisponivelApos);
                     } else {
-                        System.out.println("DEBUG: quantidadeReservada é 0, não entrando no if");
                     }
                 } else {
-                    System.out.println("DEBUG: currentEstoqueId ou currentProdutoId é null");
-                    System.out.println("DEBUG: currentEstoqueId = " + currentEstoqueId);
-                    System.out.println("DEBUG: currentProdutoId = " + currentProdutoId);
                 }
             } else {
-                System.out.println("DEBUG: currentPedidoId é null");
             }
         } catch (Exception ex) {
-            System.out.println("DEBUG: Erro capturado: " + ex.getMessage());
             lastError = ex;
         }
     }
