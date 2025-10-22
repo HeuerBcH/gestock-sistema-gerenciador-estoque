@@ -170,12 +170,6 @@ public class GerenciarProdutosFuncionalidade {
         repo.salvar(produto);
     }
 
-    @Dado("que existe um produto chamado {string}")
-    public void existe_produto_simples(String nome) {
-        String codigo = "PROD-" + seq.getAndIncrement();
-        currentProdutoId = ensureProduto(codigo, nome, "UN", false);
-    }
-
     @Dado("que existe um produto chamado {string} com ROP definido em {int} unidades")
     public void existe_produto_com_rop(String nome, int rop) {
         String codigo = "PROD-" + seq.getAndIncrement();

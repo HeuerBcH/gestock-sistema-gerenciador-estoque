@@ -30,8 +30,9 @@ public class AlertaServico {
     public Alerta gerarAlerta(ProdutoId produtoId, EstoqueId estoqueId, FornecedorId fornecedorSugerido) {
         notNull(produtoId, "Produto é obrigatório");
         notNull(estoqueId, "Estoque é obrigatório");
-        // NOTA: ID será gerado pela camada de persistência
-        Alerta alerta = new Alerta(new AlertaId(1L), produtoId, estoqueId, fornecedorSugerido);
+        // ID deve ser gerado pela camada de persistência
+        AlertaId novoId = repositorio.novoAlertaId();
+        Alerta alerta = new Alerta(novoId, produtoId, estoqueId, fornecedorSugerido);
         repositorio.salvar(alerta);
         return alerta;
     }
