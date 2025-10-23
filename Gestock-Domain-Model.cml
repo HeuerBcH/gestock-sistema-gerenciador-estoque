@@ -14,7 +14,9 @@ BoundedContext Principal implements Principal {
 
 			-ClienteId id
 			String nome
+			String documento
 			String email
+			List<Estoque> estoques
 
 			Repository ClienteRepositorio {
 				@Cliente obter(@ClienteId id);
@@ -27,8 +29,8 @@ BoundedContext Principal implements Principal {
 		}
 
 		Service ClienteServico {
-			@Cliente registrar(String nome, String email);
-			void atualizar(@ClienteId id, String nome, String email);
+			void registrarCliente(@Cliente cliente);
+			boolean validarPossuiEstoques(@Cliente cliente);
 		}
 	}
 
@@ -37,50 +39,41 @@ BoundedContext Principal implements Principal {
 			aggregateRoot
 
 			-EstoqueId id
+			-ClienteId clienteId
 			String nome
 			String endereco
-			int capacidadeMaxima
+			int capacidade
 			boolean ativo
-			-ClienteId clienteId
-			List<SaldoProduto> saldos
+			Map<ProdutoId, SaldoProduto> saldos
+			Map<ProdutoId, ROP> rops
+			List<Movimentacao> movimentacoes
+			List<ReservaRegistro> reservas
 
 			Repository EstoqueRepositorio {
 				@Estoque obter(@EstoqueId id);
 				List<@Estoque> listarTodos();
 				List<@Estoque> listarPorCliente(@ClienteId clienteId);
+				boolean existePorEndereco(String endereco, @ClienteId clienteId);
+				boolean existePorNome(String nome, @ClienteId clienteId);
 			}
 		}
 
 		Entity Movimentacao {
 			-MovimentacaoId id
-			-EstoqueId estoqueId
+			TipoMovimentacao tipo
 			-ProdutoId produtoId
 			int quantidade
-			TipoMovimentacao tipo
-			Date data
-		}
-
-		Entity SaldoProduto {
-			-ProdutoId produtoId
-			int saldoAtual
+			LocalDateTime dataHora
+			String responsavel
+			String motivo
+			Map<String, String> meta
 		}
 
 		Entity ReservaRegistro {
 			-ProdutoId produtoId
 			int quantidade
-			Date dataHora
+			LocalDateTime dataHora
 			String tipo // RESERVA ou LIBERACAO
-		}
-
-		Entity Transferencia {
-			-TransferenciaId id
-			-ProdutoId produtoId
-			-EstoqueId estoqueOrigemId
-			-EstoqueId estoqueDestinoId
-			int quantidade
-			Date dataHora
-			String responsavel
-			String motivo nullable
 		}
 
 		ValueObject EstoqueId {
@@ -91,8 +84,9 @@ BoundedContext Principal implements Principal {
 			Long id
 		}
 
-		ValueObject TransferenciaId {
-			Long id
+		ValueObject SaldoProduto {
+			int fisico
+			int reservado
 		}
 
 		Enum TipoMovimentacao {
@@ -100,13 +94,11 @@ BoundedContext Principal implements Principal {
 		}
 
 		Service EstoqueServico {
-			void registrarMovimentacao(@EstoqueId id, @ProdutoId produto, int quantidade, TipoMovimentacao tipo);
-			int obterSaldo(@EstoqueId id, @ProdutoId produto);
-			void transferir(@EstoqueId origem, @EstoqueId destino, @ProdutoId produto, int quantidade);
-			List<@Transferencia> listarTransferencias(@EstoqueId id);
-			void reservar(@EstoqueId id, @ProdutoId produto, int quantidade);
-			void liberarReserva(@EstoqueId id, @ProdutoId produto, int quantidade);
-			void consumirReservaComoSaida(@EstoqueId id, @ProdutoId produto, int quantidade);
+			void cadastrar(@Estoque estoque);
+			void inativar(@Estoque estoque);
+			void atualizar(@Estoque estoque);
+			List<@Estoque> pesquisarPorCliente(@ClienteId clienteId);
+			void transferir(@Estoque origem, @Estoque destino, @ProdutoId produtoId, int quantidade, String responsavel, String motivo);
 		}
 	}
 
@@ -115,17 +107,19 @@ BoundedContext Principal implements Principal {
 			aggregateRoot
 
 			-ProdutoId id
-			CodigoProduto codigo
+			String codigo
 			String nome
-			String unidadeMedida
+			String unidadePeso
+			double peso
 			boolean perecivel
 			boolean ativo
-			LoteValidade lote nullable
-			ROP rop nullable
 
 			Repository ProdutoRepositorio {
 				@Produto obter(@ProdutoId id);
 				List<@Produto> listarTodos();
+				boolean codigoExiste(@CodigoProduto codigo);
+				void salvar(@Produto produto);
+				void inativar(@Produto produto);
 			}
 		}
 
@@ -137,11 +131,6 @@ BoundedContext Principal implements Principal {
 			String codigo
 		}
 
-		ValueObject LoteValidade {
-			String numero
-			Date validade
-		}
-
 		ValueObject ROP {
 			double consumoMedio
 			int leadTimeDias
@@ -150,9 +139,10 @@ BoundedContext Principal implements Principal {
 		}
 
 		Service ProdutoServico {
-			void definirROP(@ProdutoId id, double consumoMedio, int leadTimeDias, int estoqueSeguranca);
-			void registrarLote(@ProdutoId id, String numero, Date validade);
-			void calcularROPAutomatico(@ProdutoId id); // Usa histórico 90 dias e default do cliente quando necessário
+			void cadastrar(@Produto produto);
+			void atualizar(@Produto produto);
+			void inativar(@Produto produto);
+			void salvar(@Produto produto);
 		}
 	}
 
@@ -166,7 +156,7 @@ BoundedContext Principal implements Principal {
 			String contato
 			LeadTime leadTimeMedio
 			boolean ativo
-			List<Cotacao> cotacoes
+			Map<ProdutoId, Cotacao> cotacoes
 
 			Repository FornecedorRepositorio {
 				@Fornecedor obter(@FornecedorId id);
@@ -195,9 +185,11 @@ BoundedContext Principal implements Principal {
 		}
 
 		Service FornecedorServico {
-			void registrarCotacao(@FornecedorId id, @ProdutoId produto, double preco, int prazoDias);
-			@Cotacao obterMelhorCotacao(@FornecedorId id);
-			@Cotacao selecionarMelhorCotacaoEntreFornecedores(List<@Fornecedor> fornecedores, @ProdutoId produtoId);
+			void registrarCotacao(@ProdutoId produtoId, double preco, int prazoDias);
+			Optional<@Cotacao> obterMelhorCotacao();
+			Optional<@Cotacao> obterCotacaoPorProduto(@ProdutoId produtoId);
+			void removerCotacao(@ProdutoId produtoId);
+			void recalibrarLeadTime(List<Integer> historicoEntregasDias);
 		}
 	}
 
@@ -206,21 +198,21 @@ BoundedContext Principal implements Principal {
 			aggregateRoot
 
 			-PedidoId id
-			-FornecedorId fornecedorId
 			-ClienteId clienteId
+			-FornecedorId fornecedorId
+			LocalDate dataCriacao
+			LocalDate dataPrevistaEntrega nullable
+			-EstoqueId estoqueId nullable
 			List<ItemPedido> itens
 			CustoPedido custo
 			StatusPedido status
-			Date dataCriacao
-			Date dataEntrega nullable
-			Date dataPrevistaEntrega nullable
-			-EstoqueId estoqueId nullable
 
 			Repository PedidoRepositorio {
 				@Pedido obter(@PedidoId id);
 				List<@Pedido> listarPendentes();
 				List<@Pedido> listarPorFornecedor(@FornecedorId fornecedorId);
 				List<@Pedido> listarPorCliente(@ClienteId clienteId);
+				boolean existePedidoPendentePorEstoqueId(@EstoqueId estoqueId);
 			}
 		}
 
@@ -235,9 +227,9 @@ BoundedContext Principal implements Principal {
 		}
 
 		ValueObject CustoPedido {
-			BigDecimal total
+			BigDecimal valorItens
 			BigDecimal frete
-			BigDecimal custoLogistico
+			BigDecimal custosLogisticos
 		}
 
 		Enum StatusPedido {
@@ -245,12 +237,15 @@ BoundedContext Principal implements Principal {
 		}
 
 		Service PedidoServico {
-			@Pedido criar(@ClienteId cliente, @FornecedorId fornecedor, List<ItemPedido> itens);
-			void registrarEntrada(@PedidoId id);
-			void agruparPorFornecedor(List<@Pedido> pedidos);
-			void cancelar(@PedidoId id);
-			@Pedido criarParaEstoque(@ClienteId cliente, @FornecedorId fornecedor, List<ItemPedido> itens, @EstoqueId estoqueId);
-			void cancelarComLiberacao(@PedidoId id);
+			void adicionarItem(@ItemPedido item);
+			void registrarCusto(@CustoPedido custo);
+			void enviar();
+			void registrarRecebimento();
+			void iniciarTransporte();
+			void cancelar();
+			void concluir();
+			BigDecimal calcularTotalItens();
+			double calcularPesoTotal(Function<ProdutoId, Double> pesoPorUnidadeProvider);
 		}
 	}
 
@@ -262,7 +257,7 @@ BoundedContext Principal implements Principal {
 			-ProdutoId produtoId
 			-EstoqueId estoqueId
 			-FornecedorId fornecedorSugerido nullable
-			Date dataGeracao
+			LocalDateTime dataGeracao
 			boolean ativo
 
 			Repository AlertaRepositorio {
