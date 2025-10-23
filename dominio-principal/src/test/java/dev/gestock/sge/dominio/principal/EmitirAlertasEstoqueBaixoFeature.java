@@ -80,7 +80,7 @@ public class EmitirAlertasEstoqueBaixoFeature {
         repo.salvar(estoqueAtual);
     }
 
-    @E("o saldo atual do produto e {int} unidades")
+    @Dado("o saldo atual do produto e {int} unidades")
     public void saldo_atual_produto(int saldo) {
         saldoAtual = saldo;
     }
@@ -98,7 +98,7 @@ public class EmitirAlertasEstoqueBaixoFeature {
         alertas.put(produtoAtual.getNome(), alertaAtual);
     }
 
-    @E("o fornecedor sugerido possui cotacao valida e ativa")
+    @Dado("o fornecedor sugerido possui cotacao valida e ativa")
     public void fornecedor_sugerido_cotacao_valida_ativa() {
         // Monta múltiplos fornecedores com cotações para o mesmo produto
         List<Fornecedor> candidatos = new ArrayList<>();
@@ -164,7 +164,7 @@ public class EmitirAlertasEstoqueBaixoFeature {
         alertas.put(produtoAtual.getNome(), alertaAtual);
     }
 
-    @E("um pedido foi recebido para suprir o estoque do produto")
+    @Dado("um pedido foi recebido para suprir o estoque do produto")
     public void pedido_recebido_para_produto() {
         quantidadeRecebida = 20;
     }
@@ -242,13 +242,13 @@ public class EmitirAlertasEstoqueBaixoFeature {
         assertEquals(produtoAtual.getId(), alertaAtual.getProdutoId(), "Produto do alerta incorreto");
     }
 
-    @E("o sistema deve exibir o estoque afetado")
+    @Entao("o sistema deve exibir o estoque afetado")
     public void sistema_exibe_estoque_afetado() {
         assertNotNull(alertaAtual, "Alerta não existe");
         assertEquals(estoqueAtual.getId(), alertaAtual.getEstoqueId(), "Estoque afetado não exibido corretamente");
     }
 
-    @E("o sistema deve exibir o fornecedor com menor cotacao")
+    @Entao("o sistema deve exibir o fornecedor com menor cotacao")
     public void sistema_exibe_fornecedor_menor_cotacao() {
         assertNotNull(alertaAtual, "Alerta não existe");
         assertNotNull(alertaAtual.getFornecedorSugerido(), "Fornecedor sugerido não exibido");
