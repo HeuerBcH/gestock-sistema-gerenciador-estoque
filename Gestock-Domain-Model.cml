@@ -1,0 +1,280 @@
+Domain Gestock {
+	Subdomain Principal
+}
+
+ContextMap {
+	contains Principal
+}
+
+BoundedContext Principal implements Principal {
+
+	Aggregate Cliente {
+		Entity Cliente {
+			aggregateRoot
+
+			-ClienteId id
+			String nome
+			String documento
+			String email
+			List<Estoque> estoques
+
+			Repository ClienteRepositorio {
+				@Cliente obter(@ClienteId id);
+				List<@Cliente> listarTodos();
+			}
+		}
+
+		ValueObject ClienteId {
+			Long id
+		}
+
+		Service ClienteServico {
+			void registrarCliente(@Cliente cliente);
+			boolean validarPossuiEstoques(@Cliente cliente);
+		}
+	}
+
+	Aggregate Estoque {
+		Entity Estoque {
+			aggregateRoot
+
+			-EstoqueId id
+			-ClienteId clienteId
+			String nome
+			String endereco
+			int capacidade
+			boolean ativo
+			Map<ProdutoId, SaldoProduto> saldos
+			Map<ProdutoId, ROP> rops
+			List<Movimentacao> movimentacoes
+			List<ReservaRegistro> reservas
+
+			Repository EstoqueRepositorio {
+				@Estoque obter(@EstoqueId id);
+				List<@Estoque> listarTodos();
+				List<@Estoque> listarPorCliente(@ClienteId clienteId);
+				boolean existePorEndereco(String endereco, @ClienteId clienteId);
+				boolean existePorNome(String nome, @ClienteId clienteId);
+			}
+		}
+
+		Entity Movimentacao {
+			-MovimentacaoId id
+			TipoMovimentacao tipo
+			-ProdutoId produtoId
+			int quantidade
+			LocalDateTime dataHora
+			String responsavel
+			String motivo
+			Map<String, String> meta
+		}
+
+		Entity ReservaRegistro {
+			-ProdutoId produtoId
+			int quantidade
+			LocalDateTime dataHora
+			String tipo // RESERVA ou LIBERACAO
+		}
+
+		ValueObject EstoqueId {
+			Long id
+		}
+
+		ValueObject MovimentacaoId {
+			Long id
+		}
+
+		ValueObject SaldoProduto {
+			int fisico
+			int reservado
+		}
+
+		Enum TipoMovimentacao {
+			ENTRADA, SAIDA
+		}
+
+		Service EstoqueServico {
+			void cadastrar(@Estoque estoque);
+			void inativar(@Estoque estoque);
+			void atualizar(@Estoque estoque);
+			List<@Estoque> pesquisarPorCliente(@ClienteId clienteId);
+			void transferir(@Estoque origem, @Estoque destino, @ProdutoId produtoId, int quantidade, String responsavel, String motivo);
+		}
+	}
+
+	Aggregate Produto {
+		Entity Produto {
+			aggregateRoot
+
+			-ProdutoId id
+			String codigo
+			String nome
+			String unidadePeso
+			double peso
+			boolean perecivel
+			boolean ativo
+
+			Repository ProdutoRepositorio {
+				@Produto obter(@ProdutoId id);
+				List<@Produto> listarTodos();
+				boolean codigoExiste(@CodigoProduto codigo);
+				void salvar(@Produto produto);
+				void inativar(@Produto produto);
+			}
+		}
+
+		ValueObject ProdutoId {
+			Long id
+		}
+
+		ValueObject CodigoProduto {
+			String codigo
+		}
+
+		ValueObject ROP {
+			double consumoMedio
+			int leadTimeDias
+			int estoqueSeguranca
+			int valorROP
+		}
+
+		Service ProdutoServico {
+			void cadastrar(@Produto produto);
+			void atualizar(@Produto produto);
+			void inativar(@Produto produto);
+			void salvar(@Produto produto);
+		}
+	}
+
+	Aggregate Fornecedor {
+		Entity Fornecedor {
+			aggregateRoot
+
+			-FornecedorId id
+			String nome
+			String cnpj
+			String contato
+			LeadTime leadTimeMedio
+			boolean ativo
+			Map<ProdutoId, Cotacao> cotacoes
+
+			Repository FornecedorRepositorio {
+				@Fornecedor obter(@FornecedorId id);
+				List<@Fornecedor> listarTodos();
+			}
+		}
+
+		Entity Cotacao {
+			-CotacaoId id
+			-ProdutoId produtoId
+			double preco
+			int prazoDias
+			boolean validadeAtiva
+		}
+
+		ValueObject FornecedorId {
+			Long id
+		}
+
+		ValueObject CotacaoId {
+			Long id
+		}
+
+		ValueObject LeadTime {
+			int dias
+		}
+
+		Service FornecedorServico {
+			void registrarCotacao(@ProdutoId produtoId, double preco, int prazoDias);
+			Optional<@Cotacao> obterMelhorCotacao();
+			Optional<@Cotacao> obterCotacaoPorProduto(@ProdutoId produtoId);
+			void removerCotacao(@ProdutoId produtoId);
+			void recalibrarLeadTime(List<Integer> historicoEntregasDias);
+		}
+	}
+
+	Aggregate Pedido {
+		Entity Pedido {
+			aggregateRoot
+
+			-PedidoId id
+			-ClienteId clienteId
+			-FornecedorId fornecedorId
+			LocalDate dataCriacao
+			LocalDate dataPrevistaEntrega nullable
+			-EstoqueId estoqueId nullable
+			List<ItemPedido> itens
+			CustoPedido custo
+			StatusPedido status
+
+			Repository PedidoRepositorio {
+				@Pedido obter(@PedidoId id);
+				List<@Pedido> listarPendentes();
+				List<@Pedido> listarPorFornecedor(@FornecedorId fornecedorId);
+				List<@Pedido> listarPorCliente(@ClienteId clienteId);
+				boolean existePedidoPendentePorEstoqueId(@EstoqueId estoqueId);
+			}
+		}
+
+		Entity ItemPedido {
+			-ProdutoId produtoId
+			int quantidade
+			BigDecimal precoUnitario
+		}
+
+		ValueObject PedidoId {
+			Long id
+		}
+
+		ValueObject CustoPedido {
+			BigDecimal valorItens
+			BigDecimal frete
+			BigDecimal custosLogisticos
+		}
+
+		Enum StatusPedido {
+			CRIADO, ENVIADO, EM_TRANSPORTE, RECEBIDO, CANCELADO, CONCLUIDO
+		}
+
+		Service PedidoServico {
+			void adicionarItem(@ItemPedido item);
+			void registrarCusto(@CustoPedido custo);
+			void enviar();
+			void registrarRecebimento();
+			void iniciarTransporte();
+			void cancelar();
+			void concluir();
+			BigDecimal calcularTotalItens();
+			double calcularPesoTotal(Function<ProdutoId, Double> pesoPorUnidadeProvider);
+		}
+	}
+
+	Aggregate Alerta {
+		Entity Alerta {
+			aggregateRoot
+
+			-AlertaId id
+			-ProdutoId produtoId
+			-EstoqueId estoqueId
+			-FornecedorId fornecedorSugerido nullable
+			LocalDateTime dataGeracao
+			boolean ativo
+
+			Repository AlertaRepositorio {
+				@Alerta obter(@AlertaId id);
+				List<@Alerta> listarAtivos();
+				List<@Alerta> listarPorProduto(@ProdutoId produtoId);
+				List<@Alerta> listarPorEstoque(@EstoqueId estoqueId);
+			}
+		}
+
+		ValueObject AlertaId {
+			Long id
+		}
+
+		Service AlertaServico {
+			@Alerta gerarAlerta(@ProdutoId produtoId, @EstoqueId estoqueId, @FornecedorId fornecedorSugerido);
+			void desativarAlerta(@AlertaId id);
+		}
+	}
+}
