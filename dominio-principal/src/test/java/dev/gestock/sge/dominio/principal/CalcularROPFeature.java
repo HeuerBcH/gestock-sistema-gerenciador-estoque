@@ -57,22 +57,22 @@ public class CalcularROPFeature {
         repo.salvar(produtoAtual);
     }
 
-    @E("o consumo medio diario do produto e {int} unidades")
+    @Dado("o consumo medio diario do produto e {int} unidades")
     public void consumo_medio_diario(int consumo) {
         consumoMedio = consumo;
     }
 
-    @E("o lead time do fornecedor e {int} dias")
+    @Dado("o lead time do fornecedor e {int} dias")
     public void lead_time_fornecedor(int dias) {
         leadTimeDias = dias;
     }
 
-    @E("o estoque de seguranca e {int} unidades")
+    @Dado("o estoque de seguranca e {int} unidades")
     public void estoque_seguranca(int qtd) {
         estoqueSeguranca = qtd;
     }
 
-    @E("o historico de consumo dos ultimos 90 dias")
+    @Dado("o historico de consumo dos ultimos 90 dias")
     public void historico_90_dias() {
         historicoConsumo = IntStream.range(0, 90)
                 .map(i -> 10)
@@ -158,7 +158,7 @@ public class CalcularROPFeature {
         assertNotNull(ropCalculado, "ROP não disponível para exibição");
     }
 
-    @E("o sistema deve exibir o consumo medio utilizado no calculo")
+    @Entao("o sistema deve exibir o consumo medio utilizado no calculo")
     public void sistema_exibe_consumo_medio() {
         assertNotNull(consumoMedio, "Consumo médio não disponível para exibição");
     }
