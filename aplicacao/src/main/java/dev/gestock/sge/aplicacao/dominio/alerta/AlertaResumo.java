@@ -1,7 +1,22 @@
 package dev.gestock.sge.aplicacao.dominio.alerta;
 
-public interface AlertaResumo {
-	String getId();
+import java.time.LocalDateTime;
 
-	String getMensagem();
+import dev.gestock.sge.dominio.principal.alerta.AlertaId;
+import dev.gestock.sge.dominio.principal.estoque.EstoqueId;
+import dev.gestock.sge.dominio.principal.fornecedor.FornecedorId;
+import dev.gestock.sge.dominio.principal.produto.ProdutoId;
+
+public interface AlertaResumo {
+	AlertaId getId();
+
+	ProdutoId getProdutoId();
+
+	EstoqueId getEstoqueId();
+
+	LocalDateTime getDataGeracao();
+
+	FornecedorId getFornecedorSugerido();
+
+	boolean isAtivo();
 }

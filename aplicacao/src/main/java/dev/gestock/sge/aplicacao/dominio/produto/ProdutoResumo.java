@@ -1,7 +1,19 @@
 package dev.gestock.sge.aplicacao.dominio.produto;
 
-public interface ProdutoResumo {
-	String getId();
+import dev.gestock.sge.dominio.principal.produto.ProdutoId;
 
-	String getDescricao();
+public interface ProdutoResumo {
+	ProdutoId getId();
+
+	String getCodigo();
+
+	String getNome();
+
+	String getUnidadePeso();
+
+	double getPeso();
+
+	boolean isPerecivel();
+
+	boolean isAtivo();
 }

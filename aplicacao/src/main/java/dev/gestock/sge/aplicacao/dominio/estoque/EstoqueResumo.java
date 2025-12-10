@@ -1,7 +1,18 @@
 package dev.gestock.sge.aplicacao.dominio.estoque;
 
-public interface EstoqueResumo {
-	String getId();
+import dev.gestock.sge.dominio.principal.cliente.ClienteId;
+import dev.gestock.sge.dominio.principal.estoque.EstoqueId;
 
-	String getDescricao();
+public interface EstoqueResumo {
+	EstoqueId getId();
+
+	ClienteId getClienteId();
+
+	String getNome();
+
+	String getEndereco();
+
+	int getCapacidade();
+
+	boolean isAtivo();
 }
