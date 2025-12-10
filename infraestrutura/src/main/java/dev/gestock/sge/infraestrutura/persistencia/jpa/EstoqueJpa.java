@@ -1,117 +1,111 @@
-//package dev.gestock.sge.infraestrutura.persistencia.jpa;
-//
-//import java.time.LocalDate;
-//import java.util.List;
-//
-//import org.modelmapper.TypeToken;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.data.jpa.repository.JpaRepository;
-//import org.springframework.data.jpa.repository.Query;
-//import org.springframework.stereotype.Repository;
-//
-//import dev.gestock.sge.aplicacao.acervo.exemplar.ExemplarRepositorioAplicacao;
-//import dev.gestock.sge.aplicacao.acervo.exemplar.ExemplarResumo;
-//import dev.gestock.sge.aplicacao.acervo.exemplar.ExemplarResumoExpandido;
-//import dev.gestock.sge.dominio.principal.estoque.Estoque;
-//import dev.gestock.sge.dominio.principal.estoque.ExemplarId;
-//import dev.gestock.sge.dominio.principal.estoque.EstoqueRepositorio;
-//import dev.gestock.sge.dominio.principal.livro.Isbn;
-//import jakarta.persistence.AttributeOverride;
-//import jakarta.persistence.AttributeOverrides;
-//import jakarta.persistence.Column;
-//import jakarta.persistence.Embeddable;
-//import jakarta.persistence.Embedded;
-//import jakarta.persistence.Entity;
-//import jakarta.persistence.Id;
-//import jakarta.persistence.JoinColumn;
-//import jakarta.persistence.ManyToOne;
-//import jakarta.persistence.Table;
-//
-//@Entity
-//@Table(name = "EXEMPLAR")
-//@AttributeOverrides({
-//		@AttributeOverride(name = "emprestimo.periodo.inicio", column = @Column(name = "EMPRESTIMO_PERIODO_INICIO")),
-//		@AttributeOverride(name = "emprestimo.periodo.fim", column = @Column(name = "EMPRESTIMO_PERIODO_FIM")) })
-//class ExemplarJpa {
-//	@Id
-//	int id;
-//
-//	@ManyToOne()
-//	LivroJpa livro;
-//
-//	@Embedded
-//	EmprestimoJpa emprestimo;
-//}
-//
-//@Embeddable
-//class EmprestimoJpa {
-//	@Embedded
-//	PeriodoJpa periodo;
-//
-//	@ManyToOne
-//	@JoinColumn(name = "EMPRESTIMO_TOMADOR_ID")
-//	SocioJpa tomador;
-//}
-//
-//@Embeddable
-//class PeriodoJpa {
-//	LocalDate inicio;
-//	LocalDate fim;
-//}
-//
-//interface ExemplarJpaRepository extends JpaRepository<ExemplarJpa, Integer> {
-//	List<ExemplarJpa> findByLivroIdAndEmprestimoIsNull(String isbn);
-//
-//	List<ExemplarResumo> findExemplarResumoByOrderByLivroTitulo();
-//
-//	// @formatter:off
-//	@Query("""
-//			SELECT e
-//			  FROM ExemplarJpa e
-//		JOIN FETCH e.livro
-//	    JOIN FETCH e.emprestimo.tomador
-//          ORDER BY e.livro.titulo,
-//                   e.id
-//			""")
-//	// @formatter:on
-//	List<ExemplarResumoExpandido> findExemplarResumoExpandidoByEmprestimoIsNotNull();
-//
-//}
-//
-//@Repository
-//class ExemplarRepositorioImpl implements EstoqueRepositorio, ExemplarRepositorioAplicacao {
-//	@Autowired
-//	ExemplarJpaRepository repositorio;
-//
-//	@Autowired
-//	JpaMapeador mapeador;
-//
-//	@Override
-//	public void salvar(Estoque exemplar) {
-//		var exemplarJpa = mapeador.map(exemplar, ExemplarJpa.class);
-//		repositorio.save(exemplarJpa);
-//	}
-//
-//	@Override
-//	public Estoque obter(ExemplarId id) {
-//		var exemplarJpa = repositorio.findById(id.getId()).get();
-//		return mapeador.map(exemplarJpa, Estoque.class);
-//	}
-//
-//	@Override
-//	public List<Estoque> pesquisarDisponiveis(Isbn livro) {
-//		var exemplares = repositorio.findByLivroIdAndEmprestimoIsNull(livro.toString());
-//		return mapeador.map(exemplares, new TypeToken<List<Estoque>>() {
-//		}.getType());
-//	}
-//
-//	@Override
-//	public List<ExemplarResumo> pesquisarResumos() {
-//		return repositorio.findExemplarResumoByOrderByLivroTitulo();
-//	}
-//
-//	@Override
-//	public List<ExemplarResumoExpandido> pesquisarEmprestados() {
-//		return repositorio.findExemplarResumoExpandidoByEmprestimoIsNotNull();
-//	}
-//}
+package dev.gestock.sge.infraestrutura.persistencia.jpa;
+
+import static jakarta.persistence.GenerationType.IDENTITY;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.modelmapper.TypeToken;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import dev.gestock.sge.aplicacao.dominio.estoque.EstoqueRepositorioAplicacao;
+import dev.gestock.sge.aplicacao.dominio.estoque.EstoqueResumo;
+import dev.gestock.sge.dominio.principal.cliente.ClienteId;
+import dev.gestock.sge.dominio.principal.estoque.Estoque;
+import dev.gestock.sge.dominio.principal.estoque.EstoqueId;
+import dev.gestock.sge.dominio.principal.estoque.EstoqueRepositorio;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "ESTOQUE")
+class EstoqueJpa {
+	@Id
+	@GeneratedValue(strategy = IDENTITY)
+	Long id;
+
+	@ManyToOne
+	@JoinColumn(name = "CLIENTE_ID", nullable = false)
+	ClienteJpa cliente;
+
+	@Column(nullable = false, length = 255)
+	String nome;
+
+	@Column(nullable = false, length = 500)
+	String endereco;
+
+	@Column(nullable = false)
+	Integer capacidade;
+
+	@Column(nullable = false)
+	Boolean ativo;
+
+	@Override
+	public String toString() {
+		return nome + " (" + endereco + ")";
+	}
+}
+
+interface EstoqueJpaRepository extends JpaRepository<EstoqueJpa, Long> {
+	List<EstoqueJpa> findByClienteId(Long clienteId);
+
+	boolean existsByEndereco(String endereco);
+
+	boolean existsByClienteIdAndNome(Long clienteId, String nome);
+
+	@Query("SELECT e FROM EstoqueJpa e WHERE e.cliente.id = :clienteId ORDER BY e.nome")
+	List<EstoqueResumo> findEstoqueResumoByClienteIdOrderByNome(Long clienteId);
+}
+
+@Repository
+class EstoqueRepositorioImpl implements EstoqueRepositorio, EstoqueRepositorioAplicacao {
+	@Autowired
+	EstoqueJpaRepository repositorio;
+
+	@Autowired
+	JpaMapeador mapeador;
+
+	@Override
+	public void salvar(Estoque estoque) {
+		var estoqueJpa = mapeador.map(estoque, EstoqueJpa.class);
+		repositorio.save(estoqueJpa);
+	}
+
+	@Override
+	public Optional<Estoque> buscarPorId(EstoqueId id) {
+		return repositorio.findById(id.getId())
+				.map(e -> mapeador.map(e, Estoque.class));
+	}
+
+	@Override
+	public List<Estoque> buscarEstoquesPorClienteId(ClienteId clienteId) {
+		var estoques = repositorio.findByClienteId(clienteId.getId());
+		return mapeador.map(estoques, new TypeToken<List<Estoque>>() {
+		}.getType());
+	}
+
+	@Override
+	public boolean existePorEndereco(String endereco, ClienteId clienteId) {
+		return repositorio.existsByEndereco(endereco);
+	}
+
+	@Override
+	public boolean existePorNome(String nome, ClienteId clienteId) {
+		return repositorio.existsByClienteIdAndNome(clienteId.getId(), nome);
+	}
+
+	@Override
+	public List<EstoqueResumo> pesquisarResumos() {
+		return repositorio.findAll().stream()
+				.map(e -> mapeador.map(e, EstoqueResumo.class))
+				.toList();
+	}
+}
