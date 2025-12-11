@@ -15,7 +15,7 @@ import dev.gestock.sge.dominio.principal.cliente.*;
 
 import dev.gestock.sge.infraestrutura.persistencia.memoria.Repositorio;
 
-public class EmitirAlertasEstoqueBaixoFeature {
+public class EmitirAlertasEstoqueBaixoFuncionalidade {
 
     // ===== Estado por cenário =====
     private Map<String, Produto> produtos;
@@ -37,6 +37,7 @@ public class EmitirAlertasEstoqueBaixoFeature {
 
     private Repositorio repo;
     private AlertaServico alertaServico;
+    private EstoqueServico estoqueServico;
 
     @Before
     public void reset() {
@@ -57,6 +58,7 @@ public class EmitirAlertasEstoqueBaixoFeature {
         repo.limparTodos();
         alertaServico = new AlertaServico(repo);
         fornecedorServico = new FornecedorServico(repo);
+        estoqueServico = new EstoqueServico(repo, null, repo);
         melhorFornecedorSelecionado = null;
     }
 
@@ -157,6 +159,15 @@ public class EmitirAlertasEstoqueBaixoFeature {
     public void existe_alerta_ativo_para_produto() {
         existe_produto_com_rop(100);
         saldo_atual_produto(90);
+        // IMPORTANTE: Registrar o saldo inicial no estoque para que o alerta seja válido
+        estoqueAtual.registrarEntrada(
+            produtoAtual.getId(),
+            90, // Saldo inicial de 90 unidades
+            "Sistema",
+            "Saldo inicial para teste",
+            Map.of()
+        );
+        repo.salvar(estoqueAtual);
         FornecedorId fid = new FornecedorId((long) seq.getAndIncrement());
         fornecedorAtual = new Fornecedor(fid, "Fornecedor1", "00000000000191", "contato@forn.com");
         repo.salvar(fornecedorAtual);
@@ -203,12 +214,18 @@ public class EmitirAlertasEstoqueBaixoFeature {
     public void sistema_atualiza_estoque() {
         lastError = null;
         try {
-            if (quantidadeRecebida != null) {
-                saldoAtual += quantidadeRecebida;
-                // Remove alerta se estoque suprido
-                if (alertaAtual != null && saldoAtual > ropAtual) {
-                    alertaServico.desativarAlerta(alertaAtual);
-                }
+            if (quantidadeRecebida != null && estoqueAtual != null && produtoAtual != null) {
+                // Registrar entrada no estoque via serviço
+                estoqueAtual.registrarEntrada(
+                    produtoAtual.getId(),
+                    quantidadeRecebida,
+                    "Sistema",
+                    "Recebimento de pedido",
+                    Map.of("origem", "pedido")
+                );
+                // R1H17: Remoção automática de alertas quando estoque é atualizado e fica acima do ROP
+                estoqueServico.atualizar(estoqueAtual);
+                saldoAtual = estoqueAtual.getSaldoFisico(produtoAtual.getId());
             }
         } catch (Exception e) {
             lastError = e;

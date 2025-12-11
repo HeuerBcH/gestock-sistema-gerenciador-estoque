@@ -21,6 +21,8 @@ public class GerenciarProdutosFuncionalidade {
 
     private Repositorio repo;
     private ProdutoServico produtoSrv;
+    private EstoqueServico estoqueServico;
+    private FornecedorServico fornecedorServico;
     private AtomicLong seq;
 
     private Map<String, ProdutoId> aliasProduto;
@@ -40,6 +42,8 @@ public class GerenciarProdutosFuncionalidade {
     public void reset() {
         repo = new Repositorio();
         produtoSrv = new ProdutoServico(repo, repo, repo);
+        estoqueServico = new EstoqueServico(repo);
+        fornecedorServico = new FornecedorServico(repo, repo);
         seq = new AtomicLong(1);
         aliasProduto = new HashMap<>();
         aliasEstoque = new HashMap<>();
@@ -289,7 +293,7 @@ public class GerenciarProdutosFuncionalidade {
                     double preco = Double.parseDouble(r.get("preco"));
                     int prazo = Integer.parseInt(r.get("prazo"));
                     fornecedor.registrarCotacao(currentProdutoId, preco, prazo);
-                    repo.salvar(fornecedor);
+                    fornecedorServico.atualizar(fornecedor);
                 }
             }
         } catch (Exception ex) { 
@@ -311,7 +315,7 @@ public class GerenciarProdutosFuncionalidade {
                 // Vincular produto ao estoque adicionando uma movimentação
                 Estoque estoque = repo.buscarPorId(estoqueId).orElseThrow();
                 estoque.registrarEntrada(currentProdutoId, 1, "Sistema", "Vinculação inicial", Map.of());
-                repo.salvar(estoque);
+                estoqueServico.atualizar(estoque);
             }
         } catch (Exception ex) { 
             lastError = ex; 
@@ -385,7 +389,7 @@ public class GerenciarProdutosFuncionalidade {
             FornecedorId fornecedorId = ensureFornecedor("Fornecedor Teste", "12345678000199");
             Fornecedor fornecedor = repo.buscarPorId(fornecedorId).orElseThrow();
             fornecedor.registrarCotacao(currentProdutoId, 100.0, 10);
-            repo.salvar(fornecedor);
+            fornecedorServico.atualizar(fornecedor);
         } catch (Exception ex) { 
             lastError = ex; 
         }
@@ -398,7 +402,7 @@ public class GerenciarProdutosFuncionalidade {
             EstoqueId estoqueId = ensureEstoque("Estoque Central", "Endereço Central");
             Estoque estoque = repo.buscarPorId(estoqueId).orElseThrow();
             estoque.definirROP(currentProdutoId, consumoMedio, leadTime, estoqueSeguranca);
-            repo.salvar(estoque);
+            estoqueServico.atualizar(estoque);
         } catch (Exception ex) { 
             lastError = ex; 
         }

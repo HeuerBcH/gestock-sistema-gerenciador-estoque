@@ -225,7 +225,6 @@ public class GerenciarEstoqueFuncionalidade {
             for (Estoque e : repo.buscarEstoquesPorClienteId((currentClienteId != null) ? currentClienteId : new ClienteId(1L))) {
                 if (e.getNome().equalsIgnoreCase(nome)) {
                     estoqueSrv.inativar(e);
-                    repo.salvar(e);
                     currentEstoqueId = e.getId();
                     return;
                 }
@@ -243,7 +242,7 @@ public class GerenciarEstoqueFuncionalidade {
         try {
             Estoque e = repo.buscarPorId(currentEstoqueId).orElseThrow();
             e.alterarCapacidade(novaCap);
-            repo.salvar(e);
+            estoqueSrv.atualizar(e);
         } catch (Exception ex) { lastError = ex; }
     }
 
@@ -261,7 +260,7 @@ public class GerenciarEstoqueFuncionalidade {
         lastError = null;
         try {
             var cid = (currentClienteId != null) ? currentClienteId : new ClienteId(1L);
-            var list = repo.buscarEstoquesPorClienteId(cid);
+            var list = estoqueSrv.pesquisarPorCliente(cid);
             boolean found = list.stream().anyMatch(e -> e.getNome().equalsIgnoreCase(nome) && e.getEndereco().equalsIgnoreCase(endereco));
             if (!found) throw new IllegalStateException("Nenhum estoque encontrado");
         } catch (Exception ex) { lastError = ex; }

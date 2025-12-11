@@ -17,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class GerenciarPedidosFuncionalidade {
 
     private final Repositorio repositorio = new Repositorio();
+    private PedidoServico pedidoServico;
 
     private Pedido pedido;
     private Fornecedor fornecedor;
@@ -30,6 +31,11 @@ public class GerenciarPedidosFuncionalidade {
     private int quantidadeMovimentacao;
     private int saldoAnterior;
     private int saldoAtual;
+
+    @io.cucumber.java.Before
+    public void setup() {
+        pedidoServico = new PedidoServico(repositorio, repositorio, repositorio);
+    }
 
     // H11 — Criar pedidos de compra
 
@@ -66,19 +72,7 @@ public class GerenciarPedidosFuncionalidade {
             cliente = new Cliente(clienteId, "Cliente Teste", "123.456.789-00", "cliente@teste.com");
             repositorio.salvar(cliente);
 
-            PedidoId pedidoId = repositorio.novoPedidoId();
-            pedido = new Pedido(pedidoId, cliente.getId(), fornecedor.getId());
-
-            ItemPedido item = new ItemPedido(produto.getId(), quantidade, BigDecimal.valueOf(50.0));
-            pedido.adicionarItem(item);
-
-            Optional<Cotacao> cotacaoOpt = fornecedor.obterCotacaoPorProduto(produto.getId());
-            if (cotacaoOpt.isPresent()) {
-                int leadTime = cotacaoOpt.get().getPrazoDias();
-                pedido.setDataPrevistaEntrega(LocalDate.now().plusDays(leadTime));
-            }
-
-            repositorio.salvar(pedido);
+            pedido = pedidoServico.gerarPedido(cliente.getId(), fornecedor, produto, quantidade);
         } catch (Exception e) {
             excecaoCapturada = e;
             mensagemErro = e.getMessage();
@@ -125,17 +119,7 @@ public class GerenciarPedidosFuncionalidade {
             cliente = new Cliente(clienteId, "Cliente Teste", "123.456.789-00", "cliente@teste.com");
             repositorio.salvar(cliente);
 
-            PedidoId pedidoId = repositorio.novoPedidoId();
-            pedido = new Pedido(pedidoId, cliente.getId(), fornecedor.getId());
-
-            Optional<Cotacao> cotacaoOpt = fornecedor.obterCotacaoPorProduto(produto.getId());
-            if (cotacaoOpt.isEmpty()) {
-                throw new IllegalArgumentException("Nenhuma cotacao encontrada para o produto");
-            }
-
-            ItemPedido item = new ItemPedido(produto.getId(), 100, BigDecimal.valueOf(cotacaoOpt.get().getPreco()));
-            pedido.adicionarItem(item);
-
+            pedido = pedidoServico.gerarPedido(cliente.getId(), fornecedor, produto, 100);
         } catch (Exception e) {
             excecaoCapturada = e;
             mensagemErro = e.getMessage();
@@ -188,10 +172,8 @@ public class GerenciarPedidosFuncionalidade {
             cliente = new Cliente(clienteId, "Cliente Teste", "123.456.789-00", "cliente@teste.com");
             repositorio.salvar(cliente);
 
-            PedidoId pedidoId = repositorio.novoPedidoId();
-            pedido = new Pedido(pedidoId, cliente.getId(), fornecedor.getId());
-
             BigDecimal totalCalculado = BigDecimal.ZERO;
+            boolean primeiroItem = true;
 
             for (Map<String, String> row : dataTable.asMaps()) {
                 int quantidade = Integer.parseInt(row.get("quantidade"));
@@ -202,13 +184,18 @@ public class GerenciarPedidosFuncionalidade {
 
                 if (produtoRealOpt.isPresent()) {
                     Produto produto = produtoRealOpt.get();
-                    Optional<Cotacao> cotacaoOpt = fornecedor.obterCotacaoPorProduto(produto.getId());
-                    if (cotacaoOpt.isPresent()) {
-                        BigDecimal preco = BigDecimal.valueOf(cotacaoOpt.get().getPreco());
-                        ItemPedido item = new ItemPedido(produto.getId(), quantidade, preco);
-                        pedido.adicionarItem(item);
-                        totalCalculado = totalCalculado.add(item.getSubtotal());
+                    if (primeiroItem) {
+                        pedido = pedidoServico.gerarPedido(cliente.getId(), fornecedor, produto, quantidade);
+                        primeiroItem = false;
+                    } else {
+                        Optional<Cotacao> cotacaoOpt = fornecedor.obterCotacaoPorProduto(produto.getId());
+                        if (cotacaoOpt.isPresent()) {
+                            BigDecimal preco = BigDecimal.valueOf(cotacaoOpt.get().getPreco());
+                            ItemPedido item = new ItemPedido(produto.getId(), quantidade, preco);
+                            pedido.adicionarItem(item);
+                        }
                     }
+                    totalCalculado = pedido.calcularTotalItens();
                 }
             }
 
@@ -261,22 +248,7 @@ public class GerenciarPedidosFuncionalidade {
             cliente = new Cliente(clienteId, "Cliente Teste", "123.456.789-00", "cliente@teste.com");
             repositorio.salvar(cliente);
 
-            PedidoId pedidoId = repositorio.novoPedidoId();
-            pedido = new Pedido(pedidoId, cliente.getId(), fornecedor.getId());
-
-            ItemPedido item = new ItemPedido(produto.getId(), 100, BigDecimal.valueOf(50.0));
-            pedido.adicionarItem(item);
-
-            Optional<Cotacao> cotacaoOpt = fornecedor.obterCotacaoPorProduto(produto.getId());
-            if (cotacaoOpt.isPresent()) {
-                int leadTime = cotacaoOpt.get().getPrazoDias();
-                pedido.setDataPrevistaEntrega(LocalDate.now().plusDays(leadTime));
-            } else {
-                pedido.setDataPrevistaEntrega(LocalDate.now().plusDays(10));
-            }
-
-
-            repositorio.salvar(pedido);
+            pedido = pedidoServico.gerarPedido(cliente.getId(), fornecedor, produto, 100);
 
         } catch (Exception e) {
             excecaoCapturada = e;
@@ -351,8 +323,7 @@ public class GerenciarPedidosFuncionalidade {
     @Quando("o cliente cancela o pedido")
     public void oClienteCancelaOPedido() {
         try {
-            pedido.cancelar();
-            repositorio.salvar(pedido);
+            pedidoServico.cancelar(pedido);
         } catch (Exception e) {
             excecaoCapturada = e;
             mensagemErro = e.getMessage();
@@ -367,8 +338,7 @@ public class GerenciarPedidosFuncionalidade {
     @Quando("o cliente tenta cancelar o pedido")
     public void oClienteTentaCancelarOPedido() {
         try {
-            pedido.cancelar();
-            repositorio.salvar(pedido);
+            pedidoServico.cancelar(pedido);
         } catch (Exception e) {
             excecaoCapturada = e;
             mensagemErro = e.getMessage();
@@ -380,26 +350,13 @@ public class GerenciarPedidosFuncionalidade {
     @Quando("o cliente confirma o recebimento do pedido")
     public void oClienteConfirmaORecebimentoDoPedido() {
         try {
-            int quantidadeRecebida = pedido.getItens().stream()
-                    .mapToInt(ItemPedido::getQuantidade)
-                    .sum();
-
-            // Ação de domínio do Pedido (sempre)
-            pedido.registrarRecebimento();
-            repositorio.salvar(pedido);
-
             if (estoque != null && produto != null) {
                 saldoAnterior = estoque.getSaldoDisponivel(produto.getId());
+            }
 
-                estoque.registrarEntrada(
-                        produto.getId(),
-                        quantidadeRecebida,
-                        "Sistema",
-                        "Recebimento de pedido",
-                        Map.of("pedidoId", pedido.getId().getId().toString())
-                );
+            pedidoServico.confirmarRecebimento(pedido, estoque, "Sistema");
 
-                // Saldo atual real do agregado
+            if (estoque != null && produto != null) {
                 saldoAtual = estoque.getSaldoDisponivel(produto.getId());
             }
         } catch (Exception e) {
@@ -476,8 +433,7 @@ public class GerenciarPedidosFuncionalidade {
     @Quando("o cliente tenta confirmar o recebimento")
     public void oClienteTentaConfirmarORecebimento() {
         try {
-            pedido.registrarRecebimento();
-            repositorio.salvar(pedido);
+            pedidoServico.confirmarRecebimento(pedido, estoque, "Sistema");
         } catch (Exception e) {
             excecaoCapturada = e;
             mensagemErro = e.getMessage();
@@ -487,8 +443,7 @@ public class GerenciarPedidosFuncionalidade {
     @Quando("o cliente envia o pedido")
     public void oClienteEnviaOPedido() {
         try {
-            pedido.enviar();
-            repositorio.salvar(pedido);
+            pedidoServico.enviar(pedido);
         } catch (Exception e) {
             excecaoCapturada = e;
             mensagemErro = e.getMessage();
@@ -541,8 +496,7 @@ public class GerenciarPedidosFuncionalidade {
     @Quando("o cliente conclui o pedido")
     public void oClienteConcluiOPedido() {
         try {
-            pedido.concluir();
-            repositorio.salvar(pedido);
+            pedidoServico.concluir(pedido);
         } catch (Exception e) {
             excecaoCapturada = e;
             mensagemErro = e.getMessage();

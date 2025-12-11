@@ -13,6 +13,7 @@ import dev.gestock.sge.dominio.principal.cliente.Cliente;
 import dev.gestock.sge.dominio.principal.cliente.ClienteId;
 import dev.gestock.sge.dominio.principal.estoque.Estoque;
 import dev.gestock.sge.dominio.principal.estoque.EstoqueId;
+import dev.gestock.sge.dominio.principal.estoque.EstoqueServico;
 import dev.gestock.sge.dominio.principal.estoque.Movimentacao;
 import dev.gestock.sge.dominio.principal.estoque.TipoMovimentacao;
 import dev.gestock.sge.dominio.principal.fornecedor.Fornecedor;
@@ -20,6 +21,7 @@ import dev.gestock.sge.dominio.principal.fornecedor.FornecedorId;
 import dev.gestock.sge.dominio.principal.pedido.ItemPedido;
 import dev.gestock.sge.dominio.principal.pedido.Pedido;
 import dev.gestock.sge.dominio.principal.pedido.PedidoId;
+import dev.gestock.sge.dominio.principal.pedido.PedidoServico;
 import dev.gestock.sge.dominio.principal.produto.Produto;
 import dev.gestock.sge.dominio.principal.produto.ProdutoId;
 import dev.gestock.sge.infraestrutura.persistencia.memoria.Repositorio;
@@ -31,6 +33,7 @@ import io.cucumber.java.pt.Quando;
 public class ReservarEstoqueFuncionalidade {
 
     private Repositorio repo;
+    private PedidoServico pedidoServico;
     private AtomicLong seq;
 
     private Map<String, EstoqueId> aliasEstoque;
@@ -49,6 +52,7 @@ public class ReservarEstoqueFuncionalidade {
         if (repo == null) {
             repo = new Repositorio();
         }
+        pedidoServico = new PedidoServico(repo, repo, repo);
         // Não resetar as variáveis de estado para manter o contexto entre steps do mesmo cenário
         seq = new AtomicLong(1);
         aliasEstoque = new HashMap<>();
@@ -186,28 +190,25 @@ public class ReservarEstoqueFuncionalidade {
         try {
             ClienteId clienteId = ensureCliente("Cliente Teste");
             FornecedorId fornecedorId = ensureFornecedor(nomeFornecedor, "12345678000199");
+            Fornecedor fornecedor = repo.buscarPorId(fornecedorId).orElseThrow();
             
             currentProdutoId = ensureProduto("PROD-" + seq.getAndIncrement(), nomeProduto);
+            Produto produto = repo.buscarPorId(currentProdutoId).orElseThrow();
+            
             currentEstoqueId = ensureEstoque("Estoque X", "Endereço X", clienteId);
+            Estoque estoque = repo.buscarPorId(currentEstoqueId).orElseThrow();
             
             // Adicionar saldo inicial
             adicionarSaldoEstoque(currentEstoqueId, currentProdutoId, 200);
             
-            // Criar pedido
-            currentPedidoId = repo.novoPedidoId();
-            Pedido pedido = new Pedido(currentPedidoId, clienteId, fornecedorId);
-            ItemPedido item = new ItemPedido(currentProdutoId, quantidade, java.math.BigDecimal.valueOf(50.0));
-            pedido.adicionarItem(item);
-            pedido.setEstoqueId(currentEstoqueId);
-            repo.salvar(pedido);
+            // Registrar cotação para o produto
+            fornecedor.registrarCotacao(currentProdutoId, 50.0, 10);
+            repo.salvar(fornecedor);
             
-            // Simular entrada do produto (como se fosse recebido do fornecedor)
-            Estoque estoque = repo.buscarPorId(currentEstoqueId).orElseThrow();
-            estoque.registrarEntrada(currentProdutoId, quantidade, "Sistema", "Entrada por pedido", Map.of());
-            repo.salvar(estoque);
-            
-            // Reservar estoque automaticamente
-            reservarEstoque(currentEstoqueId, currentProdutoId, quantidade);
+            // Criar pedido com reserva usando o serviço
+            estoque = repo.buscarPorId(currentEstoqueId).orElseThrow();
+            Pedido pedido = pedidoServico.gerarPedidoParaEstoque(clienteId, fornecedor, produto, quantidade, estoque);
+            currentPedidoId = pedido.getId();
         } catch (Exception ex) {
             lastError = ex;
         }
@@ -219,6 +220,8 @@ public class ReservarEstoqueFuncionalidade {
         try {
             Estoque estoque = repo.buscarPorId(currentEstoqueId).orElseThrow();
             estoque.registrarSaida(currentProdutoId, quantidade, "Sistema", "Tentativa de saída");
+            EstoqueServico estoqueServico = new EstoqueServico(repo);
+            estoqueServico.atualizar(estoque);
         } catch (Exception ex) {
             lastError = ex;
         }
@@ -232,37 +235,28 @@ public class ReservarEstoqueFuncionalidade {
                 Pedido pedido = repo.buscarPorId(currentPedidoId).orElseThrow();
                 
                 // Primeiro enviar o pedido (mudar de CRIADO para ENVIADO)
-                pedido.enviar();
-                repo.salvar(pedido);
+                pedidoServico.enviar(pedido);
                 
-                // Depois registrar o recebimento (mudar de ENVIADO para RECEBIDO)
-                pedido.registrarRecebimento();
-                repo.salvar(pedido);
-                
-                // Agora concluir o pedido
-                pedido.concluir();
-                repo.salvar(pedido);
-                
-                // Liberar reserva e simular recebimento real do produto
-                if (currentEstoqueId != null && currentProdutoId != null) {
+                // Usar serviço para confirmar recebimento (gera entrada automaticamente)
+                if (currentEstoqueId != null) {
                     Estoque estoque = repo.buscarPorId(currentEstoqueId).orElseThrow();
-                    int quantidadeReservada = estoque.getSaldoReservado(currentProdutoId);
+                    pedidoServico.confirmarRecebimento(pedido, estoque, "Sistema");
                     
-                    if (quantidadeReservada > 0) {
-                        
-                        // Primeiro liberar a reserva
-                        estoque.liberarReserva(currentProdutoId, quantidadeReservada);
-                        
-                        // Depois simular o recebimento real do produto (adicionar ao saldo físico)
-                        estoque.registrarEntrada(currentProdutoId, quantidadeReservada, "Sistema", "Recebimento do pedido concluído", Map.of());
-                        
-                        repo.salvar(estoque);
-                        
-                    } else {
+                    // Liberar reserva após recebimento
+                    if (currentProdutoId != null) {
+                        estoque = repo.buscarPorId(currentEstoqueId).orElseThrow();
+                        int quantidadeReservada = estoque.getSaldoReservado(currentProdutoId);
+                        if (quantidadeReservada > 0) {
+                            estoque.liberarReserva(currentProdutoId, quantidadeReservada);
+                            EstoqueServico estoqueServico = new EstoqueServico(repo);
+                            estoqueServico.atualizar(estoque);
+                        }
                     }
-                } else {
                 }
-            } else {
+                
+                // Concluir o pedido
+                pedido = repo.buscarPorId(currentPedidoId).orElseThrow();
+                pedidoServico.concluir(pedido);
             }
         } catch (Exception ex) {
             lastError = ex;

@@ -262,7 +262,7 @@ public class Estoque {
 
     /**
      * Reserva preventiva (R15, R16): diminui o disponível sem mexer no físico.
-     * - usado quando um Pedido em andamento deve “segurar” o item.
+     * - usado quando um Pedido em andamento deve "segurar" o item.
      */
     public void reservar(ProdutoId produtoId, int quantidade) {
         notNull(produtoId, "Produto é obrigatório");
@@ -271,6 +271,22 @@ public class Estoque {
         SaldoProduto atual = saldos.getOrDefault(produtoId, SaldoProduto.zero());
         isTrue(atual.disponivel() >= quantidade, "Saldo disponível insuficiente para reserva");
         SaldoProduto novo = atual.comReserva(quantidade);
+        saldos.put(produtoId, novo);
+        reservas.add(ReservaRegistro.reserva(produtoId, quantidade));
+    }
+
+    /**
+     * Reserva para pedido de compra de fornecedor (R1H24, R2H24).
+     * Projeta o aumento futuro do estoque físico e reserva a quantidade.
+     * - usado quando criando pedido de compra de fornecedor.
+     * - aumenta o físico projetado e reserva simultaneamente.
+     */
+    public void reservarParaPedidoCompra(ProdutoId produtoId, int quantidade) {
+        notNull(produtoId, "Produto é obrigatório");
+        isTrue(quantidade > 0, "Quantidade deve ser positiva");
+
+        SaldoProduto atual = saldos.getOrDefault(produtoId, SaldoProduto.zero());
+        SaldoProduto novo = atual.comReservaParaPedidoCompra(quantidade);
         saldos.put(produtoId, novo);
         reservas.add(ReservaRegistro.reserva(produtoId, quantidade));
     }

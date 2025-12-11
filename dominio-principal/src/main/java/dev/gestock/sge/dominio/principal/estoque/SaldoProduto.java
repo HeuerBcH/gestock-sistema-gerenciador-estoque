@@ -44,5 +44,14 @@ public record SaldoProduto(int fisico, int reservado) {
         if (reservado < qtd) throw new IllegalStateException("Quantidade a liberar excede o reservado");
         return new SaldoProduto(fisico, reservado - qtd);
     }
+
+    /**
+     * Reserva para pedido de compra (projeta aumento futuro do estoque físico).
+     * Aumenta tanto o físico quanto o reservado, mantendo disponível constante.
+     */
+    public SaldoProduto comReservaParaPedidoCompra(int qtd) {
+        if (qtd <= 0) throw new IllegalArgumentException("Quantidade deve ser positiva");
+        return new SaldoProduto(fisico + qtd, reservado + qtd);
+    }
 }
 

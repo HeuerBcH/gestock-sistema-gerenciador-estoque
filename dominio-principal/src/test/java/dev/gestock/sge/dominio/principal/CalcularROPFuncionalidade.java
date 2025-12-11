@@ -9,9 +9,10 @@ import io.cucumber.java.Before;
 import io.cucumber.java.pt.*;
 
 import dev.gestock.sge.dominio.principal.produto.*;
+import dev.gestock.sge.dominio.principal.estoque.EstoqueServico;
 import dev.gestock.sge.infraestrutura.persistencia.memoria.Repositorio;
 
-public class CalcularROPFeature {
+public class CalcularROPFuncionalidade {
 
     // ===== Estado do cenário =====
     private Map<String, Produto> produtos;
@@ -31,6 +32,7 @@ public class CalcularROPFeature {
     private static final int ROP_PADRAO_SEM_HISTORICO = 1;
 
     private Repositorio repo;
+    private EstoqueServico estoqueServico;
 
     @Before
     public void reset() {
@@ -45,6 +47,7 @@ public class CalcularROPFeature {
 
         repo = new Repositorio();
         repo.limparTodos();
+        estoqueServico = new EstoqueServico(repo);
     }
 
     // ===== GIVENS =====

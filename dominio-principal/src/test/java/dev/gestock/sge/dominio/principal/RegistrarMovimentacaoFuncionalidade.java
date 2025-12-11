@@ -15,9 +15,11 @@ import static org.junit.jupiter.api.Assertions.*;
 public class RegistrarMovimentacaoFuncionalidade {
 
     private final Repositorio repositorio = new Repositorio();
+    private EstoqueServico estoqueServico;
 
     // Construtor público sem argumentos exigido pelo Cucumber
     public RegistrarMovimentacaoFuncionalidade() {
+        estoqueServico = new EstoqueServico(repositorio);
     }
 
     private Estoque estoque;
@@ -66,6 +68,9 @@ public class RegistrarMovimentacaoFuncionalidade {
                     "Entrada manual",
                     Map.of("origem", "manual")
             );
+
+            // Salvar através do serviço
+            estoqueServico.atualizar(estoque);
 
             // Saldo depois
             saldoAtual = estoque.getSaldoDisponivel(produto.getId());
@@ -155,6 +160,9 @@ public class RegistrarMovimentacaoFuncionalidade {
                     Map.of("pedidoId", pedido.getId().getId().toString())
             );
 
+            // Salvar através do serviço
+            estoqueServico.atualizar(estoque);
+
             // Saldo depois
             saldoAtual = estoque.getSaldoDisponivel(produto.getId());
 
@@ -229,6 +237,9 @@ public class RegistrarMovimentacaoFuncionalidade {
                     motivo
             );
 
+            // Salvar através do serviço
+            estoqueServico.atualizar(estoque);
+
             // Saldo depois
             saldoAtual = estoque.getSaldoDisponivel(produto.getId());
 
@@ -268,6 +279,9 @@ public class RegistrarMovimentacaoFuncionalidade {
                     "Cliente",
                     "Saída manual"
             );
+
+            // Salvar através do serviço
+            estoqueServico.atualizar(estoque);
 
             // Se não lançar, atualiza saldo depois
             saldoAtual = estoque.getSaldoDisponivel(produto.getId());

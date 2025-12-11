@@ -8,20 +8,29 @@ import java.util.Map;
 import dev.gestock.sge.dominio.principal.cliente.ClienteId;
 import dev.gestock.sge.dominio.principal.pedido.PedidoRepositorio;
 import dev.gestock.sge.dominio.principal.produto.ProdutoId;
+import dev.gestock.sge.dominio.principal.alerta.Alerta;
+import dev.gestock.sge.dominio.principal.alerta.AlertaRepositorio;
+import dev.gestock.sge.dominio.principal.alerta.AlertaServico;
 
 // Serviço de domínio para operações de gerenciamento de estoques.
 public class EstoqueServico {
 
     private final EstoqueRepositorio estoqueRepositorio;
     private final PedidoRepositorio pedidoRepositorio;
+    private final AlertaRepositorio alertaRepositorio;
 
     public EstoqueServico(EstoqueRepositorio estoqueRepositorio) {
-        this(estoqueRepositorio, null);
+        this(estoqueRepositorio, null, null);
     }
 
     public EstoqueServico(EstoqueRepositorio estoqueRepositorio, PedidoRepositorio pedidoRepositorio) {
+        this(estoqueRepositorio, pedidoRepositorio, null);
+    }
+
+    public EstoqueServico(EstoqueRepositorio estoqueRepositorio, PedidoRepositorio pedidoRepositorio, AlertaRepositorio alertaRepositorio) {
         this.estoqueRepositorio = estoqueRepositorio;
         this.pedidoRepositorio = pedidoRepositorio;
+        this.alertaRepositorio = alertaRepositorio;
     }
 
     // Cadastra um novo estoque (H1).
@@ -54,9 +63,41 @@ public class EstoqueServico {
     }
 
     // Atualiza parâmetros de um estoque (H3).
+    // R1H17: Remove alertas automaticamente se estoque físico ficou acima do ROP
     public void atualizar(Estoque estoque) {
         notNull(estoque, "Estoque é obrigatório");
+        
+        // Verifica e remove alertas se necessário (R1H17)
+        if (alertaRepositorio != null) {
+            removerAlertasSeNecessario(estoque);
+        }
+        
         estoqueRepositorio.salvar(estoque);
+    }
+
+    /**
+     * Remove alertas ativos automaticamente se o estoque físico dos produtos ficou acima do ROP (R1H17).
+     */
+    private void removerAlertasSeNecessario(Estoque estoque) {
+        if (alertaRepositorio == null) return;
+        
+        // Busca alertas por estoque
+        List<Alerta> alertas = alertaRepositorio.listarPorEstoque(estoque.getId());
+        
+        for (Alerta alerta : alertas) {
+            if (!alerta.isAtivo()) continue; // Pula alertas já desativados
+            
+            // Verifica se o produto tem ROP definido
+            var rop = estoque.getROP(alerta.getProdutoId());
+            if (rop == null) continue;
+            
+            // Verifica se o saldo físico está acima do ROP
+            int saldoFisico = estoque.getSaldoFisico(alerta.getProdutoId());
+            if (saldoFisico > rop.getValorROP()) {
+                AlertaServico alertaServico = new AlertaServico(alertaRepositorio);
+                alertaServico.desativarAlerta(alerta);
+            }
+        }
     }
 
     // Pesquisa estoques de um cliente (H4).

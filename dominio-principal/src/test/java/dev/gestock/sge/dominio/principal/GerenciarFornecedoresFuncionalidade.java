@@ -210,7 +210,7 @@ public class GerenciarFornecedoresFuncionalidade {
             Fornecedor f = repo.buscarPorId(currentFornecedorId).orElseThrow();
             double preco = Double.parseDouble(precoStr.replace(',', '.').replace("\"", ""));
             f.registrarCotacao(pid, preco, prazo);
-            repo.salvar(f);
+            fornecedorSrv.atualizar(f);
         } catch (Exception ex) { lastError = ex; }
     }
 
@@ -225,7 +225,7 @@ public class GerenciarFornecedoresFuncionalidade {
                 int prazo = Integer.parseInt(r.get("prazo"));
                 Fornecedor f = repo.buscarPorId(currentFornecedorId).orElseThrow();
                 f.registrarCotacao(pid, preco, prazo);
-                repo.salvar(f);
+                fornecedorSrv.atualizar(f);
             }
         } catch (Exception ex) { lastError = ex; }
     }
@@ -237,7 +237,7 @@ public class GerenciarFornecedoresFuncionalidade {
             ProdutoId pid = ensureProduto(produto);
             Fornecedor f = repo.buscarPorId(currentFornecedorId).orElseThrow();
             f.registrarCotacao(pid, 100.0, prazo);
-            repo.salvar(f);
+            fornecedorSrv.atualizar(f);
         } catch (Exception ex) { lastError = ex; }
     }
 
@@ -248,7 +248,7 @@ public class GerenciarFornecedoresFuncionalidade {
             ProdutoId pid = ensureProduto(produto);
             Fornecedor f = repo.buscarPorId(currentFornecedorId).orElseThrow();
             f.registrarCotacao(pid, preco, 10);
-            repo.salvar(f);
+            fornecedorSrv.atualizar(f);
         } catch (Exception ex) { lastError = ex; }
     }
 
@@ -267,7 +267,8 @@ public class GerenciarFornecedoresFuncionalidade {
         lastError = null;
         try {
             Fornecedor f = repo.buscarPorId(currentFornecedorId).orElseThrow();
-            repo.salvar(f);
+            // O lead time já foi recalibrado no @Dado, apenas atualizar via serviço
+            fornecedorSrv.atualizar(f);
         } catch (Exception ex) { lastError = ex; }
     }
 
@@ -277,7 +278,7 @@ public class GerenciarFornecedoresFuncionalidade {
         try {
             Fornecedor f = repo.buscarPorId(currentFornecedorId).orElseThrow();
             f.recalibrarLeadTime(java.util.Collections.emptyList());
-            repo.salvar(f);
+            fornecedorSrv.atualizar(f);
         } catch (Exception ex) { lastError = ex; }
     }
 
@@ -289,7 +290,6 @@ public class GerenciarFornecedoresFuncionalidade {
             if (fid != null) {
                 Fornecedor f = repo.buscarPorId(fid).orElseThrow();
                 fornecedorSrv.inativar(f);
-                repo.salvar(f);
                 currentFornecedorId = f.getId();
                 return;
             }

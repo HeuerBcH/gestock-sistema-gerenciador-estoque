@@ -7,9 +7,13 @@ import dev.gestock.sge.dominio.principal.estoque.Estoque;
 import dev.gestock.sge.dominio.principal.estoque.EstoqueRepositorio;
 import dev.gestock.sge.dominio.principal.produto.Produto;
 import dev.gestock.sge.dominio.principal.produto.ProdutoId;
+import dev.gestock.sge.dominio.principal.alerta.Alerta;
+import dev.gestock.sge.dominio.principal.alerta.AlertaRepositorio;
+import dev.gestock.sge.dominio.principal.alerta.AlertaServico;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static org.apache.commons.lang3.Validate.*;
@@ -31,14 +35,20 @@ public class PedidoServico {
 
     private final PedidoRepositorio pedidoRepositorio;
     private final EstoqueRepositorio estoqueRepositorio;
+    private final AlertaRepositorio alertaRepositorio;
 
     public PedidoServico(PedidoRepositorio pedidoRepositorio) {
-        this(pedidoRepositorio, null);
+        this(pedidoRepositorio, null, null);
     }
 
     public PedidoServico(PedidoRepositorio pedidoRepositorio, EstoqueRepositorio estoqueRepositorio) {
+        this(pedidoRepositorio, estoqueRepositorio, null);
+    }
+
+    public PedidoServico(PedidoRepositorio pedidoRepositorio, EstoqueRepositorio estoqueRepositorio, AlertaRepositorio alertaRepositorio) {
         this.pedidoRepositorio = pedidoRepositorio;
         this.estoqueRepositorio = estoqueRepositorio;
+        this.alertaRepositorio = alertaRepositorio;
     }
 
     /* Cria um pedido e define data prevista de entrega a partir da cotação */
@@ -81,8 +91,8 @@ public class PedidoServico {
         Pedido pedido = gerarPedido(clienteId, fornecedor, produto, quantidade);
         pedido.setEstoqueId(estoque.getId());
 
-        // Reserva quantidade no estoque
-        estoque.reservar(produto.getId(), quantidade);
+        // Reserva para pedido de compra: projeta aumento do estoque físico e reserva
+        estoque.reservarParaPedidoCompra(produto.getId(), quantidade);
         if (estoqueRepositorio != null) {
             estoqueRepositorio.salvar(estoque);
         }
@@ -112,11 +122,13 @@ public class PedidoServico {
      */
     public void confirmarRecebimento(Pedido pedido, Estoque estoque, String responsavel) {
         notNull(pedido, "Pedido é obrigatório");
-        notNull(estoque, "Estoque é obrigatório");
         notBlank(responsavel, "Responsável é obrigatório");
 
-        // Confirma recebimento no pedido
+        // Valida o status do pedido primeiro (deve ser ENVIADO)
         pedido.registrarRecebimento();
+        
+        // Após validar o status, valida o estoque
+        notNull(estoque, "Estoque é obrigatório");
 
         // R1H13: Gera movimentação de entrada para cada item do pedido
         for (ItemPedido item : pedido.getItens()) {
@@ -127,12 +139,41 @@ public class PedidoServico {
                 "Recebimento de pedido " + pedido.getId(),
                 java.util.Map.of("pedidoId", pedido.getId().toString())
             );
+            
+            // R1H17: Remove alertas automaticamente se estoque ficou acima do ROP
+            if (alertaRepositorio != null) {
+                removerAlertasSeNecessario(estoque, item.getProdutoId());
+            }
         }
 
         if (estoqueRepositorio != null) {
             estoqueRepositorio.salvar(estoque);
         }
         pedidoRepositorio.salvar(pedido);
+    }
+
+    /**
+     * Remove alertas ativos se o estoque físico do produto ficou acima do ROP (R1H17).
+     */
+    private void removerAlertasSeNecessario(Estoque estoque, ProdutoId produtoId) {
+        if (alertaRepositorio == null) return;
+        
+        // Verifica se o produto tem ROP definido
+        var rop = estoque.getROP(produtoId);
+        if (rop == null) return;
+        
+        // Verifica se o saldo físico está acima do ROP
+        int saldoFisico = estoque.getSaldoFisico(produtoId);
+        if (saldoFisico > rop.getValorROP()) {
+            // Busca alertas ativos para este produto neste estoque
+            List<Alerta> alertas = alertaRepositorio.listarPorProduto(produtoId);
+            for (Alerta alerta : alertas) {
+                if (alerta.isAtivo() && alerta.getEstoqueId().equals(estoque.getId())) {
+                    AlertaServico alertaServico = new AlertaServico(alertaRepositorio);
+                    alertaServico.desativarAlerta(alerta);
+                }
+            }
+        }
     }
 
     /* Atualiza automaticamente o lead time do fornecedor (R1H6) */
@@ -143,5 +184,34 @@ public class PedidoServico {
 
         var lista = java.util.Arrays.stream(diasEntrega).boxed().toList();
         fornecedor.recalibrarLeadTime(lista);
+    }
+
+    /**
+     * Cancela um pedido (H12).
+     * Valida:
+     * - R1H12: Cancelamento validado no agregado
+     */
+    public void cancelar(Pedido pedido) {
+        notNull(pedido, "Pedido é obrigatório");
+        pedido.cancelar();
+        pedidoRepositorio.salvar(pedido);
+    }
+
+    /**
+     * Envia um pedido ao fornecedor (transição CRIADO → ENVIADO).
+     */
+    public void enviar(Pedido pedido) {
+        notNull(pedido, "Pedido é obrigatório");
+        pedido.enviar();
+        pedidoRepositorio.salvar(pedido);
+    }
+
+    /**
+     * Conclui um pedido (apenas após RECEBIDO).
+     */
+    public void concluir(Pedido pedido) {
+        notNull(pedido, "Pedido é obrigatório");
+        pedido.concluir();
+        pedidoRepositorio.salvar(pedido);
     }
 }
