@@ -1,5 +1,8 @@
 package dev.gestock.sge.apresentacao.principal.estoque;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +23,23 @@ public class EstoqueControlador {
 
 	@Autowired
 	private BackendMapeador mapeador;
+
+	@GetMapping
+	public ResponseEntity<List<EstoqueResponse>> listar() {
+		var resumos = estoqueServicoAplicacao.pesquisarResumos();
+		var responses = resumos.stream()
+			.map(resumo -> new EstoqueResponse(
+				mapeador.map(resumo.getId(), Long.class),
+				mapeador.map(resumo.getClienteId(), Long.class),
+				resumo.getNome(),
+				resumo.getEndereco(),
+				resumo.getCapacidade(),
+				resumo.isAtivo()
+			))
+			.collect(Collectors.toList());
+		
+		return ResponseEntity.ok(responses);
+	}
 
 	@GetMapping("/{id}")
 	public ResponseEntity<EstoqueResponse> buscarPorId(@PathVariable Long id) {

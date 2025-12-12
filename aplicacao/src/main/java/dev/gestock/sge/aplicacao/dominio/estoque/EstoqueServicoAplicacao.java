@@ -2,6 +2,7 @@ package dev.gestock.sge.aplicacao.dominio.estoque;
 
 import static org.apache.commons.lang3.Validate.notNull;
 
+import java.util.List;
 import java.util.Optional;
 
 import dev.gestock.sge.dominio.principal.estoque.EstoqueId;
@@ -17,5 +18,9 @@ public class EstoqueServicoAplicacao {
 	public Optional<EstoqueResumo> buscarPorId(EstoqueId id) {
 		notNull(id, "ID do estoque é obrigatório");
 		return repositorio.buscarResumoPorId(id);
+	}
+	
+	public List<EstoqueResumo> pesquisarResumos() {
+		return repositorio.pesquisarResumos();
 	}
 }

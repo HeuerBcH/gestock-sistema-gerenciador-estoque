@@ -1,5 +1,6 @@
 package dev.gestock.sge.infraestrutura.persistencia.jpa;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,7 +39,7 @@ class ProdutoJpa {
 	String unidadePeso;
 
 	@Column(nullable = false, precision = 10, scale = 3)
-	Double peso;
+	BigDecimal peso;
 
 	@Column(nullable = false)
 	Boolean perecivel;
