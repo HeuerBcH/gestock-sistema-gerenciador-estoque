@@ -1,7 +1,5 @@
 package dev.gestock.sge.infraestrutura.persistencia.jpa;
 
-import static jakarta.persistence.GenerationType.IDENTITY;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -19,6 +17,7 @@ import dev.gestock.sge.dominio.principal.produto.ProdutoRepositorio;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
+import static jakarta.persistence.GenerationType.IDENTITY;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 

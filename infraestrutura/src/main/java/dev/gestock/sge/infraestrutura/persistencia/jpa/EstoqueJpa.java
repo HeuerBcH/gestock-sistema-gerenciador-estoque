@@ -103,9 +103,8 @@ class EstoqueRepositorioImpl implements EstoqueRepositorio, EstoqueRepositorioAp
 	}
 
 	@Override
-	public List<EstoqueResumo> pesquisarResumos() {
-		return repositorio.findAll().stream()
-				.map(e -> mapeador.map(e, EstoqueResumo.class))
-				.toList();
+	public Optional<EstoqueResumo> buscarResumoPorId(EstoqueId id) {
+		return repositorio.findById(id.getId())
+				.map(e -> mapeador.map(e, EstoqueResumo.class));
 	}
 }

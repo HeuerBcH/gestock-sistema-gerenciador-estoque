@@ -1,64 +1,64 @@
-//package dev.gestock.sge.apresentacao.acervo.livro;
-//
-//import static org.springframework.web.bind.annotation.RequestMethod.GET;
-//import static org.springframework.web.bind.annotation.RequestMethod.POST;
-//
-//import java.util.List;
-//
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.web.bind.annotation.PathVariable;
-//import org.springframework.web.bind.annotation.RequestBody;
-//import org.springframework.web.bind.annotation.RequestMapping;
-//import org.springframework.web.bind.annotation.RequestParam;
-//import org.springframework.web.bind.annotation.RestController;
-//
-//import dev.gestock.sge.aplicacao.acervo.autor.AutorServicoAplicacao;
-//import dev.gestock.sge.aplicacao.acervo.livro.LivroServicoAplicacao;
-//import dev.gestock.sge.apresentacao.BackendMapeador;
-//import dev.gestock.sge.apresentacao.acervo.livro.LivroFormulario.LivroDto;
-//import dev.gestock.sge.dominio.principal.estoque.EstoqueId;
-//import dev.gestock.sge.dominio.principal.livro.Isbn;
-//import dev.gestock.sge.dominio.principal.livro.Livro;
-//import dev.gestock.sge.dominio.principal.livro.LivroServico;
-//import dev.gestock.sge.dominio.administracao.socio.SocioId;
-//
-//@RestController
-//@RequestMapping("backend/livro")
-//class LivroControlador {
-//	private @Autowired AutorServicoAplicacao autorServicoConsulta;
-//	private @Autowired EstoqueId emprestimoServico;
-//	private @Autowired LivroServico livroServico;
-//	private @Autowired LivroServicoAplicacao livroServicoConsulta;
-//
-//	private @Autowired BackendMapeador mapeador;
-//
-//	@RequestMapping(method = GET, path = "pesquisa")
-//	List<? extends Object> pesquisar(@RequestParam(required = false, defaultValue = "false") boolean expandir) {
-//		if (expandir) {
-//			return livroServicoConsulta.pesquisarResumosExpandidos();
-//		} else {
-//			return livroServicoConsulta.pesquisarResumos();
-//		}
-//	}
-//
-//	@RequestMapping(method = GET, path = "criacao")
-//	LivroFormulario criacao() {
-//		var livro = new LivroDto();
-//		var autores = autorServicoConsulta.pesquisarResumos();
-//		return new LivroFormulario(livro, autores);
-//	}
-//
-//	@RequestMapping(method = POST, path = "salvar")
-//	void salvar(@RequestBody LivroDto dto) {
-//		dto.id = null;
-//		var livro = mapeador.map(dto, Livro.class);
-//		livroServico.salvar(livro);
-//	}
-//
-//	@RequestMapping(method = POST, path = "{id}/realizar-emprestimo")
-//	void realizarEmprestimo(@PathVariable("id") String id, @RequestBody int socio) {
-//		var livroId = mapeador.map(id, Isbn.class);
-//		var socioId = mapeador.map(socio, SocioId.class);
-//		emprestimoServico.realizarEmprestimo(livroId, socioId);
-//	}
-//}
+package dev.gestock.sge.apresentacao.principal.estoque;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import dev.gestock.sge.aplicacao.dominio.estoque.EstoqueServicoAplicacao;
+import dev.gestock.sge.apresentacao.BackendMapeador;
+import dev.gestock.sge.dominio.principal.estoque.EstoqueId;
+
+@RestController
+@RequestMapping("/api/estoques")
+public class EstoqueControlador {
+
+	@Autowired
+	private EstoqueServicoAplicacao estoqueServicoAplicacao;
+
+	@Autowired
+	private BackendMapeador mapeador;
+
+	@GetMapping("/{id}")
+	public ResponseEntity<EstoqueResponse> buscarPorId(@PathVariable Long id) {
+		var estoqueId = mapeador.map(id, EstoqueId.class);
+		var estoqueOpt = estoqueServicoAplicacao.buscarPorId(estoqueId);
+		
+		if (estoqueOpt.isEmpty()) {
+			return ResponseEntity.notFound().build();
+		}
+		
+		var resumo = estoqueOpt.get();
+		var response = new EstoqueResponse(
+			mapeador.map(resumo.getId(), Long.class),
+			mapeador.map(resumo.getClienteId(), Long.class),
+			resumo.getNome(),
+			resumo.getEndereco(),
+			resumo.getCapacidade(),
+			resumo.isAtivo()
+		);
+		
+		return ResponseEntity.ok(response);
+	}
+
+	// DTO de resposta
+	public static class EstoqueResponse {
+		public Long id;
+		public Long clienteId;
+		public String nome;
+		public String endereco;
+		public int capacidade;
+		public boolean ativo;
+
+		public EstoqueResponse(Long id, Long clienteId, String nome, String endereco, int capacidade, boolean ativo) {
+			this.id = id;
+			this.clienteId = clienteId;
+			this.nome = nome;
+			this.endereco = endereco;
+			this.capacidade = capacidade;
+			this.ativo = ativo;
+		}
+	}
+}
