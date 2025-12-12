@@ -3,6 +3,9 @@
 -- Sistema de Gestão de Estoques
 -- ============================================
 
+CREATE SCHEMA IF NOT EXISTS gestock;
+SET search_path TO gestock;
+
 -- Tabela: CLIENTE
 -- Representa o dono dos estoques (Aggregate Root)
 -- Regras: R1H1 - Cada estoque pertence a um único cliente

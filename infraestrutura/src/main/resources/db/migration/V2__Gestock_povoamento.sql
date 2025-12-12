@@ -4,6 +4,8 @@
 -- Dados de exemplo para desenvolvimento e testes
 -- ============================================
 
+SET search_path TO gestock;
+
 -- ============================================
 -- CLIENTES
 -- ============================================
