@@ -1,7 +1,5 @@
 package dev.gestock.sge.infraestrutura.persistencia.jpa;
 
-import static jakarta.persistence.GenerationType.IDENTITY;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +18,7 @@ import dev.gestock.sge.dominio.principal.estoque.EstoqueRepositorio;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
+import static jakarta.persistence.GenerationType.IDENTITY;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -62,7 +61,7 @@ interface EstoqueJpaRepository extends JpaRepository<EstoqueJpa, Long> {
 	boolean existsByClienteIdAndNome(Long clienteId, String nome);
 
 	@Query("SELECT e FROM EstoqueJpa e WHERE e.cliente.id = :clienteId ORDER BY e.nome")
-	List<EstoqueResumo> findEstoqueResumoByClienteIdOrderByNome(Long clienteId);
+	List<EstoqueJpa> findEstoqueJpaByClienteIdOrderByNome(Long clienteId);
 }
 
 @Repository
@@ -105,6 +104,49 @@ class EstoqueRepositorioImpl implements EstoqueRepositorio, EstoqueRepositorioAp
 	@Override
 	public Optional<EstoqueResumo> buscarResumoPorId(EstoqueId id) {
 		return repositorio.findById(id.getId())
-				.map(e -> mapeador.map(e, EstoqueResumo.class));
+				.map(e -> criarEstoqueResumo(e));
+	}
+
+	@Override
+	public List<EstoqueResumo> pesquisarResumos() {
+		var estoques = repositorio.findAll();
+		return estoques.stream()
+				.map(this::criarEstoqueResumo)
+				.sorted((a, b) -> a.getNome().compareToIgnoreCase(b.getNome()))
+				.toList();
+	}
+	
+	private EstoqueResumo criarEstoqueResumo(EstoqueJpa e) {
+		return new EstoqueResumo() {
+			@Override
+			public EstoqueId getId() {
+				return mapeador.map(e.id, EstoqueId.class);
+			}
+
+			@Override
+			public ClienteId getClienteId() {
+				return mapeador.map(e.cliente.id, ClienteId.class);
+			}
+
+			@Override
+			public String getNome() {
+				return e.nome;
+			}
+
+			@Override
+			public String getEndereco() {
+				return e.endereco;
+			}
+
+			@Override
+			public int getCapacidade() {
+				return e.capacidade;
+			}
+
+			@Override
+			public boolean isAtivo() {
+				return e.ativo;
+			}
+		};
 	}
 }

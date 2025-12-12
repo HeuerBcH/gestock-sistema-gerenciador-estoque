@@ -1,6 +1,7 @@
 package dev.gestock.sge.infraestrutura.persistencia.jpa;
 
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 
 import org.modelmapper.AbstractConverter;
 import org.modelmapper.ModelMapper;
@@ -199,7 +200,7 @@ class JpaMapeador extends ModelMapper {
 			protected Produto convert(ProdutoJpa source) {
 				var id = map(source.id, ProdutoId.class);
 				return new Produto(id, source.codigo, source.nome, source.unidadePeso, source.perecivel,
-						source.peso);
+						source.peso != null ? source.peso.doubleValue() : 0.0);
 			}
 		});
 
@@ -327,7 +328,7 @@ class JpaMapeador extends ModelMapper {
 				produtoJpa.codigo = source.getCodigo();
 				produtoJpa.nome = source.getNome();
 				produtoJpa.unidadePeso = source.getUnidadePeso();
-				produtoJpa.peso = source.getPeso();
+				produtoJpa.peso = BigDecimal.valueOf(source.getPeso());
 				produtoJpa.perecivel = source.isPerecivel();
 				produtoJpa.ativo = source.isAtivo();
 				return produtoJpa;
