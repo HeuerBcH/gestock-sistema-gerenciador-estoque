@@ -19,7 +19,8 @@ public class RegistrarMovimentacaoFuncionalidade {
 
     // Construtor público sem argumentos exigido pelo Cucumber
     public RegistrarMovimentacaoFuncionalidade() {
-        estoqueServico = new EstoqueServico(repositorio);
+        AtualizacaoEstoqueTemplate template = new AtualizacaoEstoquePadrao(repositorio);
+        estoqueServico = new EstoqueServico(repositorio, null, template);
     }
 
     private Estoque estoque;

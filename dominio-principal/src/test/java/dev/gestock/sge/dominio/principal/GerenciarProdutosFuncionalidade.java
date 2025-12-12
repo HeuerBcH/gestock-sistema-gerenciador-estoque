@@ -42,7 +42,8 @@ public class GerenciarProdutosFuncionalidade {
     public void reset() {
         repo = new Repositorio();
         produtoSrv = new ProdutoServico(repo, repo, repo);
-        estoqueServico = new EstoqueServico(repo);
+        AtualizacaoEstoqueTemplate template = new AtualizacaoEstoquePadrao(repo);
+        estoqueServico = new EstoqueServico(repo, null, template);
         fornecedorServico = new FornecedorServico(repo, repo);
         seq = new AtomicLong(1);
         aliasProduto = new HashMap<>();

@@ -16,6 +16,8 @@ import dev.gestock.sge.dominio.principal.estoque.EstoqueId;
 import dev.gestock.sge.dominio.principal.estoque.EstoqueServico;
 import dev.gestock.sge.dominio.principal.estoque.Movimentacao;
 import dev.gestock.sge.dominio.principal.estoque.TipoMovimentacao;
+import dev.gestock.sge.dominio.principal.estoque.AtualizacaoEstoqueTemplate;
+import dev.gestock.sge.dominio.principal.estoque.AtualizacaoEstoquePadrao;
 import dev.gestock.sge.dominio.principal.fornecedor.Fornecedor;
 import dev.gestock.sge.dominio.principal.fornecedor.FornecedorId;
 import dev.gestock.sge.dominio.principal.pedido.ItemPedido;
@@ -220,7 +222,8 @@ public class ReservarEstoqueFuncionalidade {
         try {
             Estoque estoque = repo.buscarPorId(currentEstoqueId).orElseThrow();
             estoque.registrarSaida(currentProdutoId, quantidade, "Sistema", "Tentativa de saída");
-            EstoqueServico estoqueServico = new EstoqueServico(repo);
+            AtualizacaoEstoqueTemplate template = new AtualizacaoEstoquePadrao(repo);
+            EstoqueServico estoqueServico = new EstoqueServico(repo, null, template);
             estoqueServico.atualizar(estoque);
         } catch (Exception ex) {
             lastError = ex;
@@ -248,7 +251,8 @@ public class ReservarEstoqueFuncionalidade {
                         int quantidadeReservada = estoque.getSaldoReservado(currentProdutoId);
                         if (quantidadeReservada > 0) {
                             estoque.liberarReserva(currentProdutoId, quantidadeReservada);
-                            EstoqueServico estoqueServico = new EstoqueServico(repo);
+                            AtualizacaoEstoqueTemplate template = new AtualizacaoEstoquePadrao(repo);
+                            EstoqueServico estoqueServico = new EstoqueServico(repo, null, template);
                             estoqueServico.atualizar(estoque);
                         }
                     }

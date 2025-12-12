@@ -56,9 +56,12 @@ public class EmitirAlertasEstoqueBaixoFuncionalidade {
         seq = new AtomicInteger(1);
         repo = new Repositorio();
         repo.limparTodos();
-        alertaServico = new AlertaServico(repo);
+        alertaServico = new AlertaServico(repo, repo);
         fornecedorServico = new FornecedorServico(repo);
-        estoqueServico = new EstoqueServico(repo, null, repo);
+        // Criar template e registrar observer
+        AtualizacaoEstoqueTemplate template = new AtualizacaoEstoquePadrao(repo, null);
+        template.registrarObserver(alertaServico);
+        estoqueServico = new EstoqueServico(repo, null, template);
         melhorFornecedorSelecionado = null;
     }
 

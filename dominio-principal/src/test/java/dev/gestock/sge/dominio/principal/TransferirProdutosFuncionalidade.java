@@ -35,7 +35,8 @@ public class TransferirProdutosFuncionalidade {
     @Before
     public void reset() {
         repo = new Repositorio();
-        estoqueSrv = new EstoqueServico(repo, repo);
+        AtualizacaoEstoqueTemplate template = new AtualizacaoEstoquePadrao(repo, repo);
+        estoqueSrv = new EstoqueServico(repo, repo, template);
         seq = new AtomicLong(1);
         aliasEstoque = new HashMap<>();
         aliasProduto = new HashMap<>();

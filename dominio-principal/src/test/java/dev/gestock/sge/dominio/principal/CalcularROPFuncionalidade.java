@@ -10,6 +10,8 @@ import io.cucumber.java.pt.*;
 
 import dev.gestock.sge.dominio.principal.produto.*;
 import dev.gestock.sge.dominio.principal.estoque.EstoqueServico;
+import dev.gestock.sge.dominio.principal.estoque.AtualizacaoEstoqueTemplate;
+import dev.gestock.sge.dominio.principal.estoque.AtualizacaoEstoquePadrao;
 import dev.gestock.sge.infraestrutura.persistencia.memoria.Repositorio;
 
 public class CalcularROPFuncionalidade {
@@ -47,7 +49,8 @@ public class CalcularROPFuncionalidade {
 
         repo = new Repositorio();
         repo.limparTodos();
-        estoqueServico = new EstoqueServico(repo);
+        AtualizacaoEstoqueTemplate template = new AtualizacaoEstoquePadrao(repo);
+        estoqueServico = new EstoqueServico(repo, null, template);
     }
 
     // ===== GIVENS =====

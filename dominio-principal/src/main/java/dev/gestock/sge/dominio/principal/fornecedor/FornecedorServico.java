@@ -15,19 +15,41 @@ import static org.apache.commons.lang3.Validate.*;
  * - H5-H7: Gerenciar Fornecedores (cadastrar, atualizar, inativar)
  * - H18-H19: Selecionar Cotação Mais Vantajosa
  * - Validações de regras de negócio R1H5, R2H5, R1H6, R1H7, R1H18, R2H18
+ * 
+ * Padrão Strategy:
+ * - Usa SelecaoCotacaoStrategy para selecionar melhor cotação
+ * - Orquestra a seleção, mas não implementa o algoritmo
  */
 public class FornecedorServico {
 
     private final FornecedorRepositorio fornecedorRepositorio;
     private final PedidoRepositorio pedidoRepositorio;
+    private final SelecaoCotacaoStrategy selecaoCotacaoStrategy;
 
+    /**
+     * Construtor que cria a strategy padrão (SelecaoCotacaoMenorPreco) automaticamente.
+     */
     public FornecedorServico(FornecedorRepositorio fornecedorRepositorio) {
-        this(fornecedorRepositorio, null);
+        this(fornecedorRepositorio, null, new SelecaoCotacaoMenorPreco());
     }
 
+    /**
+     * Construtor que cria a strategy padrão (SelecaoCotacaoMenorPreco) automaticamente.
+     */
     public FornecedorServico(FornecedorRepositorio fornecedorRepositorio, PedidoRepositorio pedidoRepositorio) {
+        this(fornecedorRepositorio, pedidoRepositorio, new SelecaoCotacaoMenorPreco());
+    }
+
+    /**
+     * Construtor principal que recebe a strategy explicitamente.
+     * A strategy é obrigatória para seguir o padrão Strategy corretamente.
+     */
+    public FornecedorServico(FornecedorRepositorio fornecedorRepositorio, PedidoRepositorio pedidoRepositorio, SelecaoCotacaoStrategy selecaoCotacaoStrategy) {
+        notNull(fornecedorRepositorio, "FornecedorRepositorio é obrigatório");
+        notNull(selecaoCotacaoStrategy, "SelecaoCotacaoStrategy é obrigatória");
         this.fornecedorRepositorio = fornecedorRepositorio;
         this.pedidoRepositorio = pedidoRepositorio;
+        this.selecaoCotacaoStrategy = selecaoCotacaoStrategy;
     }
 
     /**
@@ -86,17 +108,12 @@ public class FornecedorServico {
      * Valida:
      * - R1H18: Apenas cotações com validade ativa e fornecedor ativo
      * - R2H18: Desempate por menor lead time
+     * 
+     * Delega a seleção para a Strategy configurada.
+     * A strategy é sempre obrigatória (padrão Strategy).
      */
     public Optional<Cotacao> selecionarMelhorCotacao(List<Fornecedor> fornecedores, ProdutoId produtoId) {
-        return fornecedores.stream()
-                .filter(Fornecedor::isAtivo) // R1H18: fornecedor ativo
-                .map(f -> f.obterCotacaoPorProduto(produtoId))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .filter(Cotacao::isValidadeAtiva) // R1H18: validade ativa
-                .min((c1, c2) -> {
-                    int cmp = Double.compare(c1.getPreco(), c2.getPreco());
-                    return (cmp != 0) ? cmp : Integer.compare(c1.getPrazoDias(), c2.getPrazoDias()); // R2H18: menor lead time
-                });
+        // Sempre delega para a strategy - sem fallback inline
+        return selecaoCotacaoStrategy.selecionar(fornecedores, produtoId);
     }
 }
