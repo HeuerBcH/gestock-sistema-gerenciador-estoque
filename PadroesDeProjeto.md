@@ -1077,6 +1077,220 @@ O padrão Strategy foi implementado com sucesso no Gestock para encapsular algor
 
 ---
 
+## 5. Padrão Proxy
+
+### Contexto no Domínio
+
+O padrão Proxy foi aplicado para adicionar **cache** aos repositórios de domínio, melhorando a performance do sistema ao evitar consultas repetidas ao banco de dados. No contexto do Gestock, estoques, produtos e fornecedores são entidades frequentemente consultadas durante operações de gestão, e o cache reduz significativamente o tempo de resposta e a carga no banco de dados.
+
+### Por que este padrão faz sentido no domínio?
+
+- **Performance**: Consultas por ID são muito frequentes e podem se beneficiar de cache em memória
+- **Redução de carga no banco**: Evita múltiplas consultas ao banco para os mesmos dados
+- **Separação de responsabilidades**: A lógica de cache não deve misturar-se com lógica de persistência
+- **Transparência**: Os serviços de domínio recebem um repositório e não precisam saber se é um proxy ou não
+- **Extensibilidade**: O cache pode ser facilmente desabilitado ou substituído por implementações mais sofisticadas (Redis, Caffeine, etc.)
+- **Open/Closed Principle**: Os repositórios originais permanecem fechados para modificação, mas abertos para extensão
+
+### Classes Criadas
+
+#### 5.1. EstoqueRepositorioProxy
+
+- **Localização**: `dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/estoque/EstoqueRepositorioProxy.java`
+- **Responsabilidade**: Controla acesso ao `EstoqueRepositorio` real através de cache em memória
+- **Implementa**: Interface `EstoqueRepositorio` (mantém o mesmo contrato)
+- **Padrão**: Proxy clássico - controla acesso ao objeto real sem alterar sua interface
+- **Cache Strategy**:
+  - Cache por ID: Armazena resultados de `buscarPorId()` em `ConcurrentHashMap`
+  - Invalidação automática: Cache é atualizado quando `salvar()` é chamado
+  - Thread-safe: Usa `ConcurrentHashMap` para acesso concorrente seguro
+
+#### 5.2. ProdutoRepositorioProxy
+
+- **Localização**: `dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/produto/ProdutoRepositorioProxy.java`
+- **Responsabilidade**: Controla acesso ao `ProdutoRepositorio` real através de cache em memória
+- **Cache Strategy**:
+  - Cache por ID: Armazena resultados de `buscarPorId()`
+  - Cache por Código: Armazena mapeamento `CodigoProduto → ProdutoId` para otimizar `buscarPorCodigo()`
+  - Sincronização: Ambos os caches são mantidos sincronizados
+  - Invalidação: Cache é atualizado quando `salvar()` ou `inativar()` são chamados
+
+#### 5.3. FornecedorRepositorioProxy
+
+- **Localização**: `dominio-principal/src/main/java/dev/gestock/sge/dominio/principal/fornecedor/FornecedorRepositorioProxy.java`
+- **Responsabilidade**: Controla acesso ao `FornecedorRepositorio` real através de cache em memória
+- **Cache Strategy**:
+  - Cache por ID: Armazena resultados de `buscarPorId()`
+  - Cache por CNPJ: Armazena mapeamento `CNPJ → FornecedorId` para otimizar `buscarPorCnpj()`
+  - Sincronização: Ambos os caches são mantidos sincronizados
+  - Invalidação: Cache é atualizado quando `salvar()` é chamado
+
+### Como Foi Aplicado
+
+O proxy intercepta as seguintes operações em cada repositório:
+
+**EstoqueRepositorioProxy:**
+- `buscarPorId(EstoqueId id)`: 
+  - Verifica cache primeiro (cache hit)
+  - Se não encontrado, busca no repositório real e armazena no cache (cache miss)
+- `salvar(Estoque estoque)`: 
+  - Salva no repositório real
+  - Atualiza o cache com a versão mais recente
+- `buscarEstoquesPorClienteId(ClienteId clienteId)`: 
+  - Delega diretamente (listas não são cacheadas por complexidade e uso de memória)
+- `existePorEndereco()` e `existePorNome()`: 
+  - Delega diretamente (operações rápidas que não se beneficiam de cache)
+
+**ProdutoRepositorioProxy:**
+- `buscarPorId(ProdutoId id)`: Cache por ID
+- `buscarPorCodigo(CodigoProduto codigo)`: Cache por código com mapeamento para ID
+- `salvar(Produto produto)`: Atualiza ambos os caches
+- `inativar(Produto produto)`: Atualiza ambos os caches com versão inativada
+- `codigoExiste(CodigoProduto codigo)`: Usa cache através de `buscarPorCodigo()`
+
+**FornecedorRepositorioProxy:**
+- `buscarPorId(FornecedorId id)`: Cache por ID
+- `buscarPorCnpj(String cnpj)`: Cache por CNPJ com mapeamento para ID
+- `salvar(Fornecedor fornecedor)`: Atualiza ambos os caches
+
+### Métodos de Controle de Cache
+
+Todos os proxies implementam métodos utilitários para controle manual do cache:
+
+```java
+// Limpa todo o cache
+proxy.limparCache();
+
+// Invalida cache de um item específico
+proxy.invalidarCache(estoqueId);
+```
+
+### Configuração no Spring Boot
+
+Quando o `AplicacaoBackend.java` estiver ativo, o proxy pode ser configurado como bean, envolvendo o repositório JPA:
+
+```java
+@Bean
+public EstoqueRepositorio estoqueRepositorio(EstoqueRepositorioImpl repositorio) {
+    // Opção 1: Apenas Proxy (cache)
+    return new EstoqueRepositorioProxy(repositorio);
+    
+    // Opção 2: Proxy + Decorator (cache + auditoria)
+    // var proxy = new EstoqueRepositorioProxy(repositorio);
+    // var auditoria = new EstoqueAuditoriaConsole();
+    // return new EstoqueRepositorioDecorator(proxy, auditoria);
+}
+
+@Bean
+public ProdutoRepositorio produtoRepositorio(ProdutoRepositorioImpl repositorio) {
+    return new ProdutoRepositorioProxy(repositorio);
+}
+
+@Bean
+public FornecedorRepositorio fornecedorRepositorio(FornecedorRepositorioImpl repositorio) {
+    return new FornecedorRepositorioProxy(repositorio);
+}
+```
+
+### Benefícios Específicos no Domínio Gestock
+
+- **Performance**: Reduz drasticamente o tempo de resposta para consultas frequentes por ID
+- **Redução de carga**: Diminui o número de consultas ao banco de dados, especialmente em operações que consultam o mesmo estoque/produto/fornecedor múltiplas vezes
+- **Transparência**: Os serviços de domínio não precisam saber se estão usando cache ou não
+- **Testabilidade**: O cache pode ser facilmente desabilitado ou limpo durante testes
+- **Extensibilidade**: Pode ser substituído por implementações mais sofisticadas (Redis, Caffeine, etc.) sem modificar o código que usa o repositório
+- **Thread-safe**: Usa `ConcurrentHashMap` para garantir segurança em ambientes concorrentes
+
+### Diferenças entre Proxy e Decorator
+
+| Aspecto | Proxy | Decorator |
+|---------|-------|-----------|
+| **Propósito** | Controla acesso ao objeto real | Adiciona funcionalidade ao objeto |
+| **Foco** | Cache, lazy loading, segurança | Auditoria, logging, validação |
+| **Exemplo no Gestock** | Cache de consultas | Registro de auditoria |
+| **Quando usar** | Quando precisa controlar **quando/como** acessar o objeto | Quando precisa adicionar **comportamento** ao objeto |
+
+### Empilhamento de Padrões
+
+O Proxy pode ser empilhado com o Decorator, criando uma cadeia de responsabilidades:
+
+```
+[EstoqueServico]
+    ↓ usa
+[EstoqueRepositorioDecorator] ← Decorator (adiciona auditoria)
+    ↓ envolve
+[EstoqueRepositorioProxy] ← Proxy (adiciona cache)
+    ↓ envolve
+[EstoqueRepositorioImpl] ← Implementação real (JPA)
+```
+
+**Fluxo completo: Buscar Estoque por ID**
+```
+[EstoqueServico]
+    ↓ chama buscarPorId(id)
+[EstoqueRepositorioDecorator] ← Decorator
+    ↓ registra auditoria
+[EstoqueRepositorioProxy] ← Proxy
+    ↓ verifica cache
+    ├─ Cache hit: retorna do cache
+    └─ Cache miss: busca no repositório real
+[EstoqueRepositorioImpl] ← JPA
+    ↓ consulta banco
+    ↓ retorna Estoque
+[EstoqueRepositorioProxy]
+    ↓ armazena no cache
+[EstoqueRepositorioDecorator]
+    ↓ retorna resultado
+[EstoqueServico]
+✓ Estoque retornado
+```
+
+### Extensibilidade Futura
+
+O cache atual é simples (em memória), mas pode ser facilmente substituído por implementações mais sofisticadas:
+
+1. **Cache distribuído (Redis)**:
+   ```java
+   public class EstoqueRepositorioProxyRedis implements EstoqueRepositorio {
+       private final RedisTemplate<String, Estoque> redis;
+       // ...
+   }
+   ```
+
+2. **Cache com TTL (Caffeine)**:
+   ```java
+   public class EstoqueRepositorioProxyCaffeine implements EstoqueRepositorio {
+       private final Cache<EstoqueId, Estoque> cache = Caffeine.newBuilder()
+           .expireAfterWrite(10, TimeUnit.MINUTES)
+           .build();
+       // ...
+   }
+   ```
+
+3. **Cache com invalidação por eventos**:
+   ```java
+   public class EstoqueRepositorioProxyEventDriven implements EstoqueRepositorio {
+       @EventListener
+       public void onEstoqueModificado(EstoqueModificadoEvent event) {
+           invalidarCache(event.getEstoqueId());
+       }
+   }
+   ```
+
+### Conformidade com Princípios SOLID
+
+- **S (Single Responsibility)**: O Proxy tem UMA responsabilidade: gerenciar cache
+- **O (Open/Closed)**: Aberto para extensão (novas estratégias de cache), fechado para modificação
+- **L (Liskov Substitution)**: O Proxy pode ser substituído pelo repositório real sem quebrar o código
+- **I (Interface Segregation)**: Implementa a mesma interface do repositório, sem adicionar métodos desnecessários
+- **D (Dependency Inversion)**: Depende da abstração (`EstoqueRepositorio`), não da implementação concreta
+
+### Conclusão
+
+O padrão Proxy foi implementado com sucesso no Gestock para adicionar cache aos repositórios de domínio. A implementação segue os princípios SOLID e permite melhorar significativamente a performance do sistema sem modificar o código existente. O padrão é facilmente extensível e pode ser aplicado a outros repositórios conforme necessário.
+
+---
+
 ## Próximos Padrões
 
 Este documento será atualizado conforme novos padrões de projeto forem implementados no sistema Gestock.
