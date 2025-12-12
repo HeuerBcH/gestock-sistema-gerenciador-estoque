@@ -30,5 +30,11 @@ public interface EstoqueAuditoria {
      * @param clienteId O ID do cliente usado na busca
      */
     void registrarBuscaPorCliente(ClienteId clienteId);
+    
+    /**
+     * Registra a operação de remover um estoque.
+     * @param id O ID do estoque que foi removido
+     */
+    void registrarRemocao(EstoqueId id);
 }
 

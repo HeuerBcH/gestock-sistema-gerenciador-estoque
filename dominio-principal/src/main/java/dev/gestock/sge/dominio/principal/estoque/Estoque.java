@@ -1,13 +1,18 @@
 package dev.gestock.sge.dominio.principal.estoque;
 
-import static org.apache.commons.lang3.Validate.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.apache.commons.lang3.Validate.isTrue;
+import static org.apache.commons.lang3.Validate.notBlank;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import dev.gestock.sge.dominio.principal.cliente.ClienteId;
 import dev.gestock.sge.dominio.principal.produto.ProdutoId;
 import dev.gestock.sge.dominio.principal.produto.ROP;
-
-import java.time.LocalDateTime;
-import java.util.*;
 
 /**
  * Aggregate Root: Estoque
@@ -99,6 +104,12 @@ public class Estoque {
     public void renomear(String novoNome) {
         notBlank(novoNome, "Nome do estoque é obrigatório");
         this.nome = novoNome;
+    }
+
+    /** Altera o endereço do estoque */
+    public void alterarEndereco(String novoEndereco) {
+        notBlank(novoEndereco, "Endereço do estoque é obrigatório");
+        this.endereco = novoEndereco;
     }
 
     /** Inativa o estoque (H2, R1H2, R2H2) */

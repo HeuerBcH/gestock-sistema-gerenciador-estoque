@@ -1,39 +1,30 @@
 package dev.gestock.sge.dominio.principal.estoque;
 
-import static org.apache.commons.lang3.Validate.*;
-
 import java.util.List;
 import java.util.Map;
+
+import static org.apache.commons.lang3.Validate.isTrue;
+import static org.apache.commons.lang3.Validate.notBlank;
+import static org.apache.commons.lang3.Validate.notNull;
 
 import dev.gestock.sge.dominio.principal.cliente.ClienteId;
 import dev.gestock.sge.dominio.principal.pedido.PedidoRepositorio;
 import dev.gestock.sge.dominio.principal.produto.ProdutoId;
 
-// Serviço de domínio para operações de gerenciamento de estoques.
 public class EstoqueServico {
 
     private final EstoqueRepositorio estoqueRepositorio;
     private final PedidoRepositorio pedidoRepositorio;
     private final AtualizacaoEstoqueTemplate atualizacaoTemplate;
 
-    /**
-     * Construtor que cria o template padrão (AtualizacaoEstoquePadrao) automaticamente.
-     */
     public EstoqueServico(EstoqueRepositorio estoqueRepositorio) {
         this(estoqueRepositorio, null, new AtualizacaoEstoquePadrao(estoqueRepositorio));
     }
 
-    /**
-     * Construtor que cria o template padrão (AtualizacaoEstoquePadrao) automaticamente.
-     */
     public EstoqueServico(EstoqueRepositorio estoqueRepositorio, PedidoRepositorio pedidoRepositorio) {
         this(estoqueRepositorio, pedidoRepositorio, new AtualizacaoEstoquePadrao(estoqueRepositorio, pedidoRepositorio));
     }
 
-    /**
-     * Construtor principal que recebe o template explicitamente.
-     * O template é obrigatório para seguir o padrão Template Method corretamente.
-     */
     public EstoqueServico(EstoqueRepositorio estoqueRepositorio, PedidoRepositorio pedidoRepositorio, AtualizacaoEstoqueTemplate atualizacaoTemplate) {
         notNull(estoqueRepositorio, "EstoqueRepositorio é obrigatório");
         notNull(atualizacaoTemplate, "AtualizacaoEstoqueTemplate é obrigatório");
@@ -42,16 +33,13 @@ public class EstoqueServico {
         this.atualizacaoTemplate = atualizacaoTemplate;
     }
 
-    // Cadastra um novo estoque (H1).
     public void cadastrar(Estoque estoque) {
         notNull(estoque, "Estoque é obrigatório");
         
-        // R2H1: Validar endereço único
         if (estoqueRepositorio.existePorEndereco(estoque.getEndereco(), estoque.getClienteId())) {
             throw new IllegalArgumentException("Já existe um estoque cadastrado neste endereço (R2H1)");
         }
         
-        // R3H1: Validar nome único
         if (estoqueRepositorio.existePorNome(estoque.getNome(), estoque.getClienteId())) {
             throw new IllegalArgumentException("Já existe um estoque com este nome (R3H1)");
         }
@@ -59,7 +47,6 @@ public class EstoqueServico {
         estoqueRepositorio.salvar(estoque);
     }
 
-    // Inativa um estoque (H2).
     public void inativar(Estoque estoque) {
         notNull(estoque, "Estoque é obrigatório");
  
@@ -71,21 +58,66 @@ public class EstoqueServico {
         estoqueRepositorio.salvar(estoque);
     }
 
-    // Atualiza parâmetros de um estoque (H3).
-    // R1H17: Remove alertas automaticamente se estoque físico ficou acima do ROP
-    // Delega para o Template Method que garante fluxo fixo e notificação de observers
+    public void remover(EstoqueId estoqueId) {
+        notNull(estoqueId, "ID do estoque é obrigatório");
+        
+        var estoqueOpt = estoqueRepositorio.buscarPorId(estoqueId);
+        if (estoqueOpt.isEmpty()) {
+            throw new IllegalArgumentException("Estoque não encontrado: " + estoqueId);
+        }
+        
+        // TODO: Adicionar validação de pedidos pendentes (R2H2)
+        // var estoque = estoqueOpt.get();
+        // if (pedidoRepositorio != null && pedidoRepositorio.existePedidoPendentePorEstoqueId(estoqueId)) {
+        //     throw new IllegalStateException("Estoque com pedido em andamento não pode ser removido (R2H2)");
+        // }
+        
+        // TODO: Adicionar validação de produtos em estoque (R1H2)
+        // if (estoque.getSaldosSnapshot().values().stream().anyMatch(s -> s.fisico() > 0)) {
+        //     throw new IllegalStateException("Estoque com produtos não pode ser removido (R1H2)");
+        // }
+        
+        estoqueRepositorio.remover(estoqueId);
+    }
+
     public void atualizar(Estoque estoque) {
         notNull(estoque, "Estoque é obrigatório");
-        // SEMPRE usa o template - sem fallback (padrão Template Method)
         atualizacaoTemplate.atualizar(estoque.getId());
     }
 
-    // Pesquisa estoques de um cliente (H4).
+    public void atualizar(EstoqueId estoqueId, String nome, String endereco, Integer capacidade) {
+        notNull(estoqueId, "ID do estoque é obrigatório");
+        
+        var estoqueOpt = estoqueRepositorio.buscarPorId(estoqueId);
+        if (estoqueOpt.isEmpty()) {
+            throw new IllegalArgumentException("Estoque não encontrado: " + estoqueId);
+        }
+        
+        var estoque = estoqueOpt.get();
+        
+        if (nome != null && !nome.isBlank()) {
+            estoque.renomear(nome);
+        }
+        if (endereco != null && !endereco.isBlank()) {
+            estoque.alterarEndereco(endereco);
+        }
+        if (capacidade != null && capacidade > 0) {
+            estoque.alterarCapacidade(capacidade);
+        }
+        
+        atualizacaoTemplate.atualizar(estoque);
+    }
+
+    public Estoque buscarPorId(EstoqueId estoqueId) {
+        notNull(estoqueId, "ID do estoque é obrigatório");
+        return estoqueRepositorio.buscarPorId(estoqueId)
+                .orElseThrow(() -> new IllegalArgumentException("Estoque não encontrado: " + estoqueId));
+    }
+
     public List<Estoque> pesquisarPorCliente(ClienteId clienteId) {
         notNull(clienteId, "Cliente é obrigatório");
         List<Estoque> estoques = estoqueRepositorio.buscarEstoquesPorClienteId(clienteId);
         
-        // R1H4: Validar se há estoques cadastrados
         if (estoques.isEmpty()) {
             throw new IllegalStateException("Nenhum estoque cadastrado para este cliente (R1H4)");
         }
@@ -93,7 +125,6 @@ public class EstoqueServico {
         return estoques;
     }
 
-    //Transfere produtos entre estoques (H22-H23).
     public void transferir(Estoque origem,
                            Estoque destino,
                            ProdutoId produtoId,
@@ -107,21 +138,17 @@ public class EstoqueServico {
         isTrue(quantidade > 0, "Quantidade deve ser positiva");
         notBlank(responsavel, "Responsável é obrigatório");
 
-        // R1H22: Validar que estoques pertencem ao mesmo cliente
         if (!origem.getClienteId().equals(destino.getClienteId())) {
             throw new IllegalArgumentException("Transferência só pode ocorrer entre estoques do mesmo cliente (R1H22)");
         }
 
-        // R2H22: saída na origem (valida saldo disponível automaticamente)
         origem.registrarSaida(produtoId, quantidade, responsavel, motivo);
 
-        // R3H22: entrada no destino (metadados de transferência)
         destino.registrarEntrada(produtoId, quantidade, responsavel, "Transferência de estoque", Map.of(
                 "transferencia", "true",
                 "origem", origem.getId().toString()
         ));
 
-        // Persistir ambos os agregados
         estoqueRepositorio.salvar(origem);
         estoqueRepositorio.salvar(destino);
     }

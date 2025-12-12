@@ -77,9 +77,13 @@ public class EstoqueRepositorioDecorator implements EstoqueRepositorio {
     
     @Override
     public boolean existePorNome(String nome, ClienteId clienteId) {
-        // Operações de verificação não precisam de auditoria detalhada
-        // Mas poderíamos adicionar se necessário
         return alvo.existePorNome(nome, clienteId);
+    }
+    
+    @Override
+    public void remover(EstoqueId id) {
+        auditoria.registrarRemocao(id);
+        alvo.remover(id);
     }
 }
 

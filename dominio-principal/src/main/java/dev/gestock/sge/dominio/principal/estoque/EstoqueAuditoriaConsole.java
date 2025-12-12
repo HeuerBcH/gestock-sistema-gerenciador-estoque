@@ -45,5 +45,13 @@ public class EstoqueAuditoriaConsole implements EstoqueAuditoria {
                 timestamp,
                 clienteId);
     }
+    
+    @Override
+    public void registrarRemocao(EstoqueId id) {
+        String timestamp = LocalDateTime.now().format(FORMATTER);
+        System.out.printf("[AUDITORIA ESTOQUE] %s | REMOCAO | EstoqueId=%s%n",
+                timestamp,
+                id);
+    }
 }
 

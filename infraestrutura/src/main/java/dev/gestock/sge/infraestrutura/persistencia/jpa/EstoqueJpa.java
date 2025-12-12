@@ -111,6 +111,11 @@ class EstoqueRepositorioImpl implements EstoqueRepositorio, EstoqueRepositorioAp
 	}
 
 	@Override
+	public void remover(EstoqueId id) {
+		repositorio.deleteById(id.getId());
+	}
+
+	@Override
 	public Optional<EstoqueResumo> buscarResumoPorId(EstoqueId id) {
 		return repositorio.findById(id.getId())
 				.map(e -> criarEstoqueResumo(e));

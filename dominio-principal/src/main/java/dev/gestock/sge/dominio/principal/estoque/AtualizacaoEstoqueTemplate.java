@@ -50,32 +50,28 @@ public abstract class AtualizacaoEstoqueTemplate {
      * @param estoqueId O ID do estoque a ser atualizado
      */
     public final void atualizar(EstoqueId estoqueId) {
-        // Passo 1: Carregar estoque
         Optional<Estoque> estoqueOpt = carregarEstoque(estoqueId);
         if (estoqueOpt.isEmpty()) {
             throw new IllegalArgumentException("Estoque não encontrado: " + estoqueId);
         }
         Estoque estoque = estoqueOpt.get();
+        atualizar(estoque);
+    }
+    
+    /**
+     * Template Method: Define o fluxo fixo de atualização de estoque.
+     * Versão que recebe o estoque já carregado.
+     * 
+     * @param estoque O estoque a ser atualizado
+     */
+    public final void atualizar(Estoque estoque) {
+        EstoqueId estoqueId = estoque.getId();
         
-        // Passo 2: Validar se estoque está inativo
-        validarEstoqueInativo(estoque);
-        
-        // Passo 3: Validar pré-condições (regras de negócio)
         validarPreCondicoes(estoqueId, estoque);
-        
-        // Passo 4: Hook antes da atualização
         antesDeAtualizar(estoque, estoqueId);
-        
-        // Passo 5: Aplicar atualização
         aplicarAtualizacao(estoque);
-        
-        // Passo 6: Salvar estoque
         salvarEstoque(estoque);
-        
-        // Passo 7: Notificar observers (R1H17 será tratado pelos observers)
         notificarObservers(estoqueId);
-        
-        // Passo 8: Hook após a atualização
         aposAtualizar(estoque, estoqueId);
     }
     
@@ -118,7 +114,6 @@ public abstract class AtualizacaoEstoqueTemplate {
      * @param estoqueId O ID do estoque
      */
     protected void antesDeAtualizar(Estoque estoque, EstoqueId estoqueId) {
-        // Implementação padrão vazia - subclasses podem sobrescrever
     }
     
     /**
@@ -129,8 +124,6 @@ public abstract class AtualizacaoEstoqueTemplate {
      * @param estoque O estoque a ser atualizado
      */
     protected void aplicarAtualizacao(Estoque estoque) {
-        // Implementação padrão vazia - subclasses podem sobrescrever
-        // Por padrão, o estoque já vem atualizado do serviço
     }
     
     /**
@@ -161,7 +154,6 @@ public abstract class AtualizacaoEstoqueTemplate {
      * @param estoqueId O ID do estoque
      */
     protected void aposAtualizar(Estoque estoque, EstoqueId estoqueId) {
-        // Implementação padrão vazia - subclasses podem sobrescrever
     }
 }
 

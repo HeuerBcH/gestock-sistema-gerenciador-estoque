@@ -1,9 +1,9 @@
 package dev.gestock.sge.dominio.principal.estoque;
 
-import dev.gestock.sge.dominio.principal.cliente.ClienteId;
-
 import java.util.List;
 import java.util.Optional;
+
+import dev.gestock.sge.dominio.principal.cliente.ClienteId;
 
 /**
  * Repositório do agregado Estoque.
@@ -26,4 +26,7 @@ public interface EstoqueRepositorio {
     
     /** Verifica se já existe um estoque com o nome para o cliente (R3H1) */
     boolean existePorNome(String nome, ClienteId clienteId);
+    
+    /** Remove fisicamente um estoque do banco de dados */
+    void remover(EstoqueId id);
 }

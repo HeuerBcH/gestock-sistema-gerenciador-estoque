@@ -5,8 +5,11 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,6 +18,7 @@ import dev.gestock.sge.aplicacao.dominio.estoque.EstoqueServicoAplicacao;
 import dev.gestock.sge.apresentacao.BackendMapeador;
 import dev.gestock.sge.dominio.principal.cliente.ClienteId;
 import dev.gestock.sge.dominio.principal.estoque.EstoqueId;
+import dev.gestock.sge.dominio.principal.estoque.EstoqueServico;
 
 @RestController
 @RequestMapping("/api/estoques")
@@ -22,6 +26,9 @@ public class EstoqueControlador {
 
 	@Autowired
 	private EstoqueServicoAplicacao estoqueServicoAplicacao;
+
+	@Autowired
+	private EstoqueServico estoqueServico;
 
 	@Autowired
 	private BackendMapeador mapeador;
@@ -32,7 +39,6 @@ public class EstoqueControlador {
 			@RequestParam(required = false) Long clienteId,
 			@RequestParam(required = false) String status) {
 		
-		// Se não há filtros, usa método simples
 		if (busca == null && clienteId == null && status == null) {
 			var resumos = estoqueServicoAplicacao.pesquisarResumos();
 			var responses = resumos.stream()
@@ -48,7 +54,6 @@ public class EstoqueControlador {
 			return ResponseEntity.ok(responses);
 		}
 		
-		// Com filtros - conversão de tipos primitivos para Value Objects
 		var clienteIdVO = clienteId != null ? mapeador.map(clienteId, ClienteId.class) : null;
 		var resumos = estoqueServicoAplicacao.pesquisarComFiltros(busca, clienteIdVO, status);
 		var responses = resumos.stream()
@@ -87,7 +92,54 @@ public class EstoqueControlador {
 		return ResponseEntity.ok(response);
 	}
 
-	// DTO de resposta
+	@PutMapping("/{id}")
+	public ResponseEntity<?> editar(@PathVariable Long id, @RequestBody EstoqueRequest request) {
+		var estoqueId = mapeador.map(id, EstoqueId.class);
+		
+		try {
+			estoqueServico.atualizar(estoqueId, request.nome, request.endereco, request.capacidade);
+		} catch (IllegalArgumentException e) {
+			if (e.getMessage().contains("não encontrado")) {
+				return ResponseEntity.notFound().build();
+			}
+			return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
+		} catch (IllegalStateException e) {
+			return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
+		}
+		
+		return ResponseEntity.noContent().build();
+	}
+
+	@DeleteMapping("/{id}")
+	public ResponseEntity<?> apagar(@PathVariable Long id) {
+		var estoqueId = mapeador.map(id, EstoqueId.class);
+		
+		try {
+			estoqueServico.remover(estoqueId);
+		} catch (IllegalArgumentException e) {
+			return ResponseEntity.notFound().build();
+		} catch (IllegalStateException e) {
+			return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage()));
+		}
+		
+		return ResponseEntity.noContent().build();
+	}
+
+	public static class EstoqueRequest {
+		public String nome;
+		public String endereco;
+		public Integer capacidade;
+		public Boolean ativo;
+	}
+	
+	public static class ErrorResponse {
+		public String message;
+		
+		public ErrorResponse(String message) {
+			this.message = message;
+		}
+	}
+
 	public static class EstoqueResponse {
 		public Long id;
 		public Long clienteId;

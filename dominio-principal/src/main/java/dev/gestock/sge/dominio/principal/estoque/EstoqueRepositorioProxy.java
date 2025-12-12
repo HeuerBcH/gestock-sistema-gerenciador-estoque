@@ -1,11 +1,11 @@
 package dev.gestock.sge.dominio.principal.estoque;
 
-import dev.gestock.sge.dominio.principal.cliente.ClienteId;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+
+import dev.gestock.sge.dominio.principal.cliente.ClienteId;
 
 /**
  * Proxy para EstoqueRepositorio que adiciona cache.
@@ -93,14 +93,15 @@ public class EstoqueRepositorioProxy implements EstoqueRepositorio {
     
     @Override
     public boolean existePorNome(String nome, ClienteId clienteId) {
-        // Operações de verificação não precisam de cache
-        // São rápidas e podem ter resultados dinâmicos
         return alvo.existePorNome(nome, clienteId);
     }
     
-    /**
-     * Limpa o cache (útil para testes ou quando necessário invalidar cache manualmente).
-     */
+    @Override
+    public void remover(EstoqueId id) {
+        alvo.remover(id);
+        cachePorId.remove(id);
+    }
+    
     public void limparCache() {
         cachePorId.clear();
     }
