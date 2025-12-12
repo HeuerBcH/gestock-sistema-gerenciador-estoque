@@ -1,4 +1,4 @@
-/**package dev.gestock.sge;
+package dev.gestock.sge;
 
 import java.io.IOException;
 
@@ -11,5 +11,4 @@ public class BackendDesenvolvimentoAplicacao {
 		aplicacao.run(args);
 	}
 }
-**/
 
