@@ -62,6 +62,15 @@ interface EstoqueJpaRepository extends JpaRepository<EstoqueJpa, Long> {
 
 	@Query("SELECT e FROM EstoqueJpa e WHERE e.cliente.id = :clienteId ORDER BY e.nome")
 	List<EstoqueJpa> findEstoqueJpaByClienteIdOrderByNome(Long clienteId);
+	
+	@Query("""
+		SELECT e FROM EstoqueJpa e 
+		WHERE (:busca IS NULL OR LOWER(e.nome) LIKE LOWER(CONCAT('%', :busca, '%')) OR LOWER(e.endereco) LIKE LOWER(CONCAT('%', :busca, '%')))
+		AND (:clienteId IS NULL OR e.cliente.id = :clienteId)
+		AND (:ativo IS NULL OR e.ativo = :ativo)
+		ORDER BY e.nome
+		""")
+	List<EstoqueJpa> pesquisarComFiltros(String busca, Long clienteId, Boolean ativo);
 }
 
 @Repository
@@ -113,6 +122,15 @@ class EstoqueRepositorioImpl implements EstoqueRepositorio, EstoqueRepositorioAp
 		return estoques.stream()
 				.map(this::criarEstoqueResumo)
 				.sorted((a, b) -> a.getNome().compareToIgnoreCase(b.getNome()))
+				.toList();
+	}
+
+	@Override
+	public List<EstoqueResumo> pesquisarComFiltros(String busca, ClienteId clienteId, Boolean ativo) {
+		var clienteIdLong = clienteId != null ? clienteId.getId() : null;
+		var estoques = repositorio.pesquisarComFiltros(busca, clienteIdLong, ativo);
+		return estoques.stream()
+				.map(this::criarEstoqueResumo)
 				.toList();
 	}
 	

@@ -1,23 +1,19 @@
 package dev.gestock.sge.infraestrutura.persistencia.jpa;
 
-import static jakarta.persistence.GenerationType.IDENTITY;
-
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import dev.gestock.sge.aplicacao.dominio.cliente.ClienteRepositorioAplicacao;
-import dev.gestock.sge.aplicacao.dominio.cliente.ClienteResumo;
 import dev.gestock.sge.dominio.principal.cliente.Cliente;
 import dev.gestock.sge.dominio.principal.cliente.ClienteId;
 import dev.gestock.sge.dominio.principal.cliente.ClienteRepositorio;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
+import static jakarta.persistence.GenerationType.IDENTITY;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -51,13 +47,10 @@ interface ClienteJpaRepository extends JpaRepository<ClienteJpa, Long> {
 	Optional<ClienteJpa> findByDocumento(String documento);
 
 	Optional<ClienteJpa> findByEmail(String email);
-
-	@Query("SELECT c FROM ClienteJpa c ORDER BY c.nome")
-	List<ClienteResumo> findClienteResumoByOrderByNome();
 }
 
 @Repository
-class ClienteRepositorioImpl implements ClienteRepositorio, ClienteRepositorioAplicacao {
+class ClienteRepositorioImpl implements ClienteRepositorio {
 	@Autowired
 	ClienteJpaRepository repositorio;
 
@@ -74,10 +67,5 @@ class ClienteRepositorioImpl implements ClienteRepositorio, ClienteRepositorioAp
 	public Optional<Cliente> buscarPorId(ClienteId id) {
 		return repositorio.findById(id.getId())
 				.map(c -> mapeador.map(c, Cliente.class));
-	}
-
-	@Override
-	public List<ClienteResumo> pesquisarResumos() {
-		return repositorio.findClienteResumoByOrderByNome();
 	}
 }

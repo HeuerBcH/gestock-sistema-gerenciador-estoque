@@ -1,10 +1,11 @@
 package dev.gestock.sge.aplicacao.dominio.estoque;
 
-import static org.apache.commons.lang3.Validate.notNull;
-
 import java.util.List;
 import java.util.Optional;
 
+import static org.apache.commons.lang3.Validate.notNull;
+
+import dev.gestock.sge.dominio.principal.cliente.ClienteId;
 import dev.gestock.sge.dominio.principal.estoque.EstoqueId;
 
 public class EstoqueServicoAplicacao {
@@ -22,5 +23,14 @@ public class EstoqueServicoAplicacao {
 	
 	public List<EstoqueResumo> pesquisarResumos() {
 		return repositorio.pesquisarResumos();
+	}
+	
+	public List<EstoqueResumo> pesquisarComFiltros(String busca, ClienteId clienteId, String status) {
+		// Converte status string para Boolean
+		Boolean ativo = null;
+		if (status != null && !status.isEmpty() && !status.equalsIgnoreCase("todos")) {
+			ativo = status.equalsIgnoreCase("ativo");
+		}
+		return repositorio.pesquisarComFiltros(busca, clienteId, ativo);
 	}
 }
