@@ -1,19 +1,23 @@
 package dev.gestock.sge.apresentacao.principal.estoque;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import dev.gestock.sge.aplicacao.auth.AutenticacaoServico;
 import dev.gestock.sge.aplicacao.dominio.estoque.EstoqueServicoAplicacao;
 import dev.gestock.sge.apresentacao.BackendMapeador;
 import dev.gestock.sge.dominio.principal.cliente.ClienteId;
@@ -33,30 +37,32 @@ public class EstoqueControlador {
 	@Autowired
 	private BackendMapeador mapeador;
 
+	@Autowired
+	private AutenticacaoServico autenticacaoServico;
+
+	private Optional<ClienteId> extrairClienteIdDoToken(String authorizationHeader) {
+		if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+			return Optional.empty();
+		}
+		String token = authorizationHeader.substring(7);
+		return autenticacaoServico.validarToken(token);
+	}
+
 	@GetMapping
-	public ResponseEntity<List<EstoqueResponse>> listar(
+	public ResponseEntity<?> listar(
+			@RequestHeader(value = "Authorization", required = false) String authorization,
 			@RequestParam(required = false) String busca,
-			@RequestParam(required = false) Long clienteId,
 			@RequestParam(required = false) String status) {
 		
-		if (busca == null && clienteId == null && status == null) {
-			var resumos = estoqueServicoAplicacao.pesquisarResumos();
-			var responses = resumos.stream()
-				.map(resumo -> new EstoqueResponse(
-					mapeador.map(resumo.getId(), Long.class),
-					mapeador.map(resumo.getClienteId(), Long.class),
-					resumo.getNome(),
-					resumo.getEndereco(),
-					resumo.getCapacidade(),
-					resumo.isAtivo()
-				))
-				.collect(Collectors.toList());
-			return ResponseEntity.ok(responses);
+		Optional<ClienteId> clienteIdOpt = extrairClienteIdDoToken(authorization);
+		if (clienteIdOpt.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+				.body(new ErrorResponse("Token inválido ou ausente"));
 		}
 		
-		var clienteIdVO = clienteId != null ? mapeador.map(clienteId, ClienteId.class) : null;
-		var resumos = estoqueServicoAplicacao.pesquisarComFiltros(busca, clienteIdVO, status);
-		var responses = resumos.stream()
+		ClienteId clienteId = clienteIdOpt.get();
+		var resumos = estoqueServicoAplicacao.pesquisarComFiltros(busca, clienteId, status);
+		List<EstoqueResponse> responses = resumos.stream()
 			.map(resumo -> new EstoqueResponse(
 				mapeador.map(resumo.getId(), Long.class),
 				mapeador.map(resumo.getClienteId(), Long.class),

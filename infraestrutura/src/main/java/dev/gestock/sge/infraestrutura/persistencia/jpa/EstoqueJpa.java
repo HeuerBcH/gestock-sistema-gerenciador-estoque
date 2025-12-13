@@ -61,16 +61,7 @@ interface EstoqueJpaRepository extends JpaRepository<EstoqueJpa, Long> {
 	boolean existsByClienteIdAndNome(Long clienteId, String nome);
 
 	@Query("SELECT e FROM EstoqueJpa e WHERE e.cliente.id = :clienteId ORDER BY e.nome")
-	List<EstoqueJpa> findEstoqueJpaByClienteIdOrderByNome(Long clienteId);
-	
-	@Query("""
-		SELECT e FROM EstoqueJpa e 
-		WHERE (:busca IS NULL OR LOWER(e.nome) LIKE LOWER(CONCAT('%', :busca, '%')) OR LOWER(e.endereco) LIKE LOWER(CONCAT('%', :busca, '%')))
-		AND (:clienteId IS NULL OR e.cliente.id = :clienteId)
-		AND (:ativo IS NULL OR e.ativo = :ativo)
-		ORDER BY e.nome
-		""")
-	List<EstoqueJpa> pesquisarComFiltros(String busca, Long clienteId, Boolean ativo);
+	List<EstoqueJpa> findByClienteIdOrderByNome(Long clienteId);
 }
 
 @Repository
@@ -132,9 +123,27 @@ class EstoqueRepositorioImpl implements EstoqueRepositorio, EstoqueRepositorioAp
 
 	@Override
 	public List<EstoqueResumo> pesquisarComFiltros(String busca, ClienteId clienteId, Boolean ativo) {
-		var clienteIdLong = clienteId != null ? clienteId.getId() : null;
-		var estoques = repositorio.pesquisarComFiltros(busca, clienteIdLong, ativo);
+		if (clienteId == null) {
+			return List.of();
+		}
+		
+		var estoques = repositorio.findByClienteIdOrderByNome(clienteId.getId());
+		
 		return estoques.stream()
+				.filter(e -> {
+					if (busca != null && !busca.isEmpty()) {
+						String buscaLower = busca.toLowerCase();
+						boolean matchNome = e.nome != null && e.nome.toLowerCase().contains(buscaLower);
+						boolean matchEndereco = e.endereco != null && e.endereco.toLowerCase().contains(buscaLower);
+						if (!matchNome && !matchEndereco) {
+							return false;
+						}
+					}
+					if (ativo != null && !ativo.equals(e.ativo)) {
+						return false;
+					}
+					return true;
+				})
 				.map(this::criarEstoqueResumo)
 				.toList();
 	}
