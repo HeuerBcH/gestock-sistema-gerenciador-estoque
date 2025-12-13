@@ -1,43 +1,73 @@
-//package dev.gestock.sge.apresentacao.acervo.exemplar;
-//
-//import static org.springframework.web.bind.annotation.RequestMethod.GET;
-//import static org.springframework.web.bind.annotation.RequestMethod.POST;
-//
-//import java.util.List;
-//
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.web.bind.annotation.PathVariable;
-//import org.springframework.web.bind.annotation.RequestMapping;
-//import org.springframework.web.bind.annotation.RestController;
-//
-//import dev.gestock.sge.aplicacao.acervo.exemplar.ExemplarResumo;
-//import dev.gestock.sge.aplicacao.acervo.exemplar.ExemplarResumoExpandido;
-//import dev.gestock.sge.aplicacao.acervo.exemplar.ExemplarServicoAplicacao;
-//import dev.gestock.sge.apresentacao.BackendMapeador;
-//import dev.gestock.sge.dominio.principal.estoque.EstoqueId;
-//import dev.gestock.sge.dominio.principal.estoque.ExemplarId;
-//
-//@RestController
-//@RequestMapping("backend/exemplar")
-//class ExemplarControlador {
-//	private @Autowired EstoqueId emprestimoServico;
-//	private @Autowired ExemplarServicoAplicacao exemplarServicoConsulta;
-//
-//	private @Autowired BackendMapeador mapeador;
-//
-//	@RequestMapping(method = GET, path = "pesquisa")
-//	List<ExemplarResumo> pesquisa() {
-//		return exemplarServicoConsulta.pesquisarResumos();
-//	}
-//
-//	@RequestMapping(method = GET, path = "pesquisa-emprestados")
-//	List<ExemplarResumoExpandido> pesquisaEmprestados() {
-//		return exemplarServicoConsulta.pesquisarEmprestados();
-//	}
-//
-//	@RequestMapping(method = POST, path = "{id}/devolver")
-//	void realizarEmprestimo(@PathVariable("id") int id) {
-//		var exemplarId = mapeador.map(id, ExemplarId.class);
-//		emprestimoServico.devolver(exemplarId);
-//	}
-//}
+package dev.gestock.sge.apresentacao.principal.cliente;
+
+import static org.springframework.http.HttpStatus.*;
+import static org.springframework.web.bind.annotation.RequestMethod.*;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import dev.gestock.sge.aplicacao.dominio.cliente.ClienteResumo;
+import dev.gestock.sge.aplicacao.dominio.cliente.ClienteServicoAplicacao;
+import dev.gestock.sge.dominio.principal.cliente.Cliente;
+import dev.gestock.sge.dominio.principal.cliente.ClienteId;
+import dev.gestock.sge.dominio.principal.cliente.ClienteRepositorio;
+import dev.gestock.sge.dominio.principal.cliente.ClienteServico;
+import dev.gestock.sge.apresentacao.BackendMapeador;
+
+@RestController
+@RequestMapping("/api/clientes")
+@CrossOrigin(origins = "*")
+public class ClienteControlador {
+
+    @Autowired
+    private ClienteServico clienteServico;
+
+    @Autowired
+    private ClienteServicoAplicacao clienteServicoAplicacao;
+
+    @Autowired
+    private ClienteRepositorio clienteRepositorio;
+
+    @Autowired
+    private BackendMapeador mapeador;
+
+    // GET: Listar todos os clientes (resumos)
+    @RequestMapping(method = GET)
+    public ResponseEntity<List<ClienteResumo>> listar() {
+        var clientes = clienteServicoAplicacao.pesquisarResumos();
+        return ResponseEntity.ok(clientes);
+    }
+
+    // GET: Buscar cliente por ID
+    @RequestMapping(method = GET, path = "/{id}")
+    public ResponseEntity<Cliente> buscarPorId(@PathVariable("id") Long id) {
+        var clienteId = new ClienteId(id);
+        var cliente = clienteRepositorio.buscarPorId(clienteId);
+        
+        if (cliente.isPresent()) {
+            return ResponseEntity.ok(cliente.get());
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    // POST: Cadastrar novo cliente
+    @RequestMapping(method = POST)
+    public ResponseEntity<String> cadastrar(@RequestBody ClienteForm.ClienteCadastroDto dto) {
+        try {
+            var cliente = new Cliente(
+                new ClienteId(null), // ID será gerado pelo banco
+                dto.getNome(),
+                dto.getDocumento(),
+                dto.getEmail()
+            );
+            
+            clienteServico.registrarCliente(cliente);
+            return ResponseEntity.status(CREATED).body("Cliente cadastrado com sucesso");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+}
