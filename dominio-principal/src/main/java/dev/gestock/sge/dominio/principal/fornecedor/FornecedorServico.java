@@ -1,12 +1,13 @@
 package dev.gestock.sge.dominio.principal.fornecedor;
 
-import dev.gestock.sge.dominio.principal.pedido.PedidoRepositorio;
-import dev.gestock.sge.dominio.principal.produto.ProdutoId;
-
 import java.util.List;
 import java.util.Optional;
 
-import static org.apache.commons.lang3.Validate.*;
+import static org.apache.commons.lang3.Validate.notNull;
+import static org.apache.commons.lang3.Validate.notBlank;
+
+import dev.gestock.sge.dominio.principal.pedido.PedidoRepositorio;
+import dev.gestock.sge.dominio.principal.produto.ProdutoId;
 
 /**
  * Serviço de domínio para gerenciamento de fornecedores.
@@ -50,6 +51,23 @@ public class FornecedorServico {
         this.fornecedorRepositorio = fornecedorRepositorio;
         this.pedidoRepositorio = pedidoRepositorio;
         this.selecaoCotacaoStrategy = selecaoCotacaoStrategy;
+    }
+
+    /**
+     * Busca um fornecedor por ID.
+     */
+    public Fornecedor buscarPorId(FornecedorId id) {
+        notNull(id, "ID do fornecedor é obrigatório");
+        return fornecedorRepositorio.buscarPorId(id)
+            .orElseThrow(() -> new IllegalArgumentException("Fornecedor não encontrado"));
+    }
+
+    /**
+     * Busca um fornecedor por CNPJ.
+     */
+    public Optional<Fornecedor> buscarPorCnpj(String cnpj) {
+        notBlank(cnpj, "CNPJ é obrigatório");
+        return fornecedorRepositorio.buscarPorCnpj(cnpj);
     }
 
     /**

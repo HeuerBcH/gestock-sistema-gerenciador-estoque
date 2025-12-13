@@ -55,6 +55,9 @@ interface FornecedorJpaRepository extends JpaRepository<FornecedorJpa, Long> {
 
 	@Query("SELECT f FROM FornecedorJpa f ORDER BY f.nome")
 	List<FornecedorResumo> findFornecedorResumoByOrderByNome();
+	
+	@Query("SELECT f FROM FornecedorJpa f WHERE f.id = :id")
+	Optional<FornecedorResumo> findFornecedorResumoById(Long id);
 }
 
 @Repository
@@ -86,5 +89,35 @@ class FornecedorRepositorioImpl implements FornecedorRepositorio, FornecedorRepo
 	@Override
 	public List<FornecedorResumo> pesquisarResumos() {
 		return repositorio.findFornecedorResumoByOrderByNome();
+	}
+	
+	@Override
+	public Optional<FornecedorResumo> buscarResumoPorId(FornecedorId id) {
+		if (id == null || id.getId() == null) {
+			return Optional.empty();
+		}
+		return repositorio.findFornecedorResumoById(id.getId());
+	}
+	
+	@Override
+	public List<FornecedorResumo> pesquisarComFiltros(String busca, Boolean ativo) {
+		var fornecedores = repositorio.findFornecedorResumoByOrderByNome();
+		
+		return fornecedores.stream()
+				.filter(f -> {
+					if (busca != null && !busca.trim().isEmpty()) {
+						String buscaLower = busca.trim().toLowerCase();
+						boolean matchNome = f.getNome() != null && f.getNome().toLowerCase().contains(buscaLower);
+						boolean matchCnpj = f.getCnpj() != null && f.getCnpj().toLowerCase().contains(buscaLower);
+						if (!matchNome && !matchCnpj) {
+							return false;
+						}
+					}
+					if (ativo != null && ativo != f.isAtivo()) {
+						return false;
+					}
+					return true;
+				})
+				.toList();
 	}
 }

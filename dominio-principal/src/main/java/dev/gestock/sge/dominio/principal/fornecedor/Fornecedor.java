@@ -76,6 +76,12 @@ public class Fornecedor {
         this.contato = contato;
     }
 
+    /** Atualiza o Lead Time médio */
+    public void atualizarLeadTime(LeadTime novoLeadTime) {
+        notNull(novoLeadTime, "Lead time é obrigatório");
+        this.leadTimeMedio = novoLeadTime;
+    }
+
     /** Registra ou atualiza cotação de produto (R2) */
     public void registrarCotacao(ProdutoId produtoId, double preco, int prazoDias) {
         notNull(produtoId, "Produto é obrigatório");
