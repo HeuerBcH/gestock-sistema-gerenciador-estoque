@@ -1,5 +1,6 @@
 package dev.gestock.sge.dominio.principal.cliente;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -26,4 +27,7 @@ public interface ClienteRepositorio {
 
     /** Recupera um Cliente pelo documento */
     Optional<Cliente> buscarPorDocumento(String documento);
+
+    /** Lista todos os clientes */
+    List<Cliente> listarTodos();
 }

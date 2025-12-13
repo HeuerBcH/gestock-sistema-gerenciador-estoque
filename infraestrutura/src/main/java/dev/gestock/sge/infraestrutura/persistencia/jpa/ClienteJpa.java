@@ -83,4 +83,10 @@ class ClienteRepositorioImpl implements ClienteRepositorio {
 		return repositorio.findByDocumento(documento)
 				.map(c -> mapeador.map(c, Cliente.class));
 	}
+
+	@Override
+	public List<Cliente> listarTodos() {
+		var clientesJpa = repositorio.findAll();
+		return mapeador.map(clientesJpa, new org.modelmapper.TypeToken<List<Cliente>>() {}.getType());
+	}
 }

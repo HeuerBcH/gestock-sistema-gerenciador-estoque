@@ -1,6 +1,6 @@
 package dev.gestock.sge.dominio.principal.cliente;
 
-import static org.apache.commons.lang3.Validate.*;
+import static org.apache.commons.lang3.Validate.notNull;
 
 /**
  * Serviço de domínio para gerenciamento de clientes.
@@ -36,5 +36,14 @@ public class ClienteServico {
     public boolean validarPossuiEstoques(Cliente cliente) {
         notNull(cliente, "Cliente é obrigatório");
         return cliente.possuiEstoques();
+    }
+
+    /**
+     * Busca um cliente pelo seu identificador.
+     */
+    public Cliente buscarPorId(ClienteId id) {
+        notNull(id, "ID do cliente é obrigatório");
+        return repositorio.buscarPorId(id)
+                .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado: " + id));
     }
 }

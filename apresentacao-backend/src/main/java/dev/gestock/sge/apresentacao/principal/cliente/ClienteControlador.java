@@ -1,11 +1,14 @@
 package dev.gestock.sge.apresentacao.principal.cliente;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,6 +34,22 @@ public class ClienteControlador {
 	private BackendMapeador mapeador;
 
 	private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+	@GetMapping
+	public ResponseEntity<List<ClienteResponse>> listar() {
+		var clientes = clienteRepositorio.listarTodos();
+		List<ClienteResponse> responses = clientes.stream()
+			.map(cliente -> {
+				ClienteResponse response = new ClienteResponse();
+				response.id = mapeador.map(cliente.getId(), Long.class);
+				response.nome = cliente.getNome();
+				response.documento = cliente.getDocumento();
+				response.email = cliente.getEmail();
+				return response;
+			})
+			.collect(Collectors.toList());
+		return ResponseEntity.ok(responses);
+	}
 
 	@PostMapping
 	public ResponseEntity<?> criar(@RequestBody ClienteRequest request) {

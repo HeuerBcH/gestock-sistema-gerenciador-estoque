@@ -45,8 +45,7 @@ public class Repositorio implements
         ProdutoRepositorio,
         FornecedorRepositorio,
         PedidoRepositorio,
-        AlertaRepositorio,
-        ClienteRepositorio {
+        AlertaRepositorio {
 
     // Armazenamento em memória
     private final Map<EstoqueId, Estoque> estoques = new ConcurrentHashMap<>();
@@ -317,7 +316,6 @@ public class Repositorio implements
 
     // ==================== ClienteRepositorio ====================
 
-    @Override
     public void salvar(Cliente cliente) {
         if (cliente == null) {
             throw new IllegalArgumentException("Cliente não pode ser nulo");
@@ -325,23 +323,53 @@ public class Repositorio implements
         clientes.put(cliente.getId(), cliente);
     }
 
-    @Override
     public Optional<Cliente> buscarPorId(ClienteId id) {
         return Optional.ofNullable(clientes.get(id));
     }
 
-    @Override
     public Optional<Cliente> buscarPorEmail(String email) {
         return clientes.values().stream()
                 .filter(c -> c.getEmail().equals(email))
                 .findFirst();
     }
 
-    @Override
     public Optional<Cliente> buscarPorDocumento(String documento) {
         return clientes.values().stream()
                 .filter(c -> c.getDocumento().equals(documento))
                 .findFirst();
+    }
+
+    public List<Cliente> listarTodosClientes() {
+        return new ArrayList<>(clientes.values());
+    }
+
+    public ClienteRepositorio asClienteRepositorio() {
+        return new ClienteRepositorio() {
+            @Override
+            public void salvar(Cliente cliente) {
+                Repositorio.this.salvar(cliente);
+            }
+
+            @Override
+            public Optional<Cliente> buscarPorId(ClienteId id) {
+                return Repositorio.this.buscarPorId(id);
+            }
+
+            @Override
+            public Optional<Cliente> buscarPorEmail(String email) {
+                return Repositorio.this.buscarPorEmail(email);
+            }
+
+            @Override
+            public Optional<Cliente> buscarPorDocumento(String documento) {
+                return Repositorio.this.buscarPorDocumento(documento);
+            }
+
+            @Override
+            public List<Cliente> listarTodos() {
+                return Repositorio.this.listarTodosClientes();
+            }
+        };
     }
 
     // ==================== Métodos Utilitários ====================
