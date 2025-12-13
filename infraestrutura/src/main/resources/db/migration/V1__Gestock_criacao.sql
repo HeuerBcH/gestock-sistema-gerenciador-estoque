@@ -14,6 +14,7 @@ create table CLIENTE (
     NOME varchar(255) not null,
     DOCUMENTO varchar(20) not null,
     EMAIL varchar(255) not null,
+    SENHA_HASH varchar(255) not null,
     primary key (ID),
     constraint UK_CLIENTE_DOCUMENTO unique (DOCUMENTO),
     constraint UK_CLIENTE_EMAIL unique (EMAIL)

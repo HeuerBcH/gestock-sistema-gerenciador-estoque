@@ -1,16 +1,34 @@
 package dev.gestock.sge.infraestrutura.persistencia.memoria;
 
-import dev.gestock.sge.dominio.principal.alerta.*;
-import dev.gestock.sge.dominio.principal.cliente.*;
-import dev.gestock.sge.dominio.principal.estoque.*;
-import dev.gestock.sge.dominio.principal.fornecedor.*;
-import dev.gestock.sge.dominio.principal.pedido.*;
-import dev.gestock.sge.dominio.principal.produto.*;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
+
+import dev.gestock.sge.dominio.principal.alerta.Alerta;
+import dev.gestock.sge.dominio.principal.alerta.AlertaId;
+import dev.gestock.sge.dominio.principal.alerta.AlertaRepositorio;
+import dev.gestock.sge.dominio.principal.cliente.Cliente;
+import dev.gestock.sge.dominio.principal.cliente.ClienteId;
+import dev.gestock.sge.dominio.principal.cliente.ClienteRepositorio;
+import dev.gestock.sge.dominio.principal.estoque.Estoque;
+import dev.gestock.sge.dominio.principal.estoque.EstoqueId;
+import dev.gestock.sge.dominio.principal.estoque.EstoqueRepositorio;
+import dev.gestock.sge.dominio.principal.fornecedor.Fornecedor;
+import dev.gestock.sge.dominio.principal.fornecedor.FornecedorId;
+import dev.gestock.sge.dominio.principal.fornecedor.FornecedorRepositorio;
+import dev.gestock.sge.dominio.principal.pedido.Pedido;
+import dev.gestock.sge.dominio.principal.pedido.PedidoId;
+import dev.gestock.sge.dominio.principal.pedido.PedidoRepositorio;
+import dev.gestock.sge.dominio.principal.pedido.StatusPedido;
+import dev.gestock.sge.dominio.principal.produto.CodigoProduto;
+import dev.gestock.sge.dominio.principal.produto.Produto;
+import dev.gestock.sge.dominio.principal.produto.ProdutoId;
+import dev.gestock.sge.dominio.principal.produto.ProdutoRepositorio;
 
 /**
  * Implementação em memória de todos os repositórios de domínio.
@@ -89,6 +107,13 @@ public class Repositorio implements
         return estoques.values().stream()
                 .anyMatch(e -> e.getClienteId().equals(clienteId) && 
                               e.getNome().equalsIgnoreCase(nome));
+    }
+
+    @Override
+    public void remover(EstoqueId id) {
+        if (id != null) {
+            estoques.remove(id);
+        }
     }
 
     // ==================== ProdutoRepositorio ====================
@@ -303,6 +328,20 @@ public class Repositorio implements
     @Override
     public Optional<Cliente> buscarPorId(ClienteId id) {
         return Optional.ofNullable(clientes.get(id));
+    }
+
+    @Override
+    public Optional<Cliente> buscarPorEmail(String email) {
+        return clientes.values().stream()
+                .filter(c -> c.getEmail().equals(email))
+                .findFirst();
+    }
+
+    @Override
+    public Optional<Cliente> buscarPorDocumento(String documento) {
+        return clientes.values().stream()
+                .filter(c -> c.getDocumento().equals(documento))
+                .findFirst();
     }
 
     // ==================== Métodos Utilitários ====================

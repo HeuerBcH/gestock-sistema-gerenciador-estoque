@@ -11,10 +11,17 @@ public class ClienteId {
     private final Long id;
 
     public ClienteId(Long id) {
-        if (id == null || id <= 0) {
+        if (id != null && id <= 0) {
             throw new IllegalArgumentException("ID deve ser positivo");
         }
         this.id = id;
+    }
+    
+    /**
+     * Cria um ClienteId temporário para novos clientes (ID será gerado pelo JPA).
+     */
+    public static ClienteId temporario() {
+        return new ClienteId(null);
     }
 
     public Long getId() {
@@ -23,7 +30,16 @@ public class ClienteId {
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof ClienteId other && id.equals(other.id);
+        if (o == null || !(o instanceof ClienteId other)) {
+            return false;
+        }
+        if (this.id == null && other.id == null) {
+            return true;
+        }
+        if (this.id == null || other.id == null) {
+            return false;
+        }
+        return id.equals(other.id);
     }
 
     @Override
@@ -33,6 +49,6 @@ public class ClienteId {
 
     @Override
     public String toString() {
-        return id.toString();
+        return id != null ? id.toString() : "null";
     }
 }

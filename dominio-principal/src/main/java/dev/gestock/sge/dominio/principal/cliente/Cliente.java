@@ -26,6 +26,7 @@ public class Cliente {
     private String nome;
     private String documento;
     private String email;
+    private String senhaHash; // Hash da senha (BCrypt)
 
     private final List<Estoque> estoques = new ArrayList<>();
     // Relação 1:N com Estoque → garante a regra R1 (todo cliente tem pelo menos 1 estoque)
@@ -41,6 +42,16 @@ public class Cliente {
         setEmail(email);
     }
 
+    /*  Construtor com senha - para criação de novos clientes. */
+    public Cliente(ClienteId id, String nome, String documento, String email, String senhaHash) {
+        notNull(id, "O id do cliente não pode ser nulo");
+        this.id = id;
+        setNome(nome);
+        setDocumento(documento);
+        setEmail(email);
+        setSenhaHash(senhaHash);
+    }
+
     // Getters
 
     public ClienteId getId() {
@@ -54,6 +65,9 @@ public class Cliente {
     }
     public String getEmail() {
         return email;
+    }
+    public String getSenhaHash() {
+        return senhaHash;
     }
 
     /* Exposição segura da lista de estoques → Retorna uma cópia imutável da lista. */
@@ -113,6 +127,10 @@ public class Cliente {
         this.email = email;
     }
 
+    private void setSenhaHash(String senhaHash) {
+        notBlank(senhaHash, "Hash da senha é obrigatório");
+        this.senhaHash = senhaHash;
+    }
 
     // Representação textual para logs, debug, UI
     @Override

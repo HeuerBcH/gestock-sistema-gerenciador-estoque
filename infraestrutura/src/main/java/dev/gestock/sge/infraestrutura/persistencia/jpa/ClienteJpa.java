@@ -34,6 +34,9 @@ class ClienteJpa {
 	@Column(nullable = false, unique = true, length = 255)
 	String email;
 
+	@Column(name = "senha_hash", nullable = false, length = 255)
+	String senhaHash;
+
 	@OneToMany(mappedBy = "cliente")
 	List<EstoqueJpa> estoques;
 
@@ -66,6 +69,18 @@ class ClienteRepositorioImpl implements ClienteRepositorio {
 	@Override
 	public Optional<Cliente> buscarPorId(ClienteId id) {
 		return repositorio.findById(id.getId())
+				.map(c -> mapeador.map(c, Cliente.class));
+	}
+
+	@Override
+	public Optional<Cliente> buscarPorEmail(String email) {
+		return repositorio.findByEmail(email)
+				.map(c -> mapeador.map(c, Cliente.class));
+	}
+
+	@Override
+	public Optional<Cliente> buscarPorDocumento(String documento) {
+		return repositorio.findByDocumento(documento)
 				.map(c -> mapeador.map(c, Cliente.class));
 	}
 }

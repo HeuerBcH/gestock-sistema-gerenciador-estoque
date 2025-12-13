@@ -20,4 +20,10 @@ public interface ClienteRepositorio {
 
     /** Recupera um Cliente pelo seu identificador */
     Optional<Cliente> buscarPorId(ClienteId id);
+
+    /** Recupera um Cliente pelo email (usado para autenticação) */
+    Optional<Cliente> buscarPorEmail(String email);
+
+    /** Recupera um Cliente pelo documento */
+    Optional<Cliente> buscarPorDocumento(String documento);
 }

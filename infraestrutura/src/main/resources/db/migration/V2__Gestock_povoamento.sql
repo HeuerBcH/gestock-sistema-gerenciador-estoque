@@ -9,10 +9,16 @@ SET search_path TO gestock;
 -- ============================================
 -- CLIENTES
 -- ============================================
-insert into CLIENTE(NOME, DOCUMENTO, EMAIL) values
-('Empresa ABC Ltda', '12.345.678/0001-90', 'contato@empresaabc.com.br'),
-('Comércio XYZ S.A.', '98.765.432/0001-10', 'vendas@comercioxyz.com.br'),
-('Distribuidora Norte Sul', '11.222.333/0001-44', 'admin@nortesul.com.br');
+-- Senhas padrão para todos os clientes: "senha123"
+-- Hash BCrypt gerado com BCryptPasswordEncoder().encode("senha123")
+-- Para gerar novos hashes em Java:
+--   BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+--   String hash = encoder.encode("senha123");
+-- O hash abaixo corresponde à senha "senha123"
+insert into CLIENTE(NOME, DOCUMENTO, EMAIL, SENHA_HASH) values
+('Empresa ABC Ltda', '12.345.678/0001-90', 'contato@empresaabc.com.br', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
+('Comércio XYZ S.A.', '98.765.432/0001-10', 'vendas@comercioxyz.com.br', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy'),
+('Distribuidora Norte Sul', '11.222.333/0001-44', 'admin@nortesul.com.br', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy');
 
 -- ============================================
 -- ESTOQUES

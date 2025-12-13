@@ -166,6 +166,9 @@ class JpaMapeador extends ModelMapper {
 			@Override
 			protected Cliente convert(ClienteJpa source) {
 				var id = map(source.id, ClienteId.class);
+				if (source.senhaHash != null) {
+					return new Cliente(id, source.nome, source.documento, source.email, source.senhaHash);
+				}
 				return new Cliente(id, source.nome, source.documento, source.email);
 			}
 		});
@@ -296,6 +299,7 @@ class JpaMapeador extends ModelMapper {
 				clienteJpa.nome = source.getNome();
 				clienteJpa.documento = source.getDocumento();
 				clienteJpa.email = source.getEmail();
+				clienteJpa.senhaHash = source.getSenhaHash();
 				return clienteJpa;
 			}
 		});
