@@ -2,24 +2,18 @@ package dev.gestock.sge.aplicacao.dominio.pedido;
 
 import java.time.LocalDate;
 
-import dev.gestock.sge.dominio.principal.cliente.ClienteId;
-import dev.gestock.sge.dominio.principal.estoque.EstoqueId;
-import dev.gestock.sge.dominio.principal.fornecedor.FornecedorId;
-import dev.gestock.sge.dominio.principal.pedido.PedidoId;
-import dev.gestock.sge.dominio.principal.pedido.StatusPedido;
-
 public interface PedidoResumo {
-	PedidoId getId();
+	Long getId();
 
-	ClienteId getClienteId();
+	Long getClienteId();
 
-	FornecedorId getFornecedorId();
+	Long getFornecedorId();
 
 	LocalDate getDataCriacao();
 
 	LocalDate getDataPrevistaEntrega();
 
-	EstoqueId getEstoqueId();
+	Long getEstoqueId();
 
-	StatusPedido getStatus();
+	String getStatus();
 }

@@ -67,7 +67,7 @@ interface AlertaJpaRepository extends JpaRepository<AlertaJpa, Long> {
 
 	List<AlertaJpa> findByEstoqueId(Long estoqueId);
 
-	@Query("SELECT a FROM AlertaJpa a WHERE a.ativo = true ORDER BY a.dataGeracao DESC")
+	@Query("SELECT a.id as id, a.produto.id as produtoId, a.estoque.id as estoqueId, a.dataGeracao as dataGeracao, a.fornecedorSugerido.id as fornecedorSugeridoId, a.ativo as ativo FROM AlertaJpa a WHERE a.ativo = true ORDER BY a.dataGeracao DESC")
 	List<AlertaResumo> findAlertaResumoByAtivoTrueOrderByDataGeracaoDesc();
 }
 

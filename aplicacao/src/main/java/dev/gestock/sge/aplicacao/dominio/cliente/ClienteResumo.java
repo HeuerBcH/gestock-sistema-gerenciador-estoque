@@ -1,9 +1,7 @@
 package dev.gestock.sge.aplicacao.dominio.cliente;
 
-import dev.gestock.sge.dominio.principal.cliente.ClienteId;
-
 public interface ClienteResumo {
-	ClienteId getId();
+	Long getId();
 
 	String getNome();
 

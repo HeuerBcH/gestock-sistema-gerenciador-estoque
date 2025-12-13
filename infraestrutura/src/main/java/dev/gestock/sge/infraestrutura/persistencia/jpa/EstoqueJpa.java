@@ -61,8 +61,11 @@ interface EstoqueJpaRepository extends JpaRepository<EstoqueJpa, Long> {
 
 	boolean existsByClienteIdAndNome(Long clienteId, String nome);
 
-	@Query("SELECT e FROM EstoqueJpa e WHERE e.cliente.id = :clienteId ORDER BY e.nome")
+	@Query("SELECT e.id as id, e.cliente.id as clienteId, e.nome as nome, e.endereco as endereco, e.capacidade as capacidade, e.ativo as ativo FROM EstoqueJpa e WHERE e.cliente.id = :clienteId ORDER BY e.nome")
 	List<EstoqueResumo> findEstoqueResumoByClienteIdOrderByNome(Long clienteId);
+
+	@Query("SELECT e.id as id, e.cliente.id as clienteId, e.nome as nome, e.endereco as endereco, e.capacidade as capacidade, e.ativo as ativo FROM EstoqueJpa e ORDER BY e.nome")
+	List<EstoqueResumo> findEstoqueResumoByOrderByNome();
 }
 
 @Repository
@@ -104,8 +107,6 @@ class EstoqueRepositorioImpl implements EstoqueRepositorio, EstoqueRepositorioAp
 
 	@Override
 	public List<EstoqueResumo> pesquisarResumos() {
-		return repositorio.findAll().stream()
-				.map(e -> mapeador.map(e, EstoqueResumo.class))
-				.toList();
+		return repositorio.findEstoqueResumoByOrderByNome();
 	}
 }

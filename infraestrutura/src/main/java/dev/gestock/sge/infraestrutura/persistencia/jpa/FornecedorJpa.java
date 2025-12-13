@@ -53,7 +53,7 @@ class FornecedorJpa {
 interface FornecedorJpaRepository extends JpaRepository<FornecedorJpa, Long> {
 	Optional<FornecedorJpa> findByCnpj(String cnpj);
 
-	@Query("SELECT f FROM FornecedorJpa f ORDER BY f.nome")
+	@Query("SELECT f.id as id, f.nome as nome, f.cnpj as cnpj, f.contato as contato, f.leadTimeMedio as leadTimeMedio, f.ativo as ativo FROM FornecedorJpa f ORDER BY f.nome")
 	List<FornecedorResumo> findFornecedorResumoByOrderByNome();
 }
 

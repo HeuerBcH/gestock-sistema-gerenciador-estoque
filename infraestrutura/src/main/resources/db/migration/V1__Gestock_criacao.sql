@@ -44,7 +44,7 @@ create table PRODUTO (
     CODIGO varchar(100) not null,
     NOME varchar(255) not null,
     UNIDADE_PESO varchar(50) not null,
-    PESO decimal(10, 3) not null,
+    PESO double precision not null,
     PERECIVEL boolean not null default false,
     ATIVO boolean not null default true,
     primary key (ID),
@@ -153,7 +153,7 @@ create table SALDO_PRODUTO (
 create table ROP (
     ESTOQUE_ID bigint not null,
     PRODUTO_ID bigint not null,
-    CONSUMO_MEDIO decimal(10, 3) not null,
+    CONSUMO_MEDIO double precision not null,
     LEAD_TIME_DIAS integer not null,
     ESTOQUE_SEGURANCA integer not null,
     VALOR_ROP integer not null,

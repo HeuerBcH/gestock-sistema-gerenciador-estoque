@@ -79,7 +79,7 @@ interface PedidoJpaRepository extends JpaRepository<PedidoJpa, Long> {
 	@Query("SELECT COUNT(p) > 0 FROM PedidoJpa p WHERE p.estoque.id = :estoqueId AND p.status IN ('CRIADO', 'ENVIADO', 'EM_TRANSPORTE')")
 	boolean existsPedidoPendentePorEstoqueId(Long estoqueId);
 
-	@Query("SELECT p FROM PedidoJpa p ORDER BY p.dataCriacao DESC")
+	@Query("SELECT p.id as id, p.cliente.id as clienteId, p.fornecedor.id as fornecedorId, p.dataCriacao as dataCriacao, p.dataPrevistaEntrega as dataPrevistaEntrega, p.estoque.id as estoqueId, p.status as status FROM PedidoJpa p ORDER BY p.dataCriacao DESC")
 	List<PedidoResumo> findPedidoResumoByOrderByDataCriacaoDesc();
 }
 

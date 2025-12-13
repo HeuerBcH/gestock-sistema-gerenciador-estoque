@@ -38,7 +38,7 @@ class ProdutoJpa {
 	@Column(name = "UNIDADE_PESO", nullable = false, length = 50)
 	String unidadePeso;
 
-	@Column(nullable = false, precision = 10, scale = 3)
+	@Column(nullable = false)
 	Double peso;
 
 	@Column(nullable = false)
@@ -58,7 +58,7 @@ interface ProdutoJpaRepository extends JpaRepository<ProdutoJpa, Long> {
 
 	boolean existsByCodigo(String codigo);
 
-	@Query("SELECT p FROM ProdutoJpa p ORDER BY p.nome")
+	@Query("SELECT p.id as id, p.codigo as codigo, p.nome as nome, p.unidadePeso as unidadePeso, p.peso as peso, p.perecivel as perecivel, p.ativo as ativo FROM ProdutoJpa p ORDER BY p.nome")
 	List<ProdutoResumo> findProdutoResumoByOrderByNome();
 }
 

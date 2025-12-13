@@ -1,9 +1,7 @@
 package dev.gestock.sge.aplicacao.dominio.produto;
 
-import dev.gestock.sge.dominio.principal.produto.ProdutoId;
-
 public interface ProdutoResumo {
-	ProdutoId getId();
+	Long getId();
 
 	String getCodigo();
 

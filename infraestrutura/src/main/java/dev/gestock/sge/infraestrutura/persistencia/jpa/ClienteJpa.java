@@ -52,7 +52,7 @@ interface ClienteJpaRepository extends JpaRepository<ClienteJpa, Long> {
 
 	Optional<ClienteJpa> findByEmail(String email);
 
-	@Query("SELECT c FROM ClienteJpa c ORDER BY c.nome")
+	@Query("SELECT c.id as id, c.nome as nome, c.documento as documento, c.email as email FROM ClienteJpa c ORDER BY c.nome")
 	List<ClienteResumo> findClienteResumoByOrderByNome();
 }
 

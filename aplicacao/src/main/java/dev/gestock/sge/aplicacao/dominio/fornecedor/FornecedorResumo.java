@@ -1,10 +1,7 @@
 package dev.gestock.sge.aplicacao.dominio.fornecedor;
 
-import dev.gestock.sge.dominio.principal.fornecedor.FornecedorId;
-import dev.gestock.sge.dominio.principal.fornecedor.LeadTime;
-
 public interface FornecedorResumo {
-	FornecedorId getId();
+	Long getId();
 
 	String getNome();
 
@@ -12,7 +9,7 @@ public interface FornecedorResumo {
 
 	String getContato();
 
-	LeadTime getLeadTimeMedio();
+	Integer getLeadTimeMedio();
 
 	boolean isAtivo();
 }
