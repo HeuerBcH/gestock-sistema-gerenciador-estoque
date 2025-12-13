@@ -1,6 +1,7 @@
 package dev.gestock.sge.infraestrutura.persistencia.jpa;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 
 import org.modelmapper.AbstractConverter;
@@ -398,6 +399,11 @@ class JpaMapeador extends ModelMapper {
 
 	@Override
 	public <D> D map(Object source, Class<D> destinationType) {
+		return source != null ? super.map(source, destinationType) : null;
+	}
+
+	@Override
+	public <D> D map(Object source, Type destinationType) {
 		return source != null ? super.map(source, destinationType) : null;
 	}
 }

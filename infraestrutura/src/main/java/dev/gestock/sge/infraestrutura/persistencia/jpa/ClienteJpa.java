@@ -3,6 +3,7 @@ package dev.gestock.sge.infraestrutura.persistencia.jpa;
 import java.util.List;
 import java.util.Optional;
 
+import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -87,6 +88,6 @@ class ClienteRepositorioImpl implements ClienteRepositorio {
 	@Override
 	public List<Cliente> listarTodos() {
 		var clientesJpa = repositorio.findAll();
-		return mapeador.map(clientesJpa, new org.modelmapper.TypeToken<List<Cliente>>() {}.getType());
+		return mapeador.map(clientesJpa, new TypeToken<List<Cliente>>() {}.getType());
 	}
 }
