@@ -154,6 +154,14 @@ public class Repositorio implements
         produtos.put(produto.getId(), produto);
     }
 
+    @Override
+    public void remover(ProdutoId id) {
+        if (id == null) {
+            throw new IllegalArgumentException("ID do produto não pode ser nulo");
+        }
+        produtos.remove(id);
+    }
+
     // ==================== FornecedorRepositorio ====================
 
     @Override
