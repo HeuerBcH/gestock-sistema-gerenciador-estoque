@@ -23,4 +23,7 @@ public interface ProdutoRepositorio {
     
     /** Remove um produto do sistema (H10) */
     void inativar(Produto produto);
+    
+    /** Remove fisicamente um produto do banco de dados */
+    void remover(ProdutoId id);
 }

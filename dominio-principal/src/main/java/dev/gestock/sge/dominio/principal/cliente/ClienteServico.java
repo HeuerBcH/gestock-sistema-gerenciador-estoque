@@ -1,5 +1,7 @@
 package dev.gestock.sge.dominio.principal.cliente;
 
+import java.util.List;
+
 import static org.apache.commons.lang3.Validate.notNull;
 
 /**
@@ -45,5 +47,37 @@ public class ClienteServico {
         notNull(id, "ID do cliente é obrigatório");
         return repositorio.buscarPorId(id)
                 .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado: " + id));
+    }
+
+    /**
+     * Verifica se já existe um cliente com o email informado.
+     */
+    public boolean emailJaExiste(String email) {
+        notNull(email, "Email é obrigatório");
+        return repositorio.buscarPorEmail(email).isPresent();
+    }
+
+    /**
+     * Verifica se já existe um cliente com o documento informado.
+     */
+    public boolean documentoJaExiste(String documento) {
+        notNull(documento, "Documento é obrigatório");
+        return repositorio.buscarPorDocumento(documento).isPresent();
+    }
+
+    /**
+     * Busca um cliente pelo email.
+     */
+    public Cliente buscarPorEmail(String email) {
+        notNull(email, "Email é obrigatório");
+        return repositorio.buscarPorEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado com email: " + email));
+    }
+
+    /**
+     * Lista todos os clientes cadastrados.
+     */
+    public List<Cliente> listarTodos() {
+        return repositorio.listarTodos();
     }
 }

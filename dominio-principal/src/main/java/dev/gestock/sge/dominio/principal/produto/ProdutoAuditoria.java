@@ -34,5 +34,11 @@ public interface ProdutoAuditoria {
      * @param produto O produto que foi inativado
      */
     void registrarInativacao(Produto produto);
+    
+    /**
+     * Registra a operação de remover um produto.
+     * @param produto O produto que foi removido
+     */
+    void registrarRemocao(Produto produto);
 }
 

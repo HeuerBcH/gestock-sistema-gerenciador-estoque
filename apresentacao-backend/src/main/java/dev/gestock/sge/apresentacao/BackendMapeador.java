@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 
 import dev.gestock.sge.dominio.principal.cliente.ClienteId;
 import dev.gestock.sge.dominio.principal.estoque.EstoqueId;
+import dev.gestock.sge.dominio.principal.produto.ProdutoId;
 
 @Component
 public class BackendMapeador {
@@ -22,6 +23,9 @@ public class BackendMapeador {
 			if (destinationType == ClienteId.class) {
 				return (D) new ClienteId(longValue);
 			}
+			if (destinationType == ProdutoId.class) {
+				return (D) new ProdutoId(longValue);
+			}
 		}
 
 		// Value Object -> Long
@@ -31,6 +35,9 @@ public class BackendMapeador {
 			}
 			if (source instanceof ClienteId clienteId) {
 				return (D) Long.valueOf(clienteId.getId());
+			}
+			if (source instanceof ProdutoId produtoId) {
+				return (D) Long.valueOf(produtoId.getId());
 			}
 		}
 

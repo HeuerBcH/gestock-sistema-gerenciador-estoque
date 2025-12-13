@@ -6,8 +6,10 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import dev.gestock.sge.aplicacao.dominio.produto.ProdutoRepositorioAplicacao;
 import dev.gestock.sge.aplicacao.dominio.produto.ProdutoResumo;
@@ -60,6 +62,14 @@ interface ProdutoJpaRepository extends JpaRepository<ProdutoJpa, Long> {
 
 	@Query("SELECT p FROM ProdutoJpa p ORDER BY p.nome")
 	List<ProdutoResumo> findProdutoResumoByOrderByNome();
+
+	@Query("SELECT p FROM ProdutoJpa p WHERE p.id = :id")
+	Optional<ProdutoResumo> findProdutoResumoById(Long id);
+
+	@Modifying
+	@Transactional
+	@Query(value = "DELETE FROM gestock.COTACAO WHERE PRODUTO_ID = :produtoId", nativeQuery = true)
+	void deletarCotacoesPorProdutoId(Long produtoId);
 }
 
 @Repository
@@ -101,7 +111,58 @@ class ProdutoRepositorioImpl implements ProdutoRepositorio, ProdutoRepositorioAp
 	}
 
 	@Override
+	public void remover(ProdutoId id) {
+		repositorio.deletarCotacoesPorProdutoId(id.getId());
+		repositorio.deleteById(id.getId());
+	}
+
+	@Override
 	public List<ProdutoResumo> pesquisarResumos() {
 		return repositorio.findProdutoResumoByOrderByNome();
+	}
+	
+	@Override
+	public Optional<ProdutoResumo> buscarResumoPorId(ProdutoId id) {
+		return repositorio.findById(id.getId())
+				.map(this::criarProdutoResumo);
+	}
+	
+	private ProdutoResumo criarProdutoResumo(ProdutoJpa p) {
+		return new ProdutoResumo() {
+			@Override
+			public Long getId() {
+				return p.id;
+			}
+
+			@Override
+			public String getCodigo() {
+				return p.codigo;
+			}
+
+			@Override
+			public String getNome() {
+				return p.nome;
+			}
+
+			@Override
+			public String getUnidadePeso() {
+				return p.unidadePeso;
+			}
+
+			@Override
+			public double getPeso() {
+				return p.peso != null ? p.peso.doubleValue() : 0.0;
+			}
+
+			@Override
+			public boolean isPerecivel() {
+				return p.perecivel;
+			}
+
+			@Override
+			public boolean isAtivo() {
+				return p.ativo;
+			}
+		};
 	}
 }

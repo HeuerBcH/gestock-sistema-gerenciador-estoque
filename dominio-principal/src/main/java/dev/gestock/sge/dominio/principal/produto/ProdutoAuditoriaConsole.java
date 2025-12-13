@@ -53,5 +53,15 @@ public class ProdutoAuditoriaConsole implements ProdutoAuditoria {
                 produto.getCodigo(),
                 produto.getNome());
     }
+    
+    @Override
+    public void registrarRemocao(Produto produto) {
+        String timestamp = LocalDateTime.now().format(FORMATTER);
+        System.out.printf("[AUDITORIA PRODUTO] %s | REMOCAO | ProdutoId=%s | Codigo=%s | Nome=%s%n",
+                timestamp,
+                produto.getId(),
+                produto.getCodigo(),
+                produto.getNome());
+    }
 }
 

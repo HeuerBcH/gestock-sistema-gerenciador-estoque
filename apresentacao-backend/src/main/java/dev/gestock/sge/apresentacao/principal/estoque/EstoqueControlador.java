@@ -119,8 +119,7 @@ public class EstoqueControlador {
 			}
 
 			var estoqueId = EstoqueId.temporario();
-			Integer capacidadeValue = request.capacidade;
-			int capacidade = (capacidadeValue != null && capacidadeValue > 0) ? capacidadeValue.intValue() : 0;
+			int capacidade = (request.capacidade != null) ? request.capacidade.intValue() : 0;
 			var estoque = new dev.gestock.sge.dominio.principal.estoque.Estoque(
 				estoqueId,
 				clienteId,
@@ -170,7 +169,10 @@ public class EstoqueControlador {
 		try {
 			var estoque = estoqueServico.buscarPorId(estoqueId);
 			
-			estoqueServico.atualizar(estoqueId, request.nome, request.endereco, request.capacidade);
+			Integer capacidade = request.capacidade;
+			String nome = (request.nome != null && !request.nome.isBlank()) ? request.nome : null;
+			String endereco = (request.endereco != null && !request.endereco.isBlank()) ? request.endereco : null;
+			estoqueServico.atualizar(estoqueId, nome, endereco, capacidade);
 			
 			if (request.ativo != null) {
 				if (request.ativo && !estoque.isAtivo()) {

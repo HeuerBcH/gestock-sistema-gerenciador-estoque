@@ -1,9 +1,9 @@
 package dev.gestock.sge.dominio.principal.produto;
 
+import static org.apache.commons.lang3.Validate.notNull;
+
 import dev.gestock.sge.dominio.principal.estoque.EstoqueRepositorio;
 import dev.gestock.sge.dominio.principal.pedido.PedidoRepositorio;
-
-import static org.apache.commons.lang3.Validate.*;
 
 /**
  * Serviço de domínio para gerenciamento de produtos.
@@ -88,5 +88,44 @@ public class ProdutoServico {
     public void salvar(Produto produto) {
         notNull(produto, "Produto é obrigatório");
         produtoRepositorio.salvar(produto);
+    }
+    
+    /**
+     * Busca um produto pelo seu identificador.
+     */
+    public Produto buscarPorId(ProdutoId id) {
+        notNull(id, "ID do produto é obrigatório");
+        return produtoRepositorio.buscarPorId(id)
+                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado: " + id));
+    }
+    
+    /**
+     * Busca um produto pelo código.
+     */
+    public Produto buscarPorCodigo(CodigoProduto codigo) {
+        notNull(codigo, "Código do produto é obrigatório");
+        return produtoRepositorio.buscarPorCodigo(codigo)
+                .orElseThrow(() -> new IllegalArgumentException("Produto não encontrado com código: " + codigo));
+    }
+    
+    /**
+     * Remove fisicamente um produto do sistema.
+     * Regra: Só permite remover produtos inativos.
+     */
+    public void remover(ProdutoId id) {
+        notNull(id, "ID do produto é obrigatório");
+        
+        var produtoOpt = produtoRepositorio.buscarPorId(id);
+        if (produtoOpt.isEmpty()) {
+            throw new IllegalArgumentException("Produto não encontrado: " + id);
+        }
+        
+        var produto = produtoOpt.get();
+        
+        if (produto.isAtivo()) {
+            throw new IllegalStateException("Não é possível remover um produto ativo. Inative o produto primeiro.");
+        }
+        
+        produtoRepositorio.remover(id);
     }
 }

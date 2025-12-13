@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import dev.gestock.sge.apresentacao.BackendMapeador;
 import dev.gestock.sge.dominio.principal.cliente.Cliente;
 import dev.gestock.sge.dominio.principal.cliente.ClienteId;
-import dev.gestock.sge.dominio.principal.cliente.ClienteRepositorio;
 import dev.gestock.sge.dominio.principal.cliente.ClienteServico;
 
 @RestController
@@ -28,16 +27,13 @@ public class ClienteControlador {
 	private ClienteServico clienteServico;
 
 	@Autowired
-	private ClienteRepositorio clienteRepositorio;
-
-	@Autowired
 	private BackendMapeador mapeador;
 
 	private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
 	@GetMapping
 	public ResponseEntity<List<ClienteResponse>> listar() {
-		var clientes = clienteRepositorio.listarTodos();
+		var clientes = clienteServico.listarTodos();
 		List<ClienteResponse> responses = clientes.stream()
 			.map(cliente -> {
 				ClienteResponse response = new ClienteResponse();
@@ -54,37 +50,23 @@ public class ClienteControlador {
 	@PostMapping
 	public ResponseEntity<?> criar(@RequestBody ClienteRequest request) {
 		try {
-			// Verifica se o email já existe
-			if (clienteRepositorio.buscarPorEmail(request.email).isPresent()) {
+			if (clienteServico.emailJaExiste(request.email)) {
 				return ResponseEntity.badRequest()
 					.body(new ErrorResponse("Email já cadastrado"));
 			}
 
-			// Verifica se o documento já existe
-			if (clienteRepositorio.buscarPorDocumento(request.documento).isPresent()) {
+			if (clienteServico.documentoJaExiste(request.documento)) {
 				return ResponseEntity.badRequest()
 					.body(new ErrorResponse("CPF/CNPJ já cadastrado"));
 			}
 
-			// Faz hash da senha
 			String senhaHash = passwordEncoder.encode(request.senha);
-
-			// Cria um Cliente temporário (ID será gerado pelo JPA ao salvar)
 			ClienteId clienteIdTemp = ClienteId.temporario();
 			Cliente cliente = new Cliente(clienteIdTemp, request.nome, request.documento, request.email, senhaHash);
 
-			// Salva o cliente (o JPA vai gerar um novo ID)
 			clienteServico.registrarCliente(cliente);
 
-			// Busca o cliente salvo para retornar com o ID correto
-			var clienteSalvo = clienteRepositorio.buscarPorEmail(request.email);
-			
-			if (clienteSalvo.isEmpty()) {
-				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body(new ErrorResponse("Erro ao criar cliente"));
-			}
-
-			Cliente clienteCriado = clienteSalvo.get();
+			Cliente clienteCriado = clienteServico.buscarPorEmail(request.email);
 			ClienteResponse response = new ClienteResponse();
 			response.id = mapeador.map(clienteCriado.getId(), Long.class);
 			response.nome = clienteCriado.getNome();

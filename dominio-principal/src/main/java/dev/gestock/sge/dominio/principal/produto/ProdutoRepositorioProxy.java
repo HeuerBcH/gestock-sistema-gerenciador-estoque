@@ -128,6 +128,27 @@ public class ProdutoRepositorioProxy implements ProdutoRepositorio {
         cachePorCodigo.put(new CodigoProduto(produto.getCodigo()), produto.getId());
     }
     
+    @Override
+    public void remover(ProdutoId id) {
+        if (id == null) {
+            throw new IllegalArgumentException("ID do produto não pode ser nulo");
+        }
+        
+        // Busca o produto antes de remover para invalidar cache
+        Optional<Produto> produtoOpt = buscarPorId(id);
+        if (produtoOpt.isPresent()) {
+            Produto produto = produtoOpt.get();
+            // Remove do repositório real
+            alvo.remover(id);
+            // Remove do cache
+            cachePorId.remove(id);
+            cachePorCodigo.remove(new CodigoProduto(produto.getCodigo()));
+        } else {
+            // Se não está no cache, apenas remove do repositório
+            alvo.remover(id);
+        }
+    }
+    
     /**
      * Limpa o cache (útil para testes ou quando necessário invalidar cache manualmente).
      */

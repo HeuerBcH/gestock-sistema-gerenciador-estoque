@@ -66,5 +66,15 @@ public class ProdutoRepositorioDecorator implements ProdutoRepositorio {
         auditoria.registrarInativacao(produto);
         alvo.inativar(produto);
     }
+    
+    @Override
+    public void remover(ProdutoId id) {
+        // Busca o produto antes de remover para auditoria
+        Optional<Produto> produtoOpt = alvo.buscarPorId(id);
+        if (produtoOpt.isPresent()) {
+            auditoria.registrarRemocao(produtoOpt.get());
+        }
+        alvo.remover(id);
+    }
 }
 
