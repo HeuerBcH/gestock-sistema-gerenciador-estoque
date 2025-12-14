@@ -1,0 +1,1 @@
+package dev.gestock.sge.infraestrutura.persistencia.jpa;

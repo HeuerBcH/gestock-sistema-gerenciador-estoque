@@ -1,0 +1,11 @@
+CREATE TABLE PONTO_RESSUPRIMENTO (
+    ID int generated always as identity not null,
+    ESTOQUE_ID int not null,
+    PRODUTO_ID int not null,
+    ESTOQUE_SEGURANCA int not null,
+    PRIMARY KEY (ID),
+    FOREIGN KEY (ESTOQUE_ID) REFERENCES ESTOQUE(ID),
+    FOREIGN KEY (PRODUTO_ID) REFERENCES PRODUTO(ID),
+    UNIQUE (ESTOQUE_ID, PRODUTO_ID)
+);
+
