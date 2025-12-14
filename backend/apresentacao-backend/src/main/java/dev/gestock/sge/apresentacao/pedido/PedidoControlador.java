@@ -13,7 +13,7 @@ import dev.gestock.sge.aplicacao.pedido.PedidoResumo;
 import dev.gestock.sge.aplicacao.pedido.PedidoServicoAplicacao;
 import dev.gestock.sge.dominio.pedido.Pedido;
 import dev.gestock.sge.dominio.pedido.PedidoId;
-import dev.gestock.sge.dominio.pedido.PedidoServico;
+import dev.gestock.sge.dominio.pedido.IPedidoServico;
 import dev.gestock.sge.dominio.pedido.StatusPedido;
 import dev.gestock.sge.apresentacao.BackendMapeador;
 import dev.gestock.sge.apresentacao.pedido.PedidoFormulario.PedidoDto;
@@ -24,7 +24,7 @@ import dev.gestock.sge.apresentacao.pedido.PedidoFormulario.ItemPedidoDto;
 @RequestMapping("backend/pedido")
 class PedidoControlador {
 
-	private @Autowired PedidoServico pedidoServico;
+	private @Autowired IPedidoServico pedidoServico;
 	private @Autowired PedidoServicoAplicacao pedidoServicoAplicacao;
 	private @Autowired CotacaoRepositorioAplicacao cotacaoRepositorio;
 	private @Autowired BackendMapeador mapeador;

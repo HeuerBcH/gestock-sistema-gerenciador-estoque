@@ -3,7 +3,32 @@ package dev.gestock.sge.dominio.estoque;
 import static org.apache.commons.lang3.Validate.*;
 import dev.gestock.sge.dominio.comum.RegraVioladaException;
 
-public class EstoqueServico {
+/**
+ * Implementação base do serviço de estoque.
+ * 
+ * Esta classe implementa IEstoqueServico e pode ser decorada usando
+ * o padrão Decorator através de EstoqueServicoDecorator.
+ * 
+ * Pattern: Decorator (Componente Concreto)
+ * Funcionalidade: Gerenciar Estoques (SILVIO)
+ * 
+ * No padrão Decorator, esta classe representa o "Componente Concreto",
+ * que é a implementação base que pode ser decorada dinamicamente.
+ * Decorators podem adicionar funcionalidades (como logging, cache, validações extras)
+ * sem modificar esta implementação.
+ * 
+ * Exemplo de uso com decorator:
+ * <pre>
+ * IEstoqueServico servicoBase = new EstoqueServico(repositorio);
+ * IEstoqueServico servicoComLog = new EstoqueServicoComLogging(servicoBase);
+ * servicoComLog.salvar(estoque); // Usa o serviço com logging automático
+ * </pre>
+ * 
+ * @see IEstoqueServico Interface comum do padrão Decorator
+ * @see EstoqueServicoDecorator Classe base abstrata para decorators
+ * @see EstoqueServicoComLogging Decorator concreto que adiciona logging
+ */
+public class EstoqueServico implements IEstoqueServico {
 	private final EstoqueRepositorio repositorio;
 
 	public EstoqueServico(EstoqueRepositorio repositorio) {

@@ -24,7 +24,22 @@ import dev.gestock.sge.dominio.produto.Produto;
 import dev.gestock.sge.dominio.produto.ProdutoId;
 import dev.gestock.sge.dominio.produto.ProdutoRepositorio;
 
-public class PedidoServico {
+/**
+ * Serviço de domínio para gerenciar pedidos. Este é o Subject Real do padrão Proxy,
+ * implementando a interface IPedidoServico e contendo toda a lógica de negócio
+ * para criação, confirmação, cancelamento e alteração de status de pedidos.
+ *
+ * <p>O padrão Proxy permite que um PedidoServicoProxy controle o acesso a este
+ * serviço, adicionando funcionalidades como controle de acesso e auditoria sem
+ * modificar o código desta classe.</p>
+ *
+ * Pattern: Proxy (Subject Real)
+ * Funcionalidade: Gerenciar Pedidos (BERNARDO)
+ *
+ * @see IPedidoServico Interface comum para o serviço de pedidos
+ * @see PedidoServicoProxy Proxy que adiciona controle de acesso e auditoria
+ */
+public class PedidoServico implements IPedidoServico {
 	private final PedidoRepositorio repositorio;
 	private final FornecedorRepositorio fornecedorRepositorio;
 	private final ProdutoRepositorio produtoRepositorio;

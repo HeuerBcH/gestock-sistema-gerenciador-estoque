@@ -10,13 +10,47 @@ import dev.gestock.sge.dominio.movimentacao.MovimentacaoServico;
 import dev.gestock.sge.dominio.produto.ProdutoRepositorio;
 
 /**
- * Proxy para PedidoServico que adiciona controle de acesso e validações adicionais.
- * 
- * Pattern: Proxy
+ * Proxy para IPedidoServico que adiciona controle de acesso e auditoria/logging
+ * sem modificar o código do objeto real (PedidoServico).
+ *
+ * <p>O padrão Proxy permite controlar o acesso ao objeto real, adicionando
+ * funcionalidades extras como controle de acesso, logging, cache, lazy loading,
+ * etc., mantendo a mesma interface do objeto real.</p>
+ *
+ * <p>Este proxy implementa IPedidoServico, permitindo substituição transparente
+ * com PedidoServico. O cliente não precisa saber se está usando o objeto real
+ * ou o proxy.</p>
+ *
+ * <p><strong>Funcionalidades adicionadas pelo Proxy:</strong></p>
+ * <ul>
+ *   <li><strong>Controle de Acesso:</strong> Permite habilitar/desabilitar o acesso
+ *       ao serviço através do método {@link #permitirAcesso(boolean)}</li>
+ *   <li><strong>Auditoria/Logging:</strong> Registra todas as operações realizadas
+ *       para fins de auditoria e rastreabilidade</li>
+ * </ul>
+ *
+ * <p><strong>Exemplo de uso:</strong></p>
+ * <pre>{@code
+ * // Criar o proxy
+ * IPedidoServico proxy = new PedidoServicoProxy(repositorio, ...);
+ *
+ * // Controlar acesso
+ * proxy.permitirAcesso(true);
+ * Pedido pedido = proxy.criar(novoPedido); // Operação com controle de acesso e auditoria
+ *
+ * // Bloquear acesso temporariamente
+ * proxy.permitirAcesso(false);
+ * proxy.criar(pedido); // Lança IllegalStateException
+ * }</pre>
+ *
+ * Pattern: Proxy (Proxy)
  * Funcionalidade: Gerenciar Pedidos (BERNARDO)
+ *
+ * @see IPedidoServico Interface comum para o serviço de pedidos
+ * @see PedidoServico Implementação real do serviço (Subject Real)
  */
-public class PedidoServicoProxy {
-	private final PedidoServico servicoReal;
+public class PedidoServicoProxy implements IPedidoServico {
+	private final IPedidoServico servicoReal;
 	private boolean acessoPermitido = true;
 
 	public PedidoServicoProxy(PedidoRepositorio repositorio, FornecedorRepositorio fornecedorRepositorio,
@@ -33,13 +67,17 @@ public class PedidoServicoProxy {
 		notNull(movimentacaoServico, "O serviço de movimentação não pode ser nulo");
 		notNull(barramento, "O barramento de eventos não pode ser nulo");
 
-		// Cria o serviço real (lazy initialization poderia ser usado aqui)
+		// Cria o serviço real e armazena como IPedidoServico para permitir substituição transparente
+		// Em uma implementação mais avançada, poderia usar lazy initialization aqui
 		this.servicoReal = new PedidoServico(repositorio, fornecedorRepositorio, produtoRepositorio,
 				estoqueRepositorio, cotacaoRepositorio, cotacaoServico, movimentacaoServico, barramento);
 	}
 
 	/**
-	 * Controla o acesso ao serviço.
+	 * Controla o acesso ao serviço. Quando o acesso está desabilitado,
+	 * todas as operações lançam IllegalStateException.
+	 *
+	 * @param permitido true para permitir acesso, false para bloquear
 	 */
 	public void permitirAcesso(boolean permitido) {
 		this.acessoPermitido = permitido;
