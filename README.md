@@ -66,6 +66,12 @@ Cada classe de step (`Funcionalidade`) implementa os comportamentos descritos no
 
 ---
 
+## 8. Estruturação de pastas
+
+O projeto segue a estrutura de pastas recomendada pelo professor na pasta backend. Já a pasta frontend foi criada para armazenar a estrutura de código necessária para disponibilizar a interface da aplicação.
+
+---
+
 ## Autores
 
 Projeto desenvolvido no contexto da disciplina **Requisitos, Projeto de Software e Validação** – CESAR School.
