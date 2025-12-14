@@ -1,6 +1,6 @@
-# 🚀 Como Rodar o Projeto Gestock
+# Como Rodar o Projeto Gestock
 
-## ✅ Pré-requisitos
+## Pré-requisitos
 
 - **Java 17+** (JDK)
 - **Maven 3.8+**
@@ -15,9 +15,9 @@ docker --version
 
 ---
 
-## 🔨 Compilar o Projeto
+## Compilar o Projeto
 
-Na raiz do projeto:
+Na pasta backend:
 
 ```bash
 mvn clean install -DskipTests
@@ -27,7 +27,7 @@ Isso compila todos os módulos Maven e gera os JARs.
 
 ---
 
-## 🗄️ Subir o Banco de Dados
+## Subir o Banco de Dados
 
 ```bash
 docker compose up -d
@@ -47,7 +47,7 @@ docker ps
 
 ---
 
-## 🖥️ Rodar o Backend
+## Rodar o Backend
 
 ### Opção 1: Via Maven (Recomendado)
 
@@ -67,7 +67,18 @@ Abra e execute a classe:
 
 ---
 
-## 🧪 Rodar os Testes
+## Rodar o Frontend
+
+Em outra instância do terminal
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+---
+## Rodar os Testes
 
 ### Todos os testes:
 ```bash
@@ -90,7 +101,7 @@ mvn test -pl apresentacao-backend
 
 ---
 
-## 🛑 Parar os Serviços
+## Parar os Serviços
 
 **Backend:** Pressione `Ctrl+C` no terminal
 

@@ -6,17 +6,17 @@
 	
 	<parent>
 		<groupId>dev.gestock.sge</groupId>
-		<artifactId>sgb-pai</artifactId>
+		<artifactId>sge-pai</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	    <relativePath>../pai</relativePath>
 	</parent>
 
-	<artifactId>sgb-aplicacao</artifactId>
+	<artifactId>sge-aplicacao</artifactId>
 
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>sgb-dominio-principal</artifactId>
+			<artifactId>sge-dominio-principal</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>

@@ -6,19 +6,19 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="sgb-aplicacao" />
-        <module name="sgb-infraestrutura" />
-        <module name="sgb-apresentacao-backend" />
-        <module name="sgb-dominio-principal" />
+        <module name="sge-aplicacao" />
+        <module name="sge-infraestrutura" />
+        <module name="sge-apresentacao-backend" />
+        <module name="sge-dominio-principal" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="sgb-aplicacao" options="-parameters" />
-      <module name="sgb-apresentacao-backend" options="-parameters" />
-      <module name="sgb-dominio-principal" options="-parameters" />
-      <module name="sgb-infraestrutura" options="-parameters" />
+      <module name="sge-aplicacao" options="-parameters" />
+      <module name="sge-apresentacao-backend" options="-parameters" />
+      <module name="sge-dominio-principal" options="-parameters" />
+      <module name="sge-infraestrutura" options="-parameters" />
     </option>
   </component>
 </project>

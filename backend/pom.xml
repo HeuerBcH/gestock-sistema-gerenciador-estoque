@@ -5,7 +5,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>dev.gestock.sge</groupId>
-	<artifactId>sgb-modulos</artifactId>
+	<artifactId>sge-modulos</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
 	<packaging>pom</packaging>

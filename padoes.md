@@ -115,11 +115,11 @@ Cotacao maisBarata = servico.obterMaisVantajosa(produtoId, new CotacaoSelecaoPor
 
 Todos os 5 padrões de design foram implementados conforme solicitado:
 
-1. ✅ **Decorator** - SILVIO (Gerenciar Estoques)
-2. ✅ **Template Method** - RONALDO (Gerenciar Produtos)
-3. ✅ **Proxy** - BERNARDO (Gerenciar Pedidos)
-4. ✅ **Observer** - RODRIGO (Emitir Alertas de Estoque Baixo)
-5. ✅ **Strategy** - EDUARDO (Selecionar Cotação Mais Vantajosa)
+1. **Decorator** - SILVIO (Gerenciar Estoques)
+2. **Template Method** - RONALDO (Gerenciar Produtos)
+3. **Proxy** - BERNARDO (Gerenciar Pedidos)
+4. **Observer** - RODRIGO (Emitir Alertas de Estoque Baixo)
+5. **Strategy** - EDUARDO (Selecionar Cotação Mais Vantajosa)
 
 Cada padrão foi aplicado em uma funcionalidade diferente, sem repetição, e todos os padrões solicitados foram implementados.
 
