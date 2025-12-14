@@ -72,6 +72,10 @@ O projeto segue a estrutura de pastas recomendada pelo professor na pasta backen
 
 ---
 
+## 9. Sceencast da aplicação
+
+Link para acesso ao screencast https://youtu.be/tCxSNgAJKMM
+
 ## Autores
 
 Projeto desenvolvido no contexto da disciplina **Requisitos, Projeto de Software e Validação** – CESAR School.
